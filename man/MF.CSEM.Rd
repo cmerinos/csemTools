@@ -59,7 +59,11 @@ The MF-CSEM is calculated using a multi-step procedure:
 \examples{
 # Example with a simulated dataset
 set.seed(123)
+
+# Artificial data
 data <- data.frame(matrix(sample(3:5, 100 * 10, replace = TRUE), ncol = 10))
+
+Run
 MF.CSEM(half1 = 1:5, half2 = 6:10, data = data, reliability.coef = 0.85,
         n.items = 10, min.score.item = 1, max.score.item = 5)
 
