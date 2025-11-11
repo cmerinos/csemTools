@@ -33,13 +33,13 @@
 #'
 #' @examples
 #' # Example usage with a polytomous scale (0 to 4 per item)
-#' binom.CSEM(score = c(15, 20, 25), score.type = "poly", nitems = 12, min.resp = 0, max.resp = 4)
+#' csemBinom(score = c(15, 20, 25), score.type = "poly", nitems = 12, min.resp = 0, max.resp = 4)
 #'
 #' # Example usage with a dichotomous scale (0/1 per item)
-#' binom.CSEM(score = c(5, 7, 9), score.type = "dich", nitems = 12, min.resp = 0, max.resp = 1)
+#' csemBinom(score = c(5, 7, 9), score.type = "dich", nitems = 12, min.resp = 0, max.resp = 1)
 #'
 #' @export
-binom.CSEM <- function(score, score.type = c("poly", "dich"), nitems, min.resp, max.resp) {
+csemBinom <- function(score, score.type = c("poly", "dich"), nitems, min.resp, max.resp) {
 
   # Validate score type
   score.type <- match.arg(score.type)
