@@ -36,9 +36,9 @@ MF.CSEM(
 \value{
 A list containing three data frames:
 \itemize{
-  \item \strong{MF.CSEM.parameters}: Summary statistics of the MF-CSEM.
-  \item \strong{MF.CSEM.score}: MF-CSEM calculated with observed scores.
-  \item \strong{MF.CSEM.ETS}: MF-CSEM calculated with estimated true scores (ETS).
+\item \strong{MF.CSEM.parameters}: Summary statistics of the MF-CSEM.
+\item \strong{MF.CSEM.score}: MF-CSEM calculated with observed scores.
+\item \strong{MF.CSEM.ETS}: MF-CSEM calculated with estimated true scores (ETS).
 }
 }
 \description{
@@ -48,11 +48,13 @@ level, based on the selected halves of items.
 }
 \details{
 The MF-CSEM is calculated using a multi-step procedure:
-1. Compute squared adjusted differences.
-2. Fit a polynomial regression model to predict the squared differences from the total scores.
-3. Calculate the MF-CSEM for each possible score.
-4. Adjust the CSEM values based on the chosen reliability coefficient.
-5. Compute confidence intervals for the CSEM.
+\enumerate{
+\item Compute squared adjusted differences.
+\item Fit a polynomial regression model to predict the squared differences from the total scores.
+\item Calculate the MF-CSEM for each possible score.
+\item Adjust the CSEM values based on the chosen reliability coefficient.
+\item Compute confidence intervals for the CSEM.
+}
 }
 \examples{
 # Example with a simulated dataset

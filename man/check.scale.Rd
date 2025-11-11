@@ -16,34 +16,37 @@ check.scale(half1, half2, conf = 0.95)
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Test}: The name of the statistical test.
-  \item \code{Statistic}: The test statistic value.
-  \item \code{p_value}: The p-value associated with the Bonett-Seier test.
-  \item \code{CI_lower}: The lower bound of the confidence interval for lnVR.
-  \item \code{CI_upper}: The upper bound of the confidence interval for lnVR.
-  \item \code{ES}: The estimated log-transformed variability ratio (lnVR).
+\item \code{Test}: The name of the statistical test.
+\item \code{Statistic}: The test statistic value.
+\item \code{p_value}: The p-value associated with the Bonett-Seier test.
+\item \code{CI_lower}: The lower bound of the confidence interval for lnVR.
+\item \code{CI_upper}: The upper bound of the confidence interval for lnVR.
+\item \code{ES}: The estimated log-transformed variability ratio (lnVR).
 }
 }
 \description{
 This function evaluates differences in variability between two test halves using:
-
-- **Bonett-Seier Test**: A statistical test for comparing variances in paired samples.
-- **Log-Transformed Variability Ratio (lnVR)**: A standardized effect size for variability differences.
+\itemize{
+\item \strong{Bonett-Seier Test}: A statistical test for comparing variances in paired samples.
+\item \strong{Log-Transformed Variability Ratio (lnVR)}: A standardized effect size for variability differences.
+}
 }
 \details{
 This function computes two key statistics to assess variability differences:
+\itemize{
+\item \strong{Bonett-Seier Test}: A robust method for testing variance equality between paired samples.
+The test statistic follows an asymptotic chi-squared distribution.
+\item \strong{Log-Transformed Variability Ratio (lnVR)}: Defined as:
 
-- **Bonett-Seier Test**: A robust method for testing variance equality between paired samples.
-  The test statistic follows an asymptotic chi-squared distribution.
+\deqn{\ln(VR) = \ln\left(\frac{SD_1}{SD_2}\right)}
 
-- **Log-Transformed Variability Ratio (lnVR)**: Defined as:
+where:
+\itemize{
+\item \eqn{SD_1} and \eqn{SD_2} are the standard deviations of the two halves.
+}
 
-  \deqn{\ln(VR) = \ln\left(\frac{SD_1}{SD_2}\right)}
-
-  where:
-  - \eqn{SD_1} and \eqn{SD_2} are the standard deviations of the two halves.
-
-  The function estimates **confidence intervals for lnVR** using `metafor::escalc()`.
+The function estimates \strong{confidence intervals for lnVR} using \code{metafor::escalc()}.
+}
 }
 \examples{
 # Simulated test halves
@@ -57,8 +60,8 @@ check.scale(half1, half2, conf = 0.95)
 }
 \references{
 Bonett, D. G., & Seier, E. (2002). Confidence intervals for variance and standard deviation
-ratios. *Computational Statistics & Data Analysis, 40*(3), 603-608. \doi{10.1016/S0167-9473(02)00069-3}
+ratios. \emph{Computational Statistics & Data Analysis, 40}(3), 603-608. \doi{10.1016/S0167-9473(02)00069-3}
 
 Nakagawa, S., & Cuthill, I. C. (2007). Effect size, confidence interval and statistical significance:
-A practical guide for biologists. *Biological Reviews, 82*(4), 591-605. \doi{10.1111/j.1469-185X.2007.00027.x}
+A practical guide for biologists. \emph{Biological Reviews, 82}(4), 591-605. \doi{10.1111/j.1469-185X.2007.00027.x}
 }

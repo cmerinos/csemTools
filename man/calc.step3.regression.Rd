@@ -14,17 +14,17 @@ calc.step3.regression(squared.diff, half1, half2)
 \item{half2}{A matrix or data frame containing the responses for the second half of the test.}
 }
 \value{
-A fitted polynomial regression model of class `"lm"`, which can be used to predict
+A fitted polynomial regression model of class \code{"lm"}, which can be used to predict
 squared adjusted differences for any test score.
 }
 \description{
-This function fits a **third-degree polynomial regression model** to predict the squared adjusted
+This function fits a \strong{third-degree polynomial regression model} to predict the squared adjusted
 differences as a function of the total test score. This step is essential in the calculation of the
-**Mollenkopf-Feldt Conditional Standard Error of Measurement (MF-CSEM)**, as it allows estimating
+\strong{Mollenkopf-Feldt Conditional Standard Error of Measurement (MF-CSEM)}, as it allows estimating
 CSEM values for any possible score level.
 }
 \details{
-This function is part of the MF-CSEM procedure, specifically implementing **Step 3**, where
+This function is part of the MF-CSEM procedure, specifically implementing \strong{Step 3}, where
 a polynomial regression model is fitted to predict the squared adjusted differences using
 the total observed test score.
 
@@ -33,11 +33,13 @@ The model equation is as follows:
 \deqn{ Y = \beta_1 X + \beta_2 X^2 + \beta_3 X^3 }
 
 where:
-- \( Y \) represents the squared adjusted differences.
-- \( X \) is the total test score (sum of both halves).
-- \( \beta_1, \beta_2, \beta_3 \) are the regression coefficients.
+\itemize{
+\item \( Y \) represents the squared adjusted differences.
+\item \( X \) is the total test score (sum of both halves).
+\item \( \beta_1, \beta_2, \beta_3 \) are the regression coefficients.
+}
 
-The polynomial regression is **forced through the origin (-1 constraint)** to prevent
+The polynomial regression is \strong{forced through the origin (-1 constraint)} to prevent
 unnecessary bias in the prediction of squared differences.
 }
 \examples{
@@ -57,12 +59,16 @@ summary(model)
 
 }
 \references{
-- Mollenkopf, W. G. (1950). The use of item variance in estimating test reliability.
-  *Psychometrika, 15*(3), 267-273. https://doi.org/10.1007/BF02288893
-- Feldt, L. S., & Qualls, A. L. (1996). A procedure for estimating the standard error of
-  measurement for a test score. *Journal of Educational Measurement, 33*(2), 157-172.
+\itemize{
+\item Mollenkopf, W. G. (1950). The use of item variance in estimating test reliability.
+\emph{Psychometrika, 15}(3), 267-273. https://doi.org/10.1007/BF02288893
+\item Feldt, L. S., & Qualls, A. L. (1996). A procedure for estimating the standard error of
+measurement for a test score. \emph{Journal of Educational Measurement, 33}(2), 157-172.
+}
 }
 \seealso{
-- \code{\link{MF.CSEM}} for the complete Mollenkopf-Feldt CSEM procedure.
-- \code{\link{calc.adjusted.diff}} for calculating squared adjusted differences.
+\itemize{
+\item \code{\link{MF.CSEM}} for the complete Mollenkopf-Feldt CSEM procedure.
+\item \code{\link{calc.adjusted.diff}} for calculating squared adjusted differences.
+}
 }

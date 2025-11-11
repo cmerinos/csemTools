@@ -18,11 +18,11 @@ check.alpha(half1, half2, B = 1000, conf = 0.95)
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Half}: Indicates which half was analyzed ("Half 1" or "Half 2").
-  \item \code{Coefficient}: The name of the reliability coefficient ("alpha").
-  \item \code{Estimate}: The estimated Cronbach's alpha.
-  \item \code{CI.lower}: The lower bound of the confidence interval.
-  \item \code{CI.upper}: The upper bound of the confidence interval.
+\item \code{Half}: Indicates which half was analyzed ("Half 1" or "Half 2").
+\item \code{Coefficient}: The name of the reliability coefficient ("alpha").
+\item \code{Estimate}: The estimated Cronbach's alpha.
+\item \code{CI.lower}: The lower bound of the confidence interval.
+\item \code{CI.upper}: The upper bound of the confidence interval.
 }
 }
 \description{
@@ -35,8 +35,10 @@ Cronbach's alpha is a measure of internal consistency reliability, computed as:
 \deqn{\alpha = \frac{k \bar{r}}{1 + (k - 1) \bar{r}}}
 
 where:
-- \eqn{k} is the number of items in the test half.
-- \eqn{\bar{r}} is the average inter-item correlation.
+\itemize{
+\item \eqn{k} is the number of items in the test half.
+\item \eqn{\bar{r}} is the average inter-item correlation.
+}
 
 The function estimates Cronbach's alpha separately for both halves and provides
 confidence intervals using bootstrap resampling.

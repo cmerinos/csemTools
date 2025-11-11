@@ -11,22 +11,22 @@ Thorndike.CSEM(half1, half2, n.groups = 10, bin.width = NULL)
 
 \item{half2}{Data frame with items from the second half of the test.}
 
-\item{n.groups}{Integer. Number of groups to divide the total scores into (e.g., 2 for halves, 4 for quartiles, 10 for deciles, etc.). 
-If `bin.width` is specified, this argument will be ignored.}
+\item{n.groups}{Integer. Number of groups to divide the total scores into (e.g., 2 for halves, 4 for quartiles, 10 for deciles, etc.).
+If \code{bin.width} is specified, this argument will be ignored.}
 
 \item{bin.width}{Numeric. If specified, divides the total scores into intervals of the specified width.}
 }
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Group}: The group or interval of scores.
-  \item \code{N}: The number of observations in the group.
-  \item \code{Mean_Total}: The mean of the total scores in the group.
-  \item \code{CSEM}: The estimated Conditional Standard Error of Measurement.
+\item \code{Group}: The group or interval of scores.
+\item \code{N}: The number of observations in the group.
+\item \code{Mean_Total}: The mean of the total scores in the group.
+\item \code{CSEM}: The estimated Conditional Standard Error of Measurement.
 }
 }
 \description{
-This function estimates the Conditional Standard Error of Measurement (CSEM) 
+This function estimates the Conditional Standard Error of Measurement (CSEM)
 using Thorndike's method, which relies on the standard deviation of half-test differences.
 }
 \examples{

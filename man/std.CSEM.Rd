@@ -21,8 +21,10 @@ This function calculates the examinee-level reliability based on the formula pro
 The formula is defined as:
 \deqn{\rho_{x_sx_s} = \frac{\sigma_x^2 - SEM_s^2}{\sigma_x^2}}
 where:
-- \eqn{\sigma_x^2}: variance of the observed scores.
-- \eqn{SEM_s^2}: squared Conditional SEM for each observed score.
+\itemize{
+\item \eqn{\sigma_x^2}: variance of the observed scores.
+\item \eqn{SEM_s^2}: squared Conditional SEM for each observed score.
+}
 }
 \examples{
 # Example:

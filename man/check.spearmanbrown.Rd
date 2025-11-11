@@ -20,10 +20,10 @@ and columns represent item scores for the other test half.}
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Coefficient}: The name of the reliability coefficient ("Spearman-Brown").
-  \item \code{Estimate}: The estimated Spearman-Brown reliability coefficient.
-  \item \code{CI_lower}: The lower bound of the confidence interval.
-  \item \code{CI_upper}: The upper bound of the confidence interval.
+\item \code{Coefficient}: The name of the reliability coefficient ("Spearman-Brown").
+\item \code{Estimate}: The estimated Spearman-Brown reliability coefficient.
+\item \code{CI_lower}: The lower bound of the confidence interval.
+\item \code{CI_upper}: The upper bound of the confidence interval.
 }
 }
 \description{
@@ -36,10 +36,12 @@ The Spearman-Brown coefficient is calculated as:
 \deqn{r_{SB} = \frac{2r}{1 + r}}
 
 where:
-- \eqn{r} is the correlation between the two test halves.
+\itemize{
+\item \eqn{r} is the correlation between the two test halves.
+}
 
 Bootstrap resampling is used to estimate confidence intervals for \eqn{r_{SB}}.
-If the bootstrap fails, `NA` values are returned for the confidence interval.
+If the bootstrap fails, \code{NA} values are returned for the confidence interval.
 }
 \examples{
 # Simulated test halves

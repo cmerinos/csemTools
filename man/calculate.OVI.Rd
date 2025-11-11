@@ -18,9 +18,9 @@ calculate.OVI(x, y, B = 500, conf = 0.95)
 \value{
 A list with the following elements:
 \itemize{
-  \item \strong{OVI}: The Overlapping Index (value between 0 and 1).
-  \item \strong{CI.lower}: The lower bound of the bootstrap confidence interval.
-  \item \strong{CI.upper}: The upper bound of the bootstrap confidence interval.
+\item \strong{OVI}: The Overlapping Index (value between 0 and 1).
+\item \strong{CI.lower}: The lower bound of the bootstrap confidence interval.
+\item \strong{CI.upper}: The upper bound of the bootstrap confidence interval.
 }
 }
 \description{
@@ -30,9 +30,9 @@ complete overlap and 0 indicating no overlap. A bootstrap procedure is used to c
 confidence intervals for the OVI.
 }
 \details{
-The Overlapping Index (OVI) is calculated using the `overlapping::overlap()` function.
+The Overlapping Index (OVI) is calculated using the \code{overlapping::overlap()} function.
 A bootstrap procedure is applied to estimate confidence intervals. If the bootstrap samples
-are constant or if the procedure fails, the confidence intervals will be reported as `NA`.
+are constant or if the procedure fails, the confidence intervals will be reported as \code{NA}.
 }
 \examples{
 # Example with random normal distributions

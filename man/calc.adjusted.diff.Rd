@@ -25,8 +25,10 @@ The function computes adjusted differences for each examinee:
 \deqn{D_i = (X_{half1} - X_{half2}) - (\bar{X}_{half1} - \bar{X}_{half2})}
 
 where:
-- \eqn{X_{half1}}, \eqn{X_{half2}} are the total scores for each half.
-- \eqn{\bar{X}_{half1}}, \eqn{\bar{X}_{half2}} are the mean scores of each half.
+\itemize{
+\item \eqn{X_{half1}}, \eqn{X_{half2}} are the total scores for each half.
+\item \eqn{\bar{X}_{half1}}, \eqn{\bar{X}_{half2}} are the mean scores of each half.
+}
 
 The final squared differences are obtained as:
 \deqn{D_i^2}

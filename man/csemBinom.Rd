@@ -21,10 +21,10 @@ or dichotomous ("dich") items.}
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{raw.score}: The observed raw score.
-  \item \code{prop.score}: The proportion of the total possible score (scaled between 0 and 1).
-  \item \code{equiv.score}: The binomial-equivalent transformed score.
-  \item \code{binom.CSEM}: The computed Conditional Standard Error of Measurement (CSEM).
+\item \code{raw.score}: The observed raw score.
+\item \code{prop.score}: The proportion of the total possible score (scaled between 0 and 1).
+\item \code{equiv.score}: The binomial-equivalent transformed score.
+\item \code{binom.CSEM}: The computed Conditional Standard Error of Measurement (CSEM).
 }
 }
 \description{
@@ -40,8 +40,10 @@ then computed using the binomial model:
 \deqn{CSEM = \sqrt{\frac{X (k - X)}{k - 1}}}
 
 where:
-- \eqn{X} is the binomial-equivalent transformed score.
-- \eqn{k} is the total number of items in the test.
+\itemize{
+\item \eqn{X} is the binomial-equivalent transformed score.
+\item \eqn{k} is the total number of items in the test.
+}
 }
 \examples{
 # Example usage with a polytomous scale (0 to 4 per item)

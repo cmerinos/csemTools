@@ -18,12 +18,12 @@ check.location(half1, half2, B = 2000, conf = 0.95)
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Test}: The name of the statistical test.
-  \item \code{Statistic}: The computed test statistic.
-  \item \code{p_value}: The p-value associated with the test.
-  \item \code{CI_lower}: The lower bound of the confidence interval for the effect size.
-  \item \code{CI_upper}: The upper bound of the confidence interval for the effect size.
-  \item \code{ES}: The effect size estimate.
+\item \code{Test}: The name of the statistical test.
+\item \code{Statistic}: The computed test statistic.
+\item \code{p_value}: The p-value associated with the test.
+\item \code{CI_lower}: The lower bound of the confidence interval for the effect size.
+\item \code{CI_upper}: The upper bound of the confidence interval for the effect size.
+\item \code{ES}: The effect size estimate.
 }
 }
 \description{
@@ -33,14 +33,16 @@ and Yuen's robust t-test, along with effect size calculations.
 }
 \details{
 This function calculates two different tests for assessing location differences between test halves:
-
-- **Wilcoxon Signed-Rank Test**: A non-parametric test that compares paired samples.
-- **Yuen's Robust T-Test**: A robust alternative to the paired t-test that handles heteroscedasticity.
+\itemize{
+\item \strong{Wilcoxon Signed-Rank Test}: A non-parametric test that compares paired samples.
+\item \strong{Yuen's Robust T-Test}: A robust alternative to the paired t-test that handles heteroscedasticity.
+}
 
 The function also estimates effect sizes:
-
-- **Wilcoxon Rank Correlation (`rc`)**: Obtained from `rcompanion::wilcoxonPairedRC`.
-- **AKP Robust Effect Size**: Based on Algina, Keselman, & Penfield (2005), extracted from `WRS2::dep.effect`.
+\itemize{
+\item \strong{Wilcoxon Rank Correlation (\code{rc})}: Obtained from \code{rcompanion::wilcoxonPairedRC}.
+\item \strong{AKP Robust Effect Size}: Based on Algina, Keselman, & Penfield (2005), extracted from \code{WRS2::dep.effect}.
+}
 }
 \examples{
 # Simulated test halves

@@ -18,35 +18,35 @@ check.distribution(half1, half2, B = 1000, conf = 0.95)
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Test}: The name of the statistical test.
-  \item \code{Statistic}: The test statistic (if applicable).
-  \item \code{p.value}: The p-value associated with the test (for Anderson-Darling only).
-  \item \code{CI.lower}: The lower bound of the confidence interval.
-  \item \code{CI.upper}: The upper bound of the confidence interval.
-  \item \code{ES}: The estimated effect size for each test.
+\item \code{Test}: The name of the statistical test.
+\item \code{Statistic}: The test statistic (if applicable).
+\item \code{p.value}: The p-value associated with the test (for Anderson-Darling only).
+\item \code{CI.lower}: The lower bound of the confidence interval.
+\item \code{CI.upper}: The upper bound of the confidence interval.
+\item \code{ES}: The estimated effect size for each test.
 }
 }
 \description{
 This function evaluates distributional differences between two test halves using:
-
-- **Anderson-Darling Test**: A non-parametric test for comparing distributions.
-- **Overlapping Index (OVI)**: A measure of the overlap between two distributions.
-- **Kendall's W**: A non-parametric measure of concordance between ranked data.
+\itemize{
+\item \strong{Anderson-Darling Test}: A non-parametric test for comparing distributions.
+\item \strong{Overlapping Index (OVI)}: A measure of the overlap between two distributions.
+\item \strong{Kendall's W}: A non-parametric measure of concordance between ranked data.
+}
 }
 \details{
 This function performs three different distributional tests:
+\itemize{
+\item \strong{Anderson-Darling Test}: A modification of the Kolmogorov-Smirnov test that places
+more weight on the tails of the distributions. A low p-value indicates that the two
+distributions are significantly different.
+\item \strong{Overlapping Index (OVI)}: Measures the proportion of overlap between the two distributions.
+Higher values indicate greater similarity between the distributions.
+\item \strong{Kendall's W}: Measures agreement between two ranked distributions. Values range
+from 0 (no agreement) to 1 (perfect agreement).
+}
 
-- **Anderson-Darling Test**: A modification of the Kolmogorov-Smirnov test that places
-  more weight on the tails of the distributions. A low p-value indicates that the two
-  distributions are significantly different.
-
-- **Overlapping Index (OVI)**: Measures the proportion of overlap between the two distributions.
-  Higher values indicate greater similarity between the distributions.
-
-- **Kendall's W**: Measures agreement between two ranked distributions. Values range
-  from 0 (no agreement) to 1 (perfect agreement).
-
-Confidence intervals for OVI and Kendall's W are estimated using **bootstrap resampling**.
+Confidence intervals for OVI and Kendall's W are estimated using \strong{bootstrap resampling}.
 }
 \examples{
 # Simulated test halves
@@ -60,12 +60,12 @@ check.distribution(half1, half2, B = 2000, conf = 0.95)
 }
 \references{
 Anderson, T. W., & Darling, D. A. (1952). Asymptotic theory of certain "goodness of fit" criteria based on stochastic processes.
-*Annals of Mathematical Statistics, 23*(2), 193-212. \doi{10.1214/aoms/1177729437}
+\emph{Annals of Mathematical Statistics, 23}(2), 193-212. \doi{10.1214/aoms/1177729437}
 
 Mason, S. J., & Graham, N. E. (2002). Areas beneath the relative operating characteristics
 (ROC) and relative operating levels (ROL) curves: Statistical significance and interpretation.
-*Quarterly Journal of the Royal Meteorological Society, 128*(601), 2145-2166. \doi{10.1256/qj.01.192}
+\emph{Quarterly Journal of the Royal Meteorological Society, 128}(601), 2145-2166. \doi{10.1256/qj.01.192}
 
 Kendall, M. G., & Smith, B. B. (1939). The problem of m rankings.
-*Annals of Mathematical Statistics, 10*(3), 275-287. \doi{10.1214/aoms/1177732186}
+\emph{Annals of Mathematical Statistics, 10}(3), 275-287. \doi{10.1214/aoms/1177732186}
 }

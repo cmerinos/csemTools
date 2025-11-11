@@ -18,29 +18,31 @@ check.angoff(half1, half2, B = 1000, conf = 0.95)
 \value{
 A data frame with the following columns:
 \itemize{
-  \item \code{Coefficient}: The name of the reliability coefficient ("Angoff Coefficient").
-  \item \code{Estimate}: The estimated Angoff reliability coefficient.
-  \item \code{CI.lower}: The lower bound of the confidence interval.
-  \item \code{CI.upper}: The upper bound of the confidence interval.
+\item \code{Coefficient}: The name of the reliability coefficient ("Angoff Coefficient").
+\item \code{Estimate}: The estimated Angoff reliability coefficient.
+\item \code{CI.lower}: The lower bound of the confidence interval.
+\item \code{CI.upper}: The upper bound of the confidence interval.
 }
 }
 \description{
-This function calculates the **Angoff-Feldt coefficient**, a reliability estimate
-used for tests split into two halves of possibly **unequal lengths**. It provides
-a more flexible alternative to **Spearman-Brown**, particularly when the two halves
+This function calculates the \strong{Angoff-Feldt coefficient}, a reliability estimate
+used for tests split into two halves of possibly \strong{unequal lengths}. It provides
+a more flexible alternative to \strong{Spearman-Brown}, particularly when the two halves
 of the test are not strictly parallel.
 }
 \details{
-The **Angoff coefficient** is computed using the formula:
+The \strong{Angoff coefficient} is computed using the formula:
 
 \deqn{\rho_{Angoff} = \frac{4 \text{cov}(X_1, X_2)}{\text{Var}(X_1) + \text{Var}(X_2) + 2 \text{cov}(X_1, X_2)}}
 
 where:
-- \eqn{X_1} and \eqn{X_2} are the total scores from each test half.
-- \eqn{\text{Var}(X_1)} and \eqn{\text{Var}(X_2)} are their variances.
-- \eqn{\text{cov}(X_1, X_2)} is the covariance between the two halves.
+\itemize{
+\item \eqn{X_1} and \eqn{X_2} are the total scores from each test half.
+\item \eqn{\text{Var}(X_1)} and \eqn{\text{Var}(X_2)} are their variances.
+\item \eqn{\text{cov}(X_1, X_2)} is the covariance between the two halves.
+}
 
-Confidence intervals are estimated via **bootstrap resampling**.
+Confidence intervals are estimated via \strong{bootstrap resampling}.
 }
 \examples{
 # Simulated test halves
