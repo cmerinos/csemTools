@@ -23,7 +23,6 @@
 #' Thorndike.CSEM(half1 = dhalf1, half2 = dhalf2, bin.width = 3)
 #'
 #' @export
-
 Thorndike.CSEM <- function(half1, half2, n.groups = 10, bin.width = NULL) {
   
   # 1️⃣ Calcular diferencias y puntajes totales
