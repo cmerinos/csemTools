@@ -38,11 +38,11 @@
 #' data <- data.frame(matrix(sample(3:5, 100 * 10, replace = TRUE), ncol = 10))
 #'
 #' Run
-#' MF.CSEM(half1 = 1:5, half2 = 6:10, data = data, reliability.coef = 0.85,
+#' csemMF(half1 = 1:5, half2 = 6:10, data = data, reliability.coef = 0.85,
 #'         n.items = 10, min.score.item = 1, max.score.item = 5)
 #'
 #' @export
-MF.CSEM <- function(half1, half2, data,
+csemMF <- function(half1, half2, data,
                     reliability.coef,
                     n.items, min.score.item, max.score.item,
                     conf.level = 95) {
