@@ -31,7 +31,7 @@ csemMF(half1 = dhalf1, half2 = dhalf2, data = dataset, reliability.coef = 0.9, n
 
 ## Example: Computing Thorndike-CSEM
 
-thorndike.CSEM(half1 = dhalf1, half2 = dhalf2, n.groups = 4)
+csemthorndike(half1 = dhalf1, half2 = dhalf2, n.groups = 4)
 
 ## Example: Checking Score Distributions
 
