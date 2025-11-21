@@ -2,7 +2,7 @@
 % Please edit documentation in R/csemThorndike.R
 \name{csemThorndike}
 \alias{csemThorndike}
-\title{Conditional Standard Error of Measurement (CSEM) via Thorndike's method}
+\title{Thorndike's method for Conditional Standard Error of Measurement (CSEM)}
 \usage{
 csemThorndike(
   half1,

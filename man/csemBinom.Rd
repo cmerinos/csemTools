@@ -2,54 +2,137 @@
 % Please edit documentation in R/csemBinom.R
 \name{csemBinom}
 \alias{csemBinom}
-\title{Compute Conditional Standard Error of Measurement (CSEM) Using the Binomial Model}
+\title{Binomial Model for Conditional Standard Error of Measurement (CSEM)}
 \usage{
-csemBinom(score, score.type = c("poly", "dich"), nitems, min.resp, max.resp)
+csemBinom(
+  score,
+  score.type = c("poly", "dich"),
+  nitems,
+  min.resp,
+  max.resp,
+  ci = FALSE,
+  conf.level = NULL,
+  digits.csem = 3
+)
 }
 \arguments{
-\item{score}{Numeric vector. Observed total test scores.}
+\item{score}{Numeric vector (retained for compatibility; not used directly
+in the current implementation).}
 
-\item{score.type}{Character string. Indicates whether the score is based on polytomous ("poly")
-or dichotomous ("dich") items.}
+\item{score.type}{Character string. Type of item scoring:
+\code{"dich"} for dichotomous items (default) or \code{"poly"} for
+polytomous items. For polytomous items, raw scores are linearly
+transformed into binomial-equivalent scores on the 0--\code{nitems} scale.}
 
-\item{nitems}{Integer. The total number of items in the test.}
+\item{nitems}{Integer. Number of items in the test.}
 
-\item{min.resp}{Integer. The minimum possible response value per item.}
+\item{min.resp}{Integer. Minimum response value per item.}
 
-\item{max.resp}{Integer. The maximum possible response value per item.}
+\item{max.resp}{Integer. Maximum response value per item.}
+
+\item{ci}{Logical. If \code{TRUE}, compute Wilson score confidence intervals
+for the true number-correct score. Default is \code{FALSE}.}
+
+\item{conf.level}{Numeric vector or \code{NULL}. Confidence level(s) for
+Wilson intervals (e.g., \code{0.95} or \code{c(0.90, 0.95)}). If
+\code{ci = TRUE} and \code{conf.level = NULL}, a default of \code{0.95}
+is used. If \code{ci = FALSE}, this argument is ignored.}
+
+\item{digits.csem}{Integer. Number of decimal places used to round
+proportion scores, binomial-equivalent scores, CSEM, and confidence
+interval limits. Default is 3.}
 }
 \value{
-A data frame with the following columns:
+A data frame with:
 \itemize{
-\item \code{raw.score}: The observed raw score.
-\item \code{prop.score}: The proportion of the total possible score (scaled between 0 and 1).
-\item \code{equiv.score}: The binomial-equivalent transformed score.
-\item \code{binom.CSEM}: The computed Conditional Standard Error of Measurement (CSEM).
+\item \code{raw.score}: Raw score on the original metric.
+\item \code{prop.score}: Raw score rescaled to \eqn{[0,1]}.
+\item \code{equiv.score}: Binomial-equivalent score on the 0--\code{nitems}
+scale.
+\item \code{binom.CSEM}: Binomial conditional standard error of measurement.
+\item Additional columns for Wilson interval lower and upper bounds,
+if \code{ci = TRUE}.
 }
 }
 \description{
-This function estimates the Conditional Standard Error of Measurement (CSEM)
-based on the binomial error model. It transforms observed scores into a binomial
-equivalent, making it applicable for both dichotomous and polytomous items.
+Computes the Conditional Standard Error of Measurement (CSEM) under
+Lord's (1955, 1957) binomial error model. This formulation treats the test
+as a random sample of dichotomously scored items measuring a single ability.
+The method can be applied to both dichotomous and polytomous items by
+transforming raw scores into binomial-equivalent scores. Optionally, the
+function computes Wilson score confidence intervals for the true
+number-correct score under the binomial model.
 }
 \details{
-This function transforms observed scores into a proportion and rescales them
-into a binomial-equivalent score. The standard error of measurement (CSEM) is
-then computed using the binomial model:
-
-\deqn{CSEM = \sqrt{\frac{X (k - X)}{k - 1}}}
-
-where:
-\itemize{
-\item \eqn{X} is the binomial-equivalent transformed score.
-\item \eqn{k} is the total number of items in the test.
+Under the binomial error model (Lord, 1955, 1957), each examinee is assumed
+to possess a true proportion-correct score \eqn{\phi}, and the observed
+number-correct score \eqn{X} is binomially distributed with parameters
+\eqn{n} (number of items) and \eqn{\phi}. The conditional error variance
+for a person with true proportion-correct \eqn{\phi} is:
+\deqn{
+  \sigma^2_{E|X} = n \phi (1 - \phi).
 }
+
+Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n}, yielding
+Lord's estimator of the conditional error variance:
+\deqn{
+  \widehat{\sigma}^2_{E|X} =
+  \frac{X (n - X)}{n - 1},
+}
+and the CSEM is its square root.
+
+For polytomous items, raw scores are first rescaled to proportions in
+\eqn{[0,1]} and subsequently multiplied by \eqn{n} to obtain the
+binomial-equivalent score \eqn{X}.
+
+\strong{Confidence Intervals}
+
+When \code{ci = TRUE}, Wilson score confidence intervals (Wilson, 1927)
+are computed for the true number-correct score:
+\deqn{
+  \tau = n \phi.
+}
+
+Wilson's interval is preferred over the Wald interval because it exhibits
+superior accuracy for binomial proportions, especially for moderate test
+lengths or extreme scores. For each requested level \eqn{\gamma},
+the confidence limits are labeled \code{lwr.xx} and \code{upr.xx}, where
+\code{xx} denotes the level expressed as a percentage (e.g., 95).
 }
 \examples{
-# Example usage with a polytomous scale (0 to 4 per item)
-csemBinom(score = c(15, 20, 25), score.type = "poly", nitems = 12, min.resp = 0, max.resp = 4)
+# Dichotomous example with confidence intervals
+csemBinom(
+  score      = c(4, 6, 9),
+  score.type = "dich",
+  nitems     = 12,
+  min.resp   = 0,
+  max.resp   = 1,
+  ci         = TRUE,
+  conf.level = 0.95
+)
 
-# Example usage with a dichotomous scale (0/1 per item)
-csemBinom(score = c(5, 7, 9), score.type = "dich", nitems = 12, min.resp = 0, max.resp = 1)
+# Polytomous example (0–4 scale)
+csemBinom(
+  score      = c(15, 20, 25),
+  score.type = "poly",
+  nitems     = 12,
+  min.resp   = 0,
+  max.resp   = 4
+)
 
+}
+\references{
+Lord, F. M. (1955). Estimating test reliability.
+\emph{Educational and Psychological Measurement}, 15, 325–336.
+
+Lord, F. M. (1957). Do tests of the same length have the same standard
+error of measurement?
+\emph{Educational and Psychological Measurement}, 17, 510–521.
+
+Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference.
+\emph{Journal of the American Statistical Association}, 22, 209–212.
+
+Agresti, A. & Coull, B. A. (1998). Approximate is better than “exact”
+for interval estimation of binomial proportions.
+\emph{The American Statistician}, 52, 119–126.
 }

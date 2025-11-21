@@ -2,7 +2,7 @@
 % Please edit documentation in R/csemFeldt.R
 \name{csemFeldt}
 \alias{csemFeldt}
-\title{Feldt's Conditional Standard Error of Measurement (CSEM)}
+\title{Feldt's method for Conditional Standard Error of Measurement (CSEM)}
 \usage{
 csemFeldt(
   data,
