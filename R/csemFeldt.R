@@ -1,4 +1,4 @@
-#' Feldt's Conditional Standard Error of Measurement (CSEM)
+#' Feldt's method for Conditional Standard Error of Measurement (CSEM)
 #'
 #' @description
 #' Calculates the Conditional Standard Error of Measurement (CSEM) following the

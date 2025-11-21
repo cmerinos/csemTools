@@ -1,4 +1,4 @@
-#' Conditional Standard Error of Measurement (CSEM) via Thorndike's method
+#' Thorndike's method for Conditional Standard Error of Measurement (CSEM)
 #'
 #' @description
 #' Computes the Conditional Standard Error of Measurement (CSEM) using
