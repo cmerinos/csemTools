@@ -15,7 +15,8 @@ csemBinom(
   ci = FALSE,
   ci.method = c("csem", "wilson"),
   conf.level = NULL,
-  digits.csem = 3
+  digits.csem = 3,
+  rho.report = FALSE
 )
 }
 \arguments{
@@ -38,7 +39,7 @@ Only used when \code{score.type = "dich"}.}
 
 \item{rhoxx}{Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
 (interpreted as KR‑20). Used for \code{csem.method = "LordKeats"} when no \code{data}
-is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20.}
+is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).}
 
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.}
 
@@ -47,11 +48,19 @@ is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20.}
 \item{conf.level}{Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} → 0.95.}
 
 \item{digits.csem}{Integer for rounding. Default 3.}
+
+\item{rho.report}{Logical. If \code{TRUE} and \code{csem.method = "LordKeats"},
+the function returns a list with the CSEM table and the reliability values
+(KR‑20 and KR‑21, either empirical or approximated). Default \code{FALSE}.}
 }
 \value{
-A data frame with one row per possible raw score. Columns:
-\code{raw.score}, \code{prop.score}, \code{binom.CSEM}, and for \code{score.type = "poly"}
-also \code{equiv.score}. If \code{ci = TRUE}, additional columns \code{lwr.xx}, \code{upr.xx}.
+If \code{rho.report = FALSE} (default), a data frame with rows for each possible
+raw score. Columns: \code{raw.score}, \code{prop.score}, \code{binom.CSEM}, and for
+\code{score.type = "poly"} also \code{equiv.score}. If \code{ci = TRUE}, additional
+columns \code{lwr.xx}, \code{upr.xx}.
+If \code{rho.report = TRUE} and \code{csem.method = "LordKeats"}, a list with two
+elements: \code{csem_table} (the data frame) and \code{rho} (a data frame containing
+the reliability values used).
 }
 \description{
 Computes the Conditional Standard Error of Measurement (CSEM) under
@@ -97,19 +106,23 @@ csemBinom(score.type = "dich", nitems = 40)
 csemBinom(score.type = "poly", nitems = 10, min.resp = 0, max.resp = 4,
           csem.method = "LordKeats", rhoxx = 0.85)
 
+# With data and reporting reliability
+\dontrun{
+csemBinom(score.type = "dich", nitems = 40, csem.method = "LordKeats",
+          data = data.u, ci = TRUE, rho.report = TRUE)
+}
+
 }
 \references{
-Lord, F. M. (1955). Estimating test reliability. Educational and Psychological Measurement, 15, 325-336.
-
-Lord, F.M. (1957). Do Tests of the Same Length Have the Same Standard Errors of Measurement?
-Educational and Psychological Measurement, 17, 510 - 521.
-
-Keats, J. A. (1957). Estimation of error variances of test scores. Psychometrika, 22, 29-41.
-
-Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). *An empirical adjustment of the Kuder‑Richardson 21 reliability coefficient.
-https://eric.ed.gov/?id=ED173387
-
+Lord, F. M. (1955). Estimating test reliability.
+\emph{Educational and Psychological Measurement}, 15, 325–336.
+Lord, F. M. (1957). Do tests of the same length have the same standard
+error of measurement? \emph{Educational and Psychological Measurement}, 17, 510–521.
+Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference.
+\emph{Journal of the American Statistical Association}, 22, 209–212.
+Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). \emph{An empirical adjustment of the
+Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient}
+(ED173387). ERIC.
 Frisbie, D. A. (1988). Reliability of scores from teacher‑made tests.
-\emph{Educational Measurement: Issues and Practice, 7}(1), 25–35.
-https://doi.org/10.1111/j.1745-3992.1988.tb00422.x
+\emph{Educational Measurement: Issues and Practice}, 7(1), 25–35.
 }
