@@ -144,9 +144,9 @@ head(res_strong_ci$score)
 Lord, F. M. (1965). A strong true score theory, with applications.
 \emph{Psychometrika}, 30, 239–270.
 
-Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of
-measurement. In \emph{Wiley StatsRef: Statistics Reference Online}.
-John Wiley & Sons.
+Tong, Y. & Kolen, M.J. (2018). Conditional Standard Errors of Measurement.
+In Wiley StatsRef: Statistics Reference Online (eds N. Balakrishnan, T. Colton, B. Everitt, W. Piegorsch, F. Ruggeri and J.L. Teugels).
+https://doi.org/10.1002/9781118445112.stat06376.pub2
 
 Wilson, E. B. (1927). Probable inference, the law of succession, and
 statistical inference. \emph{Journal of the American Statistical
