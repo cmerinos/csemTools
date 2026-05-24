@@ -5,219 +5,195 @@
 #' Lord's (1955, 1957) binomial error model. This formulation treats the test
 #' as a random sample of dichotomously scored items measuring a single ability.
 #' The method can be applied to both dichotomous and polytomous items by
-#' transforming raw scores into binomial-equivalent scores. Optionally, the
-#' function computes confidence intervals for the true number-correct score
+#' transforming raw scores into binomial‑equivalent scores. Optionally, the
+#' function computes confidence intervals for the true number‑correct score
 #' using either the classic CSEM‑based method or the Wilson score method.
 #'
-#' @param score.type Character string. Type of item scoring:
-#'   \code{"dich"} for dichotomous items (default) or \code{"poly"} for
-#'   polytomous items.
+#' @param score.type Character: \code{"dich"} (default) or \code{"poly"}.
 #' @param nitems Integer. Number of items in the test.
 #' @param min.resp Numeric. Minimum response value per item.
-#'   **Required only when \code{score.type = "poly"}. Ignored for dichotomous.**
+#'   **Required when \code{score.type = "poly"}**; ignored for dichotomous.
 #' @param max.resp Numeric. Maximum response value per item.
-#'   **Required only when \code{score.type = "poly"}. Ignored for dichotomous.**
-#' @param ci Logical. If \code{TRUE}, compute confidence intervals for the
-#'   true number-correct score. Default is \code{FALSE}.
-#' @param ci.method Character. Method for confidence intervals:
-#'   \code{"csem"} (classic: \eqn{X \pm z \cdot CSEM}) or
-#'   \code{"wilson"} (Wilson score interval). Default is \code{"csem"}.
-#'   Only used if \code{ci = TRUE}.
-#' @param conf.level Numeric vector or \code{NULL}. Confidence level(s)
-#'   (e.g., \code{0.95} or \code{c(0.90, 0.95)}). If \code{ci = TRUE} and
-#'   \code{conf.level = NULL}, a default of \code{0.95} is used.
-#' @param digits.csem Integer. Number of decimal places used to round
-#'   proportion scores, binomial‑equivalent scores, CSEM, and confidence
-#'   interval limits. Default is 3.
+#'   **Required when \code{score.type = "poly"}**; ignored for dichotomous.
+#' @param csem.method Character: \code{"Lord"} (default), \code{"binom"} (alias, same as Lord),
+#'   or \code{"LordKeats"} (adjusts Lord's CSEM using KR‑20/KR‑21 or empirical factor).
+#' @param data Optional data frame or matrix of dichotomous (0/1) item responses.
+#'   Required for \code{csem.method = "LordKeats"} if \code{rhoxx} is not provided.
+#'   Only used when \code{score.type = "dich"}.
+#' @param rhoxx Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
+#'   (interpreted as KR‑20). Used for \code{csem.method = "LordKeats"} when no \code{data}
+#'   is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20.
+#' @param ci Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.
+#' @param ci.method Character: \code{"csem"} (classic) or \code{"wilson"}. Default \code{"csem"}.
+#' @param conf.level Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} → 0.95.
+#' @param digits.csem Integer for rounding. Default 3.
 #'
 #' @details
 #' \strong{Binomial error model (Lord, 1955, 1957)}:
-#' Each examinee is assumed to possess a true proportion‑correct score
-#' \eqn{\phi}, and the observed number‑correct score \eqn{X} is binomially
-#' distributed with parameters \eqn{n} (number of items) and \eqn{\phi}.
-#' The conditional error variance for a person with true proportion‑correct
-#' \eqn{\phi} is:
-#' \deqn{
-#'   \sigma^2_{E|X} = n \phi (1 - \phi).
-#' }
+#' Each examinee has true proportion‑correct \eqn{\phi}; observed number‑correct \eqn{X}
+#' is Binomial(\eqn{n},\eqn{\phi}) with \eqn{n = \code{nitems}}. Lord's estimator of the
+#' conditional error variance is
+#' \deqn{\widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},}
+#' and the CSEM is its square root. The options \code{"Lord"} and \code{"binom"} yield
+#' numerically identical results.
 #'
-#' Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n},
-#' yielding Lord's estimator of the conditional error variance:
-#' \deqn{
-#'   \widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},
-#' }
-#' and the CSEM is its square root.
+#' \strong{Polytomous items}:
+#' Raw scores are linearly transformed to a proportion and then multiplied by \eqn{n}
+#' to obtain a binomial‑equivalent score:
+#' \deqn{\text{equiv} = n \times \frac{\text{raw} - n\cdot\text{min.resp}}{n\cdot(\text{max.resp} - \text{min.resp})}.}
 #'
-#' \strong{Extension to polytomous items}:
-#' Raw scores are first rescaled to proportions in \eqn{[0,1]} and subsequently
-#' multiplied by \eqn{n} to obtain the binomial‑equivalent score \eqn{X}:
-#' \deqn{
-#'   \text{equiv.score} = \frac{\text{raw.score} - \text{min.resp} \times n}
-#'   {\text{max.resp} \times n - \text{min.resp} \times n} \times n.
-#' }
-#' This transformation assumes equal scoring weights and that the original
-#' score scale is approximately linear with respect to the underlying ability.
+#' \strong{Lord‑Keats method} (\code{csem.method = "LordKeats"}):
+#' Adjusts Lord's CSEM using the ratio \eqn{\sqrt{(1-\text{KR20})/(1-\text{KR21})}}.
+#' If a data matrix is provided, KR‑20 and KR‑21 are computed directly.
+#' If only \code{rhoxx} (interpreted as KR‑20) is given, KR‑21 is approximated as
+#' \code{0.8 * rhoxx} following Wilson, Downing & Ebel (1979). This approximation works
+#' for both dichotomous and polytomous (after transformation) cases.
 #'
 #' \strong{Confidence intervals}:
-#' When \code{ci = TRUE}, two methods are available:
 #' \itemize{
-#'   \item \code{"csem"}: Classic CTT interval for the true score
-#'     \eqn{\tau = n\phi}:
-#'     \deqn{\text{equiv.score} \pm z_{\alpha/2} \cdot \text{CSEM},}
-#'     where \eqn{z_{\alpha/2}} is the normal quantile for the given confidence
-#'     level. Limits are truncated to \eqn{[0, n]}.
-#'   \item \code{"wilson"}: Wilson score interval (Wilson, 1927) for the
-#'     binomial proportion \eqn{p = \text{equiv.score}/n}:
-#'     \deqn{
-#'       \frac{p + \frac{z^2}{2n} \pm z \sqrt{\frac{p(1-p)}{n} + \frac{z^2}{4n^2}}}
-#'       {1 + \frac{z^2}{n}},
-#'     }
-#'     then multiplied by \eqn{n} to obtain limits for the true number‑correct
-#'     score. Wilson's interval is preferred over the Wald interval because it
-#'     exhibits superior accuracy for binomial proportions, especially for
-#'     moderate test lengths or extreme scores.
+#'   \item \code{ci.method = "csem"}: \code{equiv.score ± z * CSEM}.
+#'   \item \code{ci.method = "wilson"}: Wilson interval for proportion \eqn{p = equiv.score/n}.
 #' }
-#' For each requested level \eqn{\gamma}, the confidence limits are labeled
-#' \code{lwr.xx} and \code{upr.xx}, where \code{xx} denotes the level expressed
-#' as a percentage (e.g., 95).
 #'
 #' @return
-#' A data frame with one row per possible raw score (from
-#' \code{min.resp*nitems} to \code{max.resp*nitems}). Columns include:
-#' \itemize{
-#'   \item \code{raw.score}: Raw score on the original metric.
-#'   \item \code{prop.score}: Raw score rescaled to \eqn{[0,1]}.
-#'   \item \code{binom.CSEM}: Binomial conditional standard error of measurement.
-#'   \item \code{equiv.score}: (Only for \code{score.type = "poly"})
-#'     Binomial‑equivalent score on the 0–\code{nitems} scale.
-#'   \item Additional columns for confidence limits, if \code{ci = TRUE}.
-#' }
+#' A data frame with one row per possible raw score. Columns:
+#' \code{raw.score}, \code{prop.score}, \code{binom.CSEM}, and for \code{score.type = "poly"}
+#' also \code{equiv.score}. If \code{ci = TRUE}, additional columns \code{lwr.xx}, \code{upr.xx}.
 #'
 #' @references
-#' Lord, F. M. (1955). Estimating test reliability.
-#'   \emph{Educational and Psychological Measurement}, 15, 325–336.
+#' Lord, F. M. (1955). Estimating test reliability. Educational and Psychological Measurement, 15, 325-336.
 #'
-#' Lord, F. M. (1957). Do tests of the same length have the same standard
-#'   error of measurement?
-#'   \emph{Educational and Psychological Measurement}, 17, 510–521.
+#' Lord, F.M. (1957). Do Tests of the Same Length Have the Same Standard Errors of Measurement?
+#' Educational and Psychological Measurement, 17, 510 - 521.
 #'
-#' Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference.
-#'   \emph{Journal of the American Statistical Association}, 22, 209–212.
+#' Keats, J. A. (1957). Estimation of error variances of test scores. Psychometrika, 22, 29-41.
 #'
-#' Agresti, A. & Coull, B. A. (1998). Approximate is better than “exact”
-#'   for interval estimation of binomial proportions.
-#'   \emph{The American Statistician}, 52, 119–126.
+#' Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). *An empirical adjustment of the Kuder‑Richardson 21 reliability coefficient.
+#' https://eric.ed.gov/?id=ED173387
+#'
+#' Frisbie, D. A. (1988). Reliability of scores from teacher‑made tests.
+#' *Educational Measurement: Issues and Practice, 7*(1), 25–35.
+#' https://doi.org/10.1111/j.1745-3992.1988.tb00422.x
 #'
 #' @examples
-#' # Dichotomous example (0/1 items) – classic CSEM-based 95% CI
-#' csemBinom(
-#'   score.type = "dich",
-#'   nitems     = 12,
-#'   ci         = TRUE,
-#'   ci.method  = "csem",
-#'   conf.level = 0.95
-#' )
+#' # Dichotomous, Lord method
+#' csemBinom(score.type = "dich", nitems = 40)
 #'
-#' # Dichotomous example – Wilson 90% and 95% CIs
-#' csemBinom(
-#'   score.type = "dich",
-#'   nitems     = 12,
-#'   ci         = TRUE,
-#'   ci.method  = "wilson",
-#'   conf.level = c(0.90, 0.95)
-#' )
-#'
-#' # Polytomous example (0–4 scale)
-#' csemBinom(
-#'   score.type = "poly",
-#'   nitems     = 12,
-#'   min.resp   = 0,
-#'   max.resp   = 4
-#' )
+#' # Polytomous (0–4 scale) with Lord‑Keats using rhoxx
+#' csemBinom(score.type = "poly", nitems = 10, min.resp = 0, max.resp = 4,
+#'           csem.method = "LordKeats", rhoxx = 0.85)
 #'
 #' @export
-csemBinom <- function(
-    score.type = c("dich", "poly"),
-    nitems,
-    min.resp = NULL,
-    max.resp = NULL,
-    ci = FALSE,
-    ci.method = c("csem", "wilson"),
-    conf.level = NULL,
-    digits.csem = 3
-) {
+csemBinom <- function(score.type = c("dich", "poly"),
+                      nitems,
+                      min.resp = NULL,
+                      max.resp = NULL,
+                      csem.method = c("Lord", "binom", "LordKeats"),
+                      data = NULL,
+                      rhoxx = NULL,
+                      ci = FALSE,
+                      ci.method = c("csem", "wilson"),
+                      conf.level = NULL,
+                      digits.csem = 3) {
+
+  # --- Argument matching and validation ---
   score.type <- match.arg(score.type)
+  csem.method <- match.arg(csem.method)
   ci.method <- match.arg(ci.method)
 
-  if (score.type == "dich") {
-    # For dichotomous, ignore min.resp and max.resp
-    if (!is.null(min.resp) || !is.null(max.resp)) {
-      message("Note: 'min.resp' and 'max.resp' are ignored for score.type = 'dich' (set to 0 and 1).")
-    }
-    min.resp <- 0
-    max.resp <- 1
-  } else {
-    # Polytomous: require min.resp and max.resp
-    if (is.null(min.resp) || is.null(max.resp)) {
-      stop("For score.type = 'poly', you must provide min.resp and max.resp.")
-    }
-    if (min.resp >= max.resp) stop("min.resp must be less than max.resp.")
-  }
-
-  # Validate nitems
-  if (!is.numeric(nitems) || length(nitems) != 1 || nitems < 2) {
+  if (!is.numeric(nitems) || length(nitems) != 1 || nitems < 2)
     stop("nitems must be a single integer >= 2.")
-  }
   nitems <- as.integer(nitems)
 
-  minscore <- min.resp * nitems
-  maxscore <- max.resp * nitems
+  # Handle polytomous vs dichotomous
+  if (score.type == "poly") {
+    if (is.null(min.resp) || is.null(max.resp))
+      stop("For score.type = 'poly', min.resp and max.resp must be provided.")
+    if (min.resp >= max.resp)
+      stop("min.resp must be less than max.resp.")
+    minscore <- min.resp * nitems
+    maxscore <- max.resp * nitems
+  } else { # dich
+    # For dichotomous, ignore user-supplied min.resp/max.resp (set internally)
+    if (!is.null(min.resp) || !is.null(max.resp))
+      message("Note: min.resp and max.resp are ignored when score.type = 'dich' (set to 0 and 1).")
+    min.resp <- 0
+    max.resp <- 1
+    minscore <- 0
+    maxscore <- nitems
+  }
+
+  # Possible raw scores (full range)
   raw.score <- seq(minscore, maxscore, by = 1)
 
   # Proportion and equivalent score
   prop.score <- (raw.score - minscore) / (maxscore - minscore)
   if (score.type == "dich") {
-    equiv.score <- raw.score   # but we won't show it
+    equiv.score <- raw.score   # same as raw
   } else {
     equiv.score <- prop.score * nitems
   }
 
-  # CSEM
-  var <- (equiv.score * (nitems - equiv.score)) / (nitems - 1)
-  var[var < 0] <- NA_real_
-  csem <- sqrt(var)
+  # --- Base CSEM (Lord estimator) ---
+  var_lord <- (equiv.score * (nitems - equiv.score)) / (nitems - 1)
+  var_lord[var_lord < 0] <- NA_real_
+  csem_lord <- sqrt(var_lord)
 
-  # Prepare result data frame
-  result <- data.frame(
-    raw.score = raw.score,
-    prop.score = round(prop.score, digits.csem),
-    binom.CSEM = round(csem, digits.csem)
-  )
-  if (score.type == "poly") {
-    result <- cbind(result, equiv.score = round(equiv.score, digits.csem))
+  # --- Adjust if LordKeats ---
+  csem_final <- csem_lord
+  if (csem.method == "LordKeats") {
+    if (score.type != "dich" && is.null(rhoxx) && is.null(data)) {
+      # For polytomous without data, rhoxx must be provided
+      stop("For LordKeats with polytomous items, you must supply rhoxx (reliability estimate).")
+    }
+    if (!is.null(data)) {
+      # Use empirical KR-20 and KR-21 from data (dichotomous only)
+      if (score.type != "dich")
+        stop("Data-based LordKeats only supported for dichotomous items (score.type = 'dich').")
+      # Compute KR-20 and KR-21 (assuming helper functions exist in package)
+      if (!exists("kr20", mode = "function") || !exists("kr21", mode = "function"))
+        stop("Functions kr20() and kr21() are required for data-based LordKeats.")
+      kr20_val <- kr20(data)
+      kr21_val <- kr21(data)
+      if (kr20_val <= 0 || kr20_val >= 1 || kr21_val <= 0 || kr21_val >= 1)
+        stop("KR-20 and KR-21 must be strictly between 0 and 1.")
+      scale_factor <- sqrt((1 - kr20_val) / (1 - kr21_val))
+    } else if (!is.null(rhoxx)) {
+      # Use manual reliability estimate (interpreted as KR-20) and apply empirical correction
+      if (rhoxx <= 0 || rhoxx >= 1)
+        stop("rhoxx must be between 0 and 1 (exclusive).")
+      kr20_est <- rhoxx
+      kr21_est <- rhoxx * 0.8   # empirical adjustment from Wilson et al. (1979)
+      scale_factor <- sqrt((1 - kr20_est) / (1 - kr21_est))
+      message("LordKeats: Using empirical adjustment KR21 ≈ 0.8 * KR20 (Wilson, Downing & Ebel, 1979).")
+    } else {
+      stop("For csem.method = 'LordKeats', you must provide either 'data' or 'rhoxx'.")
+    }
+    csem_final <- csem_lord * scale_factor
   }
 
-  # Confidence intervals
+  # --- Confidence intervals ---
+  ci_df <- NULL
   if (ci) {
     if (is.null(conf.level)) conf.level <- 0.95
     conf.level <- sort(unique(conf.level))
     if (any(conf.level <= 0 | conf.level >= 1))
-      stop("conf.level must be between 0 and 1.")
+      stop("conf.level must contain values between 0 and 1.")
 
     n <- nitems
-    z <- stats::qnorm((1 + conf.level)/2)
-    ci_mat <- matrix(NA, nrow = length(raw.score), ncol = 2*length(conf.level))
-    colnames_ci <- character(2*length(conf.level))
+    z_vals <- stats::qnorm((1 + conf.level) / 2)
+    ci_mat <- matrix(NA, nrow = length(equiv.score), ncol = 2 * length(conf.level))
+    colnames_ci <- character(2 * length(conf.level))
 
     for (i in seq_along(conf.level)) {
       if (ci.method == "csem") {
-        low <- equiv.score - z[i] * csem
-        high <- equiv.score + z[i] * csem
+        low <- equiv.score - z_vals[i] * csem_final
+        high <- equiv.score + z_vals[i] * csem_final
         low[low < 0] <- 0
         high[high > n] <- n
       } else { # wilson
-        center <- (equiv.score + z[i]^2/2) / (n + z[i]^2)
-        half <- z[i] * sqrt((equiv.score*(n - equiv.score)/n) + z[i]^2/4) / (n + z[i]^2)
+        center <- (equiv.score + z_vals[i]^2 / 2) / (n + z_vals[i]^2)
+        half <- z_vals[i] * sqrt((equiv.score * (n - equiv.score) / n) + z_vals[i]^2 / 4) / (n + z_vals[i]^2)
         p_low <- center - half
         p_high <- center + half
         p_low[p_low < 0] <- 0
@@ -227,15 +203,30 @@ csemBinom <- function(
       }
       ci_mat[, 2*i - 1] <- low
       ci_mat[, 2*i] <- high
-      colnames_ci[2*i - 1] <- paste0("lwr.", formatC(conf.level[i]*100, format="f", digits=0))
-      colnames_ci[2*i] <- paste0("upr.", formatC(conf.level[i]*100, format="f", digits=0))
+      colnames_ci[2*i - 1] <- paste0("lwr.", formatC(conf.level[i]*100, format = "f", digits = 0))
+      colnames_ci[2*i] <- paste0("upr.", formatC(conf.level[i]*100, format = "f", digits = 0))
     }
     colnames(ci_mat) <- colnames_ci
-    result <- cbind(result, round(ci_mat, digits.csem))
+    ci_df <- as.data.frame(ci_mat)
+    ci_df <- as.data.frame(lapply(ci_df, round, digits.csem))
   }
 
-  # Warning for zero CSEM
-  if (any(csem == 0, na.rm=TRUE)) message("⚠️ Some CSEM values are zero at boundaries.")
+  # --- Construct result data frame ---
+  result <- data.frame(
+    raw.score = raw.score,
+    prop.score = round(prop.score, digits.csem),
+    binom.CSEM = round(csem_final, digits.csem)
+  )
+  if (score.type == "poly") {
+    result <- cbind(result, equiv.score = round(equiv.score, digits.csem))
+  }
+  if (!is.null(ci_df)) {
+    result <- cbind(result, ci_df)
+  }
+
+  # Warning for zero CSEM at extremes
+  if (any(csem_final == 0, na.rm = TRUE))
+    message("⚠️ Some CSEM values are zero, likely at the scale boundaries.")
 
   return(result)
 }
