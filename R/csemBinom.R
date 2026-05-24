@@ -6,74 +6,91 @@
 #' as a random sample of dichotomously scored items measuring a single ability.
 #' The method can be applied to both dichotomous and polytomous items by
 #' transforming raw scores into binomial-equivalent scores. Optionally, the
-#' function computes Wilson score confidence intervals for the true
-#' number-correct score under the binomial model.
+#' function computes confidence intervals for the true number-correct score
+#' using either the classic CSEM‑based method or the Wilson score method.
 #'
-#' @param score Numeric vector (retained for compatibility; not used directly
-#'   in the current implementation).
 #' @param score.type Character string. Type of item scoring:
 #'   \code{"dich"} for dichotomous items (default) or \code{"poly"} for
-#'   polytomous items. For polytomous items, raw scores are linearly
-#'   transformed into binomial-equivalent scores on the 0--\code{nitems} scale.
+#'   polytomous items.
 #' @param nitems Integer. Number of items in the test.
-#' @param min.resp Integer. Minimum response value per item.
-#' @param max.resp Integer. Maximum response value per item.
-#' @param ci Logical. If \code{TRUE}, compute Wilson score confidence intervals
-#'   for the true number-correct score. Default is \code{FALSE}.
-#' @param conf.level Numeric vector or \code{NULL}. Confidence level(s) for
-#'   Wilson intervals (e.g., \code{0.95} or \code{c(0.90, 0.95)}). If
-#'   \code{ci = TRUE} and \code{conf.level = NULL}, a default of \code{0.95}
-#'   is used. If \code{ci = FALSE}, this argument is ignored.
+#' @param min.resp Numeric. Minimum response value per item.
+#'   **Required only when \code{score.type = "poly"}. Ignored for dichotomous.**
+#' @param max.resp Numeric. Maximum response value per item.
+#'   **Required only when \code{score.type = "poly"}. Ignored for dichotomous.**
+#' @param ci Logical. If \code{TRUE}, compute confidence intervals for the
+#'   true number-correct score. Default is \code{FALSE}.
+#' @param ci.method Character. Method for confidence intervals:
+#'   \code{"csem"} (classic: \eqn{X \pm z \cdot CSEM}) or
+#'   \code{"wilson"} (Wilson score interval). Default is \code{"csem"}.
+#'   Only used if \code{ci = TRUE}.
+#' @param conf.level Numeric vector or \code{NULL}. Confidence level(s)
+#'   (e.g., \code{0.95} or \code{c(0.90, 0.95)}). If \code{ci = TRUE} and
+#'   \code{conf.level = NULL}, a default of \code{0.95} is used.
 #' @param digits.csem Integer. Number of decimal places used to round
-#'   proportion scores, binomial-equivalent scores, CSEM, and confidence
+#'   proportion scores, binomial‑equivalent scores, CSEM, and confidence
 #'   interval limits. Default is 3.
 #'
 #' @details
-#' Under the binomial error model (Lord, 1955, 1957), each examinee is assumed
-#' to possess a true proportion-correct score \eqn{\phi}, and the observed
-#' number-correct score \eqn{X} is binomially distributed with parameters
-#' \eqn{n} (number of items) and \eqn{\phi}. The conditional error variance
-#' for a person with true proportion-correct \eqn{\phi} is:
+#' \strong{Binomial error model (Lord, 1955, 1957)}:
+#' Each examinee is assumed to possess a true proportion‑correct score
+#' \eqn{\phi}, and the observed number‑correct score \eqn{X} is binomially
+#' distributed with parameters \eqn{n} (number of items) and \eqn{\phi}.
+#' The conditional error variance for a person with true proportion‑correct
+#' \eqn{\phi} is:
 #' \deqn{
 #'   \sigma^2_{E|X} = n \phi (1 - \phi).
 #' }
 #'
-#' Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n}, yielding
-#' Lord's estimator of the conditional error variance:
+#' Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n},
+#' yielding Lord's estimator of the conditional error variance:
 #' \deqn{
-#'   \widehat{\sigma}^2_{E|X} =
-#'   \frac{X (n - X)}{n - 1},
+#'   \widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},
 #' }
 #' and the CSEM is its square root.
 #'
-#' For polytomous items, raw scores are first rescaled to proportions in
-#' \eqn{[0,1]} and subsequently multiplied by \eqn{n} to obtain the
-#' binomial-equivalent score \eqn{X}.
-#'
-#' \strong{Confidence Intervals}
-#'
-#' When \code{ci = TRUE}, Wilson score confidence intervals (Wilson, 1927)
-#' are computed for the true number-correct score:
+#' \strong{Extension to polytomous items}:
+#' Raw scores are first rescaled to proportions in \eqn{[0,1]} and subsequently
+#' multiplied by \eqn{n} to obtain the binomial‑equivalent score \eqn{X}:
 #' \deqn{
-#'   \tau = n \phi.
+#'   \text{equiv.score} = \frac{\text{raw.score} - \text{min.resp} \times n}
+#'   {\text{max.resp} \times n - \text{min.resp} \times n} \times n.
 #' }
+#' This transformation assumes equal scoring weights and that the original
+#' score scale is approximately linear with respect to the underlying ability.
 #'
-#' Wilson's interval is preferred over the Wald interval because it exhibits
-#' superior accuracy for binomial proportions, especially for moderate test
-#' lengths or extreme scores. For each requested level \eqn{\gamma},
-#' the confidence limits are labeled \code{lwr.xx} and \code{upr.xx}, where
-#' \code{xx} denotes the level expressed as a percentage (e.g., 95).
+#' \strong{Confidence intervals}:
+#' When \code{ci = TRUE}, two methods are available:
+#' \itemize{
+#'   \item \code{"csem"}: Classic CTT interval for the true score
+#'     \eqn{\tau = n\phi}:
+#'     \deqn{\text{equiv.score} \pm z_{\alpha/2} \cdot \text{CSEM},}
+#'     where \eqn{z_{\alpha/2}} is the normal quantile for the given confidence
+#'     level. Limits are truncated to \eqn{[0, n]}.
+#'   \item \code{"wilson"}: Wilson score interval (Wilson, 1927) for the
+#'     binomial proportion \eqn{p = \text{equiv.score}/n}:
+#'     \deqn{
+#'       \frac{p + \frac{z^2}{2n} \pm z \sqrt{\frac{p(1-p)}{n} + \frac{z^2}{4n^2}}}
+#'       {1 + \frac{z^2}{n}},
+#'     }
+#'     then multiplied by \eqn{n} to obtain limits for the true number‑correct
+#'     score. Wilson's interval is preferred over the Wald interval because it
+#'     exhibits superior accuracy for binomial proportions, especially for
+#'     moderate test lengths or extreme scores.
+#' }
+#' For each requested level \eqn{\gamma}, the confidence limits are labeled
+#' \code{lwr.xx} and \code{upr.xx}, where \code{xx} denotes the level expressed
+#' as a percentage (e.g., 95).
 #'
 #' @return
-#' A data frame with:
+#' A data frame with one row per possible raw score (from
+#' \code{min.resp*nitems} to \code{max.resp*nitems}). Columns include:
 #' \itemize{
 #'   \item \code{raw.score}: Raw score on the original metric.
 #'   \item \code{prop.score}: Raw score rescaled to \eqn{[0,1]}.
-#'   \item \code{equiv.score}: Binomial-equivalent score on the 0--\code{nitems}
-#'     scale.
 #'   \item \code{binom.CSEM}: Binomial conditional standard error of measurement.
-#'   \item Additional columns for Wilson interval lower and upper bounds,
-#'     if \code{ci = TRUE}.
+#'   \item \code{equiv.score}: (Only for \code{score.type = "poly"})
+#'     Binomial‑equivalent score on the 0–\code{nitems} scale.
+#'   \item Additional columns for confidence limits, if \code{ci = TRUE}.
 #' }
 #'
 #' @references
@@ -92,20 +109,26 @@
 #'   \emph{The American Statistician}, 52, 119–126.
 #'
 #' @examples
-#' # Dichotomous example with confidence intervals
+#' # Dichotomous example (0/1 items) – classic CSEM-based 95% CI
 #' csemBinom(
-#'   score      = c(4, 6, 9),
 #'   score.type = "dich",
 #'   nitems     = 12,
-#'   min.resp   = 0,
-#'   max.resp   = 1,
 #'   ci         = TRUE,
+#'   ci.method  = "csem",
 #'   conf.level = 0.95
+#' )
+#'
+#' # Dichotomous example – Wilson 90% and 95% CIs
+#' csemBinom(
+#'   score.type = "dich",
+#'   nitems     = 12,
+#'   ci         = TRUE,
+#'   ci.method  = "wilson",
+#'   conf.level = c(0.90, 0.95)
 #' )
 #'
 #' # Polytomous example (0–4 scale)
 #' csemBinom(
-#'   score      = c(15, 20, 25),
 #'   score.type = "poly",
 #'   nitems     = 12,
 #'   min.resp   = 0,
@@ -114,122 +137,105 @@
 #'
 #' @export
 csemBinom <- function(
-    score,
-    score.type = c("poly", "dich"),
+    score.type = c("dich", "poly"),
     nitems,
-    min.resp,
-    max.resp,
-    ci          = FALSE,
-    conf.level  = NULL,
+    min.resp = NULL,
+    max.resp = NULL,
+    ci = FALSE,
+    ci.method = c("csem", "wilson"),
+    conf.level = NULL,
     digits.csem = 3
 ) {
-
-  # Match score.type
   score.type <- match.arg(score.type)
+  ci.method <- match.arg(ci.method)
 
-  # 1. Calculate minimum and maximum possible raw scores
+  if (score.type == "dich") {
+    # For dichotomous, ignore min.resp and max.resp
+    if (!is.null(min.resp) || !is.null(max.resp)) {
+      message("Note: 'min.resp' and 'max.resp' are ignored for score.type = 'dich' (set to 0 and 1).")
+    }
+    min.resp <- 0
+    max.resp <- 1
+  } else {
+    # Polytomous: require min.resp and max.resp
+    if (is.null(min.resp) || is.null(max.resp)) {
+      stop("For score.type = 'poly', you must provide min.resp and max.resp.")
+    }
+    if (min.resp >= max.resp) stop("min.resp must be less than max.resp.")
+  }
+
+  # Validate nitems
+  if (!is.numeric(nitems) || length(nitems) != 1 || nitems < 2) {
+    stop("nitems must be a single integer >= 2.")
+  }
+  nitems <- as.integer(nitems)
+
   minscore <- min.resp * nitems
   maxscore <- max.resp * nitems
+  raw.score <- seq(minscore, maxscore, by = 1)
 
-  # 2. Validate parameters
-  if (!is.numeric(nitems) || !is.numeric(min.resp) || !is.numeric(max.resp)) {
-    stop("All arguments nitems, min.resp, and max.resp must be numeric.")
-  }
-
-  if (minscore >= maxscore) {
-    stop("Minimum score cannot be greater than or equal to the maximum score.")
-  }
-
-  if (nitems <= 1) {
-    stop("The number of items (nitems) must be greater than 1.")
-  }
-
-  # 3. Generate all possible raw scores
-  raw.score <- seq(from = minscore, to = maxscore, by = 1)
-
-  # 4. Compute proportion and binomial-equivalent scores
+  # Proportion and equivalent score
+  prop.score <- (raw.score - minscore) / (maxscore - minscore)
   if (score.type == "dich") {
-    # For dichotomous items, the raw score is already 0..nitems
-    prop.score  <- (raw.score - minscore) / (maxscore - minscore)
-    equiv.score <- raw.score
+    equiv.score <- raw.score   # but we won't show it
   } else {
-    message("ℹ️ Converting polytomous scores into a binomial-equivalent score.")
-    prop.score  <- (raw.score - minscore) / (maxscore - minscore)
     equiv.score <- prop.score * nitems
   }
 
-  # 5. Compute binomial CSEM
-  binom.var  <- (equiv.score * (nitems - equiv.score)) / (nitems - 1)
-  binom.var[binom.var < 0] <- NA_real_
-  binom.CSEM <- sqrt(binom.var)
+  # CSEM
+  var <- (equiv.score * (nitems - equiv.score)) / (nitems - 1)
+  var[var < 0] <- NA_real_
+  csem <- sqrt(var)
 
-  # 6. Optional confidence intervals (Wilson) for the true number-correct score
-  ci_df <- NULL
-  if (isTRUE(ci)) {
+  # Prepare result data frame
+  result <- data.frame(
+    raw.score = raw.score,
+    prop.score = round(prop.score, digits.csem),
+    binom.CSEM = round(csem, digits.csem)
+  )
+  if (score.type == "poly") {
+    result <- cbind(result, equiv.score = round(equiv.score, digits.csem))
+  }
 
-    # Default conf.level if ci = TRUE and conf.level is NULL
-    if (is.null(conf.level)) {
-      conf.level <- 0.95
-    }
-
+  # Confidence intervals
+  if (ci) {
+    if (is.null(conf.level)) conf.level <- 0.95
     conf.level <- sort(unique(conf.level))
-
-    if (any(conf.level <= 0 | conf.level >= 1)) {
-      stop("`conf.level` must contain values strictly between 0 and 1 (e.g., 0.95).")
-    }
+    if (any(conf.level <= 0 | conf.level >= 1))
+      stop("conf.level must be between 0 and 1.")
 
     n <- nitems
-    ci_mat <- matrix(NA_real_, nrow = length(equiv.score),
-                     ncol = 2L * length(conf.level))
-    colnames_ci <- character(2L * length(conf.level))
+    z <- stats::qnorm((1 + conf.level)/2)
+    ci_mat <- matrix(NA, nrow = length(raw.score), ncol = 2*length(conf.level))
+    colnames_ci <- character(2*length(conf.level))
 
     for (i in seq_along(conf.level)) {
-      cl <- conf.level[i]
-      z  <- stats::qnorm((1 + cl) / 2)
-
-      # Wilson interval for proportion p = X / n using binomial-equivalent X
-      center <- (equiv.score + z^2 / 2) / (n + z^2)
-      half_w <- z * sqrt((equiv.score * (n - equiv.score) / n) + z^2 / 4) /
-        (n + z^2)
-
-      p_low  <- center - half_w
-      p_high <- center + half_w
-
-      # Truncate to [0, 1]
-      p_low[p_low < 0]   <- 0
-      p_high[p_high > 1] <- 1
-
-      tau_low  <- n * p_low
-      tau_high <- n * p_high
-
-      ci_mat[, (2 * i - 1)] <- tau_low
-      ci_mat[, (2 * i)]     <- tau_high
-
-      colnames_ci[(2 * i - 1)] <- paste0("lwr.", formatC(cl * 100, format = "f", digits = 0))
-      colnames_ci[(2 * i)]     <- paste0("upr.", formatC(cl * 100, format = "f", digits = 0))
+      if (ci.method == "csem") {
+        low <- equiv.score - z[i] * csem
+        high <- equiv.score + z[i] * csem
+        low[low < 0] <- 0
+        high[high > n] <- n
+      } else { # wilson
+        center <- (equiv.score + z[i]^2/2) / (n + z[i]^2)
+        half <- z[i] * sqrt((equiv.score*(n - equiv.score)/n) + z[i]^2/4) / (n + z[i]^2)
+        p_low <- center - half
+        p_high <- center + half
+        p_low[p_low < 0] <- 0
+        p_high[p_high > 1] <- 1
+        low <- n * p_low
+        high <- n * p_high
+      }
+      ci_mat[, 2*i - 1] <- low
+      ci_mat[, 2*i] <- high
+      colnames_ci[2*i - 1] <- paste0("lwr.", formatC(conf.level[i]*100, format="f", digits=0))
+      colnames_ci[2*i] <- paste0("upr.", formatC(conf.level[i]*100, format="f", digits=0))
     }
-
     colnames(ci_mat) <- colnames_ci
-    ci_df <- as.data.frame(ci_mat)
-    ci_df <- as.data.frame(lapply(ci_df, round, digits = digits.csem))
+    result <- cbind(result, round(ci_mat, digits.csem))
   }
 
-  # 7. Create final data frame
-  result <- data.frame(
-    raw.score   = raw.score,
-    prop.score  = round(prop.score,  digits.csem),
-    equiv.score = round(equiv.score, digits.csem),
-    binom.CSEM  = round(binom.CSEM, digits.csem)
-  )
-
-  if (!is.null(ci_df)) {
-    result <- cbind(result, ci_df)
-  }
-
-  # 8. Warning if extreme values
-  if (any(binom.CSEM == 0, na.rm = TRUE)) {
-    message("⚠️ Some CSEM values are zero, likely at the scale boundaries.")
-  }
+  # Warning for zero CSEM
+  if (any(csem == 0, na.rm=TRUE)) message("⚠️ Some CSEM values are zero at boundaries.")
 
   return(result)
 }
