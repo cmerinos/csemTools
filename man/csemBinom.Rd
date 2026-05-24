@@ -5,53 +5,55 @@
 \title{Binomial Model for Conditional Standard Error of Measurement (CSEM)}
 \usage{
 csemBinom(
-  score,
-  score.type = c("poly", "dich"),
+  score.type = c("dich", "poly"),
   nitems,
-  min.resp,
-  max.resp,
+  min.resp = NULL,
+  max.resp = NULL,
   ci = FALSE,
+  ci.method = c("csem", "wilson"),
   conf.level = NULL,
   digits.csem = 3
 )
 }
 \arguments{
-\item{score}{Numeric vector (retained for compatibility; not used directly
-in the current implementation).}
-
 \item{score.type}{Character string. Type of item scoring:
 \code{"dich"} for dichotomous items (default) or \code{"poly"} for
-polytomous items. For polytomous items, raw scores are linearly
-transformed into binomial-equivalent scores on the 0--\code{nitems} scale.}
+polytomous items.}
 
 \item{nitems}{Integer. Number of items in the test.}
 
-\item{min.resp}{Integer. Minimum response value per item.}
+\item{min.resp}{Numeric. Minimum response value per item.
+\strong{Required only when \code{score.type = "poly"}. Ignored for dichotomous.}}
 
-\item{max.resp}{Integer. Maximum response value per item.}
+\item{max.resp}{Numeric. Maximum response value per item.
+\strong{Required only when \code{score.type = "poly"}. Ignored for dichotomous.}}
 
-\item{ci}{Logical. If \code{TRUE}, compute Wilson score confidence intervals
-for the true number-correct score. Default is \code{FALSE}.}
+\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the
+true number-correct score. Default is \code{FALSE}.}
 
-\item{conf.level}{Numeric vector or \code{NULL}. Confidence level(s) for
-Wilson intervals (e.g., \code{0.95} or \code{c(0.90, 0.95)}). If
-\code{ci = TRUE} and \code{conf.level = NULL}, a default of \code{0.95}
-is used. If \code{ci = FALSE}, this argument is ignored.}
+\item{ci.method}{Character. Method for confidence intervals:
+\code{"csem"} (classic: \eqn{X \pm z \cdot CSEM}) or
+\code{"wilson"} (Wilson score interval). Default is \code{"csem"}.
+Only used if \code{ci = TRUE}.}
+
+\item{conf.level}{Numeric vector or \code{NULL}. Confidence level(s)
+(e.g., \code{0.95} or \code{c(0.90, 0.95)}). If \code{ci = TRUE} and
+\code{conf.level = NULL}, a default of \code{0.95} is used.}
 
 \item{digits.csem}{Integer. Number of decimal places used to round
-proportion scores, binomial-equivalent scores, CSEM, and confidence
+proportion scores, binomial‑equivalent scores, CSEM, and confidence
 interval limits. Default is 3.}
 }
 \value{
-A data frame with:
+A data frame with one row per possible raw score (from
+\code{min.resp*nitems} to \code{max.resp*nitems}). Columns include:
 \itemize{
 \item \code{raw.score}: Raw score on the original metric.
 \item \code{prop.score}: Raw score rescaled to \eqn{[0,1]}.
-\item \code{equiv.score}: Binomial-equivalent score on the 0--\code{nitems}
-scale.
 \item \code{binom.CSEM}: Binomial conditional standard error of measurement.
-\item Additional columns for Wilson interval lower and upper bounds,
-if \code{ci = TRUE}.
+\item \code{equiv.score}: (Only for \code{score.type = "poly"})
+Binomial‑equivalent score on the 0–\code{nitems} scale.
+\item Additional columns for confidence limits, if \code{ci = TRUE}.
 }
 }
 \description{
@@ -60,60 +62,81 @@ Lord's (1955, 1957) binomial error model. This formulation treats the test
 as a random sample of dichotomously scored items measuring a single ability.
 The method can be applied to both dichotomous and polytomous items by
 transforming raw scores into binomial-equivalent scores. Optionally, the
-function computes Wilson score confidence intervals for the true
-number-correct score under the binomial model.
+function computes confidence intervals for the true number-correct score
+using either the classic CSEM‑based method or the Wilson score method.
 }
 \details{
-Under the binomial error model (Lord, 1955, 1957), each examinee is assumed
-to possess a true proportion-correct score \eqn{\phi}, and the observed
-number-correct score \eqn{X} is binomially distributed with parameters
-\eqn{n} (number of items) and \eqn{\phi}. The conditional error variance
-for a person with true proportion-correct \eqn{\phi} is:
+\strong{Binomial error model (Lord, 1955, 1957)}:
+Each examinee is assumed to possess a true proportion‑correct score
+\eqn{\phi}, and the observed number‑correct score \eqn{X} is binomially
+distributed with parameters \eqn{n} (number of items) and \eqn{\phi}.
+The conditional error variance for a person with true proportion‑correct
+\eqn{\phi} is:
 \deqn{
   \sigma^2_{E|X} = n \phi (1 - \phi).
 }
 
-Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n}, yielding
-Lord's estimator of the conditional error variance:
+Since \eqn{\phi} is unknown, it is replaced by \eqn{\hat\phi = X / n},
+yielding Lord's estimator of the conditional error variance:
 \deqn{
-  \widehat{\sigma}^2_{E|X} =
-  \frac{X (n - X)}{n - 1},
+  \widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},
 }
 and the CSEM is its square root.
 
-For polytomous items, raw scores are first rescaled to proportions in
-\eqn{[0,1]} and subsequently multiplied by \eqn{n} to obtain the
-binomial-equivalent score \eqn{X}.
-
-\strong{Confidence Intervals}
-
-When \code{ci = TRUE}, Wilson score confidence intervals (Wilson, 1927)
-are computed for the true number-correct score:
+\strong{Extension to polytomous items}:
+Raw scores are first rescaled to proportions in \eqn{[0,1]} and subsequently
+multiplied by \eqn{n} to obtain the binomial‑equivalent score \eqn{X}:
 \deqn{
-  \tau = n \phi.
+  \text{equiv.score} = \frac{\text{raw.score} - \text{min.resp} \times n}
+  {\text{max.resp} \times n - \text{min.resp} \times n} \times n.
 }
+This transformation assumes equal scoring weights and that the original
+score scale is approximately linear with respect to the underlying ability.
 
-Wilson's interval is preferred over the Wald interval because it exhibits
-superior accuracy for binomial proportions, especially for moderate test
-lengths or extreme scores. For each requested level \eqn{\gamma},
-the confidence limits are labeled \code{lwr.xx} and \code{upr.xx}, where
-\code{xx} denotes the level expressed as a percentage (e.g., 95).
+\strong{Confidence intervals}:
+When \code{ci = TRUE}, two methods are available:
+\itemize{
+\item \code{"csem"}: Classic CTT interval for the true score
+\eqn{\tau = n\phi}:
+\deqn{\text{equiv.score} \pm z_{\alpha/2} \cdot \text{CSEM},}
+where \eqn{z_{\alpha/2}} is the normal quantile for the given confidence
+level. Limits are truncated to \eqn{[0, n]}.
+\item \code{"wilson"}: Wilson score interval (Wilson, 1927) for the
+binomial proportion \eqn{p = \text{equiv.score}/n}:
+\deqn{
+      \frac{p + \frac{z^2}{2n} \pm z \sqrt{\frac{p(1-p)}{n} + \frac{z^2}{4n^2}}}
+      {1 + \frac{z^2}{n}},
+    }
+then multiplied by \eqn{n} to obtain limits for the true number‑correct
+score. Wilson's interval is preferred over the Wald interval because it
+exhibits superior accuracy for binomial proportions, especially for
+moderate test lengths or extreme scores.
+}
+For each requested level \eqn{\gamma}, the confidence limits are labeled
+\code{lwr.xx} and \code{upr.xx}, where \code{xx} denotes the level expressed
+as a percentage (e.g., 95).
 }
 \examples{
-# Dichotomous example with confidence intervals
+# Dichotomous example (0/1 items) – classic CSEM-based 95\% CI
 csemBinom(
-  score      = c(4, 6, 9),
   score.type = "dich",
   nitems     = 12,
-  min.resp   = 0,
-  max.resp   = 1,
   ci         = TRUE,
+  ci.method  = "csem",
   conf.level = 0.95
+)
+
+# Dichotomous example – Wilson 90\% and 95\% CIs
+csemBinom(
+  score.type = "dich",
+  nitems     = 12,
+  ci         = TRUE,
+  ci.method  = "wilson",
+  conf.level = c(0.90, 0.95)
 )
 
 # Polytomous example (0–4 scale)
 csemBinom(
-  score      = c(15, 20, 25),
   score.type = "poly",
   nitems     = 12,
   min.resp   = 0,
