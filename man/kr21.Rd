@@ -29,4 +29,5 @@ Rows with missing values are removed using \code{na.exclude}.
 \examples{
 # data.u is a hypothetical dataset of 3000 persons and 40 dichotomous items
 # kr21(data.u)
+
 }
