@@ -93,6 +93,8 @@
 #'           data = data.u, ci = TRUE, rho.report = TRUE)
 #' }
 #'
+#'@importFrom stats na.exclude qnorm var
+#'
 #' @export
 csemBinom <- function(score.type = c("dich", "poly"),
                       nitems,
