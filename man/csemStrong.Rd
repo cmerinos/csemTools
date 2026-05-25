@@ -5,8 +5,8 @@
 \title{Strong True Score (Compound Binomial) Model for CSEM}
 \usage{
 csemStrong(
-  score.type = c("dich", "poly"),
   data,
+  score.type = c("dich", "poly"),
   nitems = NULL,
   min.resp = NULL,
   max.resp = NULL,
@@ -14,100 +14,77 @@ csemStrong(
   ci.method = c("csem", "wilson"),
   conf.level = NULL,
   digits.csem = 3,
-  rho.report = FALSE,
+  summary = FALSE,
   full.range = TRUE,
   return.person = FALSE,
   na.rm = TRUE
 )
 }
 \arguments{
+\item{data}{A numeric matrix or data frame with examinees in rows and
+items in columns. For \code{score.type = "dich"} entries must be 0/1;
+for \code{"poly"} they range between \code{min.resp} and \code{max.resp}.}
+
 \item{score.type}{Character: \code{"dich"} (default) or \code{"poly"}.}
 
-\item{data}{A numeric matrix or data frame with examinees in rows and
-items in columns. For \code{score.type = "dich"} the entries must be
-0/1; for \code{"poly"} they range between \code{min.resp} and
-\code{max.resp}.}
-
 \item{nitems}{Optional integer. Number of items. If \code{NULL} (default),
-it is taken as \code{ncol(data)}.}
+taken as \code{ncol(data)}.}
 
 \item{min.resp}{Numeric. Minimum response value per item.
-\strong{Required when \code{score.type = "poly"}}; ignored for dichotomous.}
+\strong{Required when \code{score.type = "poly"}}.}
 
 \item{max.resp}{Numeric. Maximum response value per item.
-\strong{Required when \code{score.type = "poly"}}; ignored for dichotomous.}
+\strong{Required when \code{score.type = "poly"}}.}
 
-\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the
-true number-correct score. Default \code{FALSE}.}
+\item{ci}{Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.}
 
-\item{ci.method}{Character: \code{"csem"} (classic: \eqn{X \pm z \cdot CSEM})
-or \code{"wilson"} (Wilson score interval). Default \code{"csem"}.}
+\item{ci.method}{Character: \code{"csem"} (classic) or \code{"wilson"}.
+Default \code{"csem"}.}
 
 \item{conf.level}{Numeric vector of confidence levels (e.g., 0.95).
 Default \code{NULL} → 0.95.}
 
 \item{digits.csem}{Integer for rounding. Default 3.}
 
-\item{rho.report}{Logical. If \code{TRUE}, returns a data frame with the
-key parameters used in the strong true score correction (mean total
-score, variance of total scores, variance of item difficulties, mean
-binomial variance, and the correction factor). Default \code{FALSE}.}
+\item{summary}{Logical. If \code{TRUE}, returns a data frame with key
+parameters (mu_X, var_Xp, var_Xi, mean_pq, correction_factor).
+Default \code{FALSE}.}
 
 \item{full.range}{Logical. If \code{TRUE} (default), CSEM values are
-reported for the full score range (from minimum possible to maximum
-possible). If \code{FALSE}, only scores observed in \code{data} are
-reported.}
+reported for the full score range (all possible scores). For dichotomous,
+that is 0:nitems; for polytomous, all observed equivalent scores plus
+the extremes 0 and nitems. If \code{FALSE}, only scores observed in
+\code{data} are reported.}
 
-\item{return.person}{Logical. If \code{TRUE}, the output includes a
-data frame with person-level CSEM values and, if requested, confidence
-intervals. Default \code{FALSE}.}
+\item{return.person}{Logical. If \code{TRUE}, includes a person‑level
+data frame. Default \code{FALSE}.}
 
-\item{na.rm}{Logical. If \code{TRUE} (default), rows with any missing
-values are removed. If \code{FALSE}, the function stops with an error
-when missing values are present.}
+\item{na.rm}{Logical. If \code{TRUE} (default), rows with missing values
+are removed. If \code{FALSE}, stops on missing values.}
 }
 \value{
-A list of class \code{"csemStrong"} with components:
-\item{score}{A data frame with one row per possible raw score (or per
-observed score if \code{full.range = FALSE}). Columns:
-\code{raw.score} (original score), \code{equiv.score} (if polytomous),
-\code{n} (number of examinees with that score), \code{csem.strong}
-(strong true score CSEM), and, if \code{ci = TRUE}, confidence limits.}
-\item{person}{If \code{return.person = TRUE}, a data frame with one row
-per examinee: \code{id}, \code{raw.score}, \code{equiv.score} (if
-polytomous), \code{csem.strong}, and the same confidence limits.}
-\item{summary}{If \code{rho.report = TRUE}, a data frame with the key
-parameters (\code{n_items}, \code{mu_X}, \code{var_Xp}, \code{var_Xi},
-\code{mean_pq}, \code{correction_factor}); otherwise \code{NULL}.}
-\item{call}{The matched function call.}
+A list with components:
+\item{score}{Data frame with columns: \code{raw.score} (original total),
+\code{equiv.score} (if polytomous), \code{n} (frequency), \code{csem.strong},
+and confidence limits if requested.}
+\item{person}{(if \code{return.person = TRUE}) Person‑level data frame.}
+\item{summary}{(if \code{summary = TRUE}) Data frame with parameters.}
 }
 \description{
 Computes conditional standard errors of measurement (CSEM) under Lord's
-strong true score theory (also known as the compound binomial model),
-following the estimator described by Lord (1965) and summarized by
-Tong and Kolen (2018). The method can be applied to both dichotomous
-and polytomous items by transforming raw scores into binomial-equivalent
-scores. Optionally, the function computes confidence intervals for the
-true number-correct score using either the classic CSEM‑based method or
-the Wilson score method.
+strong true score theory (compound binomial model) for dichotomously
+scored items. The estimator follows Lord (1965) as summarized by
+Tong and Kolen (2018). Optionally, the function computes confidence
+intervals for the true number‑correct score.
 }
 \details{
-\strong{Strong true score / compound binomial model (Lord, 1965)}:
-Assume that for a given examinee the observed number‑correct score
-follows a binomial distribution conditional on a true proportion correct
-\eqn{\phi}, and that the distribution of true scores across examinees
-follows a beta‑like distribution. Lord derived an estimator for the
-conditional error variance that adjusts the simple binomial variance
-using information about the dispersion of item difficulties and the
-total score distribution.
-
+\strong{Strong true score model (Lord, 1965)}:
 Let \eqn{n} be the number of items, \eqn{x} a raw (or binomial‑equivalent)
 score, \eqn{\hat{\mu}_X} the sample mean of total scores,
 \eqn{S_X^2} the sample variance of total scores, \eqn{S_{Xi}^2} the sample
-variance of item difficulties (proportion correct for dichotomous items,
-or transformed proportion for polytomous), and \eqn{\bar{pq}} the average
-of \eqn{p_j(1-p_j)} across items. Then the strong true score error
-variance is:
+variance of item difficulties (proportion correct for dichotomous,
+scaled proportion for polytomous), and \eqn{\bar{pq}} the average of
+\eqn{p_j(1-p_j)}. The strong true score error variance is:
 \deqn{
   \hat{\sigma}^2_{E|x} =
     \frac{x (n - x)}{n - 1}
@@ -118,55 +95,27 @@ variance is:
       }
     \right],
 }
-and the CSEM is \eqn{\sqrt{\hat{\sigma}^2_{E|x}}}.
+and the CSEM is its square root.
 
-\strong{Extension to polytomous items}:
-When \code{score.type = "poly"}, the raw item responses are linearly
-transformed to proportions in \eqn{[0,1]} using the per‑item minimum and
-maximum possible values (provided via \code{min.resp} and \code{max.resp}).
-Then the transformed proportions are summed to form an equivalent total
-score on the 0–\code{nitems} scale. All subsequent calculations
-(means, variances, CSEM) are performed on this equivalent scale.
-
-\strong{Confidence intervals}:
-When \code{ci = TRUE}, two methods are available:
-\itemize{
-\item \code{ci.method = "csem"}: Classic CTT interval for the true score
-\eqn{\tau = n\phi}:
-\deqn{\text{equiv.score} \pm z_{\alpha/2} \cdot \text{CSEM}.}
-\item \code{ci.method = "wilson"}: Wilson score interval for the
-binomial proportion \eqn{p = \text{equiv.score}/n}, multiplied by
-\eqn{n} to obtain limits for \eqn{\tau}. This interval has better
-coverage properties for extreme scores or short tests.
-}
-For each requested level \eqn{\gamma}, the bounds are labeled
-\code{lwr.xx} and \code{upr.xx} where \code{xx} is the level in percent.
+\strong{Polytomous items}:
+Raw scores are linearly transformed to proportions in \eqn{[0,1]} using
+\code{min.resp} and \code{max.resp}, then summed to obtain an equivalent
+total score on the 0–\code{nitems} scale. All subsequent calculations
+are performed on this equivalent scale.
 }
 \examples{
-# Dichotomous example
-set.seed(123)
-n_persons <- 200
-n_items   <- 30
-theta <- rnorm(n_persons)
-b     <- rnorm(n_items, sd = 1)
-pmat  <- plogis(outer(theta, -b, "+"))
-data_sim <- matrix(rbinom(n_persons * n_items, 1, pmat), nrow = n_persons)
-res <- csemStrong(score.type = "dich", data = data_sim, ci = TRUE, conf.level = 0.95)
-head(res$score)
-
-# Polytomous example (0–4 scale)
-# (Assume data_poly is a matrix with values 0:4)
 \dontrun{
-csemStrong(score.type = "poly", data = data_poly, min.resp = 0, max.resp = 4)
+# Dichotomous example
+csemStrong(data = data_u, score.type = "dich", ci = TRUE, summary = TRUE)
+
+# Polytomous example
+csemStrong(data = data_poly, score.type = "poly", min.resp = 1, max.resp = 6)
 }
 
 }
 \references{
 Lord, F. M. (1965). A strong true score theory, with applications.
 \emph{Psychometrika}, 30, 239–270.
-Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of
-measurement. In \emph{Wiley StatsRef: Statistics Reference Online}.
-Wilson, E. B. (1927). Probable inference, the law of succession, and
-statistical inference. \emph{Journal of the American Statistical
-Association}, 22(158), 209–212.
+Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
+In \emph{Wiley StatsRef: Statistics Reference Online}.
 }
