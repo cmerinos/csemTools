@@ -136,6 +136,8 @@
 #' csemStrong(score.type = "poly", data = data_poly, min.resp = 0, max.resp = 4)
 #' }
 #'
+#'@importFrom stats complete.cases var qnorm
+#'
 #' @export
 csemStrong <- function(score.type = c("dich", "poly"),
                        data,
