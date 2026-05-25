@@ -2,7 +2,6 @@
 % Please edit documentation in R/csemFeldt.R
 \name{csemFeldt}
 \alias{csemFeldt}
-\alias{feldt.CSEM}
 \title{Feldt's method for Conditional Standard Error of Measurement (CSEM)}
 \usage{
 csemFeldt(
@@ -12,22 +11,18 @@ csemFeldt(
   aggregate = c("mean", "median", "midpoint"),
   min.n = 5,
   merge.method = c("nearest", "left", "right"),
+  ci = FALSE,
   conf.level = NULL,
   bound.scores = TRUE,
-  integer.scores = TRUE,
   score.range = NULL,
   score.display = c("auto", "center", "range"),
   digits.csem = 4,
-  digits.ci = 2,
-  quantile.type = 7,
   smooth = FALSE,
   degree = 2,
-  scale = NULL,
-  digits.scale = 2,
+  full.range = FALSE,
+  summary = FALSE,
   na.rm = TRUE
 )
-
-feldt.CSEM(...)
 }
 \arguments{
 \item{data}{A data frame or matrix with item responses (subjects in rows, items in columns).
@@ -55,12 +50,13 @@ until all bands have at least \code{min.n} subjects. Default = 5.}
 \item{merge.method}{Character. Rule to merge undersized bands: \code{"nearest"} (default),
 \code{"left"}, or \code{"right"}.}
 
+\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
+Default \code{FALSE}.}
+
 \item{conf.level}{Numeric vector or NULL. Confidence level(s) for score intervals
 (e.g., 0.95 or c(0.90, 0.95)). If NULL (default), confidence intervals are not computed.}
 
 \item{bound.scores}{Logical. If TRUE (default), score-interval bounds are truncated to the chosen score range.}
-
-\item{integer.scores}{Logical. If TRUE (default), interval bounds are rounded to integers.}
 
 \item{score.range}{Numeric length-2 or NULL. If NULL (default), bounds use the \emph{observed}
 total-score range. If provided as \code{c(min,max)}, bounds are truncated to this range
@@ -71,12 +67,7 @@ total-score range. If provided as \code{c(min,max)}, bounds are truncated to thi
 \code{"center"} (always the band center as a number), or
 \code{"range"} (always "lo, hi").}
 
-\item{digits.csem}{Integer. Rounding digits for \code{CSEM}. Default = 4.}
-
-\item{digits.ci}{Integer. Rounding digits for CI bounds when \code{integer.scores = FALSE}. Default = 2.}
-
-\item{quantile.type}{Integer in 1:9. Quantile algorithm used to build bands by quantiles.
-Default = 7. See \code{?quantile} for details.}
+\item{digits.csem}{Integer. Rounding digits for \code{CSEM} and confidence limits. Default = 4.}
 
 \item{smooth}{Logical. If TRUE, applies a polynomial smoothing to the CSEM as a function of the
 score (or band center). The raw Feldt estimates are kept in \code{CSEM.raw}, and the smoothed
@@ -84,36 +75,34 @@ values replace \code{CSEM}. Confidence intervals are based on the smoothed CSEM.
 
 \item{degree}{Integer. Degree of the polynomial used when \code{smooth = TRUE}. Default = 2.}
 
-\item{scale}{Numeric length-2 or NULL. If not NULL, defines a linear transformation of the score to a
-new scale with mean and SD given by \code{c(M, SD)}. For \code{score.group = "all"}, the function
-adds columns with scaled scores and scaled confidence limits. For banded scores, it returns a list
-with the original table and a separate table in the scaled metric. Default = NULL.}
+\item{full.range}{Logical. If TRUE, CSEM values are reported for every integer score from the
+minimum to the maximum possible. Requires \code{smooth = TRUE} for stable estimates;
+if smooth=FALSE, linear interpolation is used (warning issued). Default FALSE.}
 
-\item{digits.scale}{Integer. Rounding digits for scaled scores and scaled CI bounds. Default = 2.}
+\item{summary}{Logical. If TRUE, returns additional components with summary information
+(general statistics and, if smoothing, polynomial coefficients and fit measures).
+Default FALSE.}
 
 \item{na.rm}{Logical. If TRUE (default), removes rows with any NA across items.}
 }
 \value{
-If \code{scale = NULL} or \code{score.group = "all"}, a data frame with columns:
+A list with components:
+\item{table}{Data frame with columns:
 \itemize{
 \item \strong{Score}: numeric if \code{score.group = "all"} (unless \code{score.display = "range"}),
 otherwise either a center value or a "lo, hi" string depending on \code{score.display}.
 \item \strong{CSEM}: conditional standard error (numeric). If \code{smooth = TRUE}, the smoothed
 estimates; the raw Feldt estimates are in \code{CSEM.raw}.
 \item \strong{CSEM.raw}: raw Feldt CSEM estimates (only when \code{smooth = TRUE}).
-\item \strong{lwr.ci.xx}, \strong{upr.ci.xx}: lower/upper CI bounds for each requested level (if any).
-\item \strong{Score.scaled}, \strong{lwr.ci.xx.scaled}, \strong{upr.ci.xx.scaled}:
-scaled scores and CIs when \code{scale} is not NULL and \code{score.group = "all"}.
-\item \strong{n}: number of examinees in the score or band.
-}
-
-If \code{scale} is not NULL and \code{score.group} is a banded option ("deciles", "quartiles",
-"quintiles", or "k"), a list with:
+\item \strong{lwr.xx}, \strong{upr.xx}: lower/upper CI bounds for each requested level (if any).
+\item \strong{n}: number of examinees in the score or band (for full.range = TRUE, n is NA).
+}}
+\item{summary}{(if \code{summary = TRUE}) a list with:
 \itemize{
-\item \strong{table}: the original data frame as described above (in the raw score metric).
-\item \strong{scaled}: a data frame with band labels, band centers and ranges in the scaled metric,
-and scaled confidence intervals.
-}
+\item \code{general}: a data frame with method, number of groups, persons, items, score range, etc.
+\item \code{polynomial}: (if \code{smooth = TRUE}) a list with coefficients, R-squared, AIC, BIC,
+residual standard error, and other fit statistics.
+}}
 }
 \description{
 Calculates the Conditional Standard Error of Measurement (CSEM) following the
@@ -121,10 +110,10 @@ Feldt, Steffen, & Gupta (1985) variance-components approach. The CSEM is
 estimated at each score level or score band using item variances within groups.
 }
 \details{
-For each score group \(g\) with \(N_g\) examinees and \(k\) items, the conditional error variance is:
+For each score group \eqn{g} with \eqn{N_g} examinees and \eqn{k} items, the conditional error variance is:
 \deqn{\widehat{\sigma}^2_{E(cond)}(g) =
   \left(\frac{k}{k-1}\right)\left(\frac{N_g}{N_g-1}\right)\sum_{j=1}^k s^2_{jg}}
-where \(s^2_{jg}\) is the sample variance of item \(j\) in group \(g\) (using divisor \(N_g-1\)).
+where \eqn{s^2_{jg}} is the sample variance of item \eqn{j} in group \eqn{g} (using divisor \eqn{N_g-1}).
 Then \eqn{CSEM(g) = \sqrt{\widehat{\sigma}^2_{E(cond)}(g)}}.
 
 When bands are used (deciles/quartiles/quintiles/k), the representative score for centering the CI is
@@ -132,35 +121,35 @@ determined by \code{aggregate}: mean, median, or midpoint of the observed score 
 
 Confidence intervals for the \emph{true score} are centered on that representative score:
 \deqn{[\; \text{Score}_\text{center} - z \cdot CSEM,\;\; \text{Score}_\text{center} + z \cdot CSEM \;]}
-where \(z\) is the standard normal quantile for the requested \code{conf.level}.
+where \eqn{z} is the standard normal quantile for the requested \code{conf.level}.
 
-When \code{smooth = TRUE}, a polynomial regression \eqn{CSEM \sim \text{poly(Score, degree)}} is fitted
+When \code{smooth = TRUE}, a polynomial regression \eqn{CSEM \sim \text{poly}(Score, degree)} is fitted
 to the raw Feldt estimates, and the predicted values (truncated at zero) replace \code{CSEM}. The raw
 estimates are retained in \code{CSEM.raw}.
 
-When \code{scale = c(M, SD)}, the observed total scores are linearly transformed to a new metric with
-mean \code{M} and standard deviation \code{SD}. For \code{score.group = "all"}, the function returns
-a single data frame with scaled scores and scaled confidence intervals. For banded scores, it returns a
-list with the original table and a separate table with band centers, ranges, and confidence intervals
-in the scaled metric.
+If \code{full.range = TRUE}, the function evaluates the CSEM (smoothed or interpolated) at each integer
+score within the observed (or user-supplied) range. This is particularly useful for creating a complete
+CSEM table. It is strongly recommended to use \code{smooth = TRUE} together with \code{full.range = TRUE}
+to avoid erratic estimates.
 }
 \examples{
 set.seed(123)
 X <- data.frame(matrix(sample(1:5, 200 * 8, replace = TRUE), ncol = 8))
 
-# CSEM for each unique score
-head(csemFeldt(X, score.group = "all"))
+# CSEM for each unique score, with 95\% CI
+res <- csemFeldt(X, score.group = "all", ci = TRUE, conf.level = 0.95)
+head(res$table)
 
-# Bands by quartiles with 90\% and 95\% CIs
-res.q <- csemFeldt(X, score.group = "quartiles", conf.level = c(0.90, 0.95))
-
-# CSEM by deciles, smoothed, with scaled scores (e.g., M = 5, SD = 2)
-res.d <- csemFeldt(X, score.group = "deciles", conf.level = 0.95,
-                   smooth = TRUE, degree = 2, scale = c(5, 2))
+# Bands by quartiles, smoothed, full range, with summary
+res2 <- csemFeldt(X, score.group = "quartiles", smooth = TRUE, degree = 2,
+                  full.range = TRUE, summary = TRUE)
+res2$table
+res2$summary$general
+res2$summary$polynomial
 
 }
 \references{
 Feldt, L. S., Steffen, M., & Gupta, N. C. (1985).
 A comparison of five methods for estimating the standard error of measurement at specific score levels.
-\emph{Applied Psychological Measurement, 9}(4), 351–361. https://doi.org/10.1177/014662168500900402
+\emph{Applied Psychological Measurement}, 9(4), 351–361. \doi{10.1177/014662168500900402}
 }
