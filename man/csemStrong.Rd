@@ -77,32 +77,6 @@ scored items. The estimator follows Lord (1965) as summarized by
 Tong and Kolen (2018). Optionally, the function computes confidence
 intervals for the true number‑correct score.
 }
-\details{
-\strong{Strong true score model (Lord, 1965)}:
-Let \eqn{n} be the number of items, \eqn{x} a raw (or binomial‑equivalent)
-score, \eqn{\hat{\mu}_X} the sample mean of total scores,
-\eqn{S_X^2} the sample variance of total scores, \eqn{S_{Xi}^2} the sample
-variance of item difficulties (proportion correct for dichotomous,
-scaled proportion for polytomous), and \eqn{\bar{pq}} the average of
-\eqn{p_j(1-p_j)}. The strong true score error variance is:
-\deqn{
-  \hat{\sigma}^2_{E|x} =
-    \frac{x (n - x)}{n - 1}
-    \left[
-      1 -
-      \frac{n (n - 1) S_{Xi}^2}{
-        \hat{\mu}_X (n - \hat{\mu}_X) - S_X^2 - n \bar{pq}
-      }
-    \right],
-}
-and the CSEM is its square root.
-
-\strong{Polytomous items}:
-Raw scores are linearly transformed to proportions in \eqn{[0,1]} using
-\code{min.resp} and \code{max.resp}, then summed to obtain an equivalent
-total score on the 0–\code{nitems} scale. All subsequent calculations
-are performed on this equivalent scale.
-}
 \examples{
 \dontrun{
 # Dichotomous example

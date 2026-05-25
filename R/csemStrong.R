@@ -36,32 +36,6 @@
 #' @param na.rm Logical. If \code{TRUE} (default), rows with missing values
 #'   are removed. If \code{FALSE}, stops on missing values.
 #'
-#' @details
-#' \strong{Strong true score model (Lord, 1965)}:
-#' Let \eqn{n} be the number of items, \eqn{x} a raw (or binomial‑equivalent)
-#' score, \eqn{\hat{\mu}_X} the sample mean of total scores,
-#' \eqn{S_X^2} the sample variance of total scores, \eqn{S_{Xi}^2} the sample
-#' variance of item difficulties (proportion correct for dichotomous,
-#' scaled proportion for polytomous), and \eqn{\bar{pq}} the average of
-#' \eqn{p_j(1-p_j)}. The strong true score error variance is:
-#' \deqn{
-#'   \hat{\sigma}^2_{E|x} =
-#'     \frac{x (n - x)}{n - 1}
-#'     \left[
-#'       1 -
-#'       \frac{n (n - 1) S_{Xi}^2}{
-#'         \hat{\mu}_X (n - \hat{\mu}_X) - S_X^2 - n \bar{pq}
-#'       }
-#'     \right],
-#' }
-#' and the CSEM is its square root.
-#'
-#' \strong{Polytomous items}:
-#' Raw scores are linearly transformed to proportions in \eqn{[0,1]} using
-#' \code{min.resp} and \code{max.resp}, then summed to obtain an equivalent
-#' total score on the 0–\code{nitems} scale. All subsequent calculations
-#' are performed on this equivalent scale.
-#'
 #' @return A list with components:
 #' \item{score}{Data frame with columns: \code{raw.score} (original total),
 #'   \code{equiv.score} (if polytomous), \code{n} (frequency), \code{csem.strong},
@@ -83,8 +57,6 @@
 #' # Polytomous example
 #' csemStrong(data = data_poly, score.type = "poly", min.resp = 1, max.resp = 6)
 #' }
-#'
-#'@importFrom stats complete.cases var qnorm
 #'
 #' @export
 csemStrong <- function(data,
@@ -141,6 +113,8 @@ csemStrong <- function(data,
     # Scale each item to [0,1]
     X_scaled <- (X - min.resp) / (max.resp - min.resp)
     equiv_total <- rowSums(X_scaled)          # ranges 0..nitems
+    # Redondear para evitar errores de precisión
+    equiv_total <- round(equiv_total, digits = 10)
     raw_total   <- rowSums(X)                 # original raw sum
     p_item <- colMeans(X_scaled)
     mean_pq <- mean(p_item * (1 - p_item))
@@ -172,11 +146,11 @@ csemStrong <- function(data,
     if (score.type == "dich") {
       score_vals <- 0:nitems
     } else {
-      # For polytomous: take unique observed equiv scores, then add 0 and nitems if not present
+      # Para politómico: valores observados únicos, luego añadir 0 y nitems si no están
       score_vals <- sort(unique(equiv_total))
-      if (!any(score_vals == 0)) score_vals <- c(0, score_vals)
-      if (!any(score_vals == nitems)) score_vals <- c(score_vals, nitems)
-      score_vals <- sort(unique(score_vals))
+      if (!any(abs(score_vals - 0) < 1e-9)) score_vals <- c(0, score_vals)
+      if (!any(abs(score_vals - nitems) < 1e-9)) score_vals <- c(score_vals, nitems)
+      score_vals <- sort(unique(round(score_vals, digits = 10)))
     }
   } else {
     score_vals <- sort(unique(equiv_total))
@@ -189,24 +163,24 @@ csemStrong <- function(data,
   var_strong[var_strong < 0] <- NA_real_
   csem_strong <- sqrt(var_strong)
 
-  # --- Frequency table (ensure no duplications) ---
+  # --- Frequency table (usando los valores redondeados) ---
   freq_tab <- table(equiv_total)
   freq_vec <- as.numeric(freq_tab[match(score_vals, as.numeric(names(freq_tab)))])
   freq_vec[is.na(freq_vec)] <- 0L
 
   # --- Map raw scores (for polytomous) ---
   if (score.type == "poly") {
-    # For each equiv score value, find the corresponding raw_total(s)
+    # Para cada valor de equiv score, obtener el raw_total correspondiente (único o el primero)
     raw_by_equiv <- tapply(raw_total, equiv_total, unique)
     raw_for_score <- sapply(score_vals, function(v) {
       r <- raw_by_equiv[[as.character(v)]]
-      if (is.null(r)) NA else r[1]   # take first if multiple
+      if (is.null(r)) NA else r[1]
     })
   } else {
     raw_for_score <- score_vals
   }
 
-  # --- Build score data frame (no duplicates) ---
+  # --- Build score data frame (eliminar filas con raw.score NA, que son extremos no observados) ---
   score_df <- data.frame(
     raw.score = raw_for_score,
     n = freq_vec,
@@ -217,24 +191,30 @@ csemStrong <- function(data,
                       equiv.score = round(score_vals, digits.csem),
                       score_df[, -1, drop = FALSE])
   }
-  # Remove rows with raw.score NA (if any) – they correspond to unobserved extremes added
+  # Eliminar filas donde raw.score sea NA (extremos añadidos sin datos)
   score_df <- score_df[!is.na(score_df$raw.score), ]
+  # Si se solicitó full.range = FALSE, adicionalmente eliminar filas con n = 0
+  if (!full.range) {
+    score_df <- score_df[score_df$n > 0, ]
+  }
 
-  # --- Confidence intervals ---
+  # --- Confidence intervals (solo si ci = TRUE) ---
   if (ci) {
     if (is.null(conf.level)) conf.level <- 0.95
     conf.level <- sort(unique(conf.level))
     if (any(conf.level <= 0 | conf.level >= 1))
       stop("conf.level must be between 0 and 1.")
     n <- nitems
+    # Asegurar que usamos los mismos score_vals que están en score_df (filtrados)
+    x_vals <- if (score.type == "poly") score_df$equiv.score else score_df$raw.score
     z_vals <- stats::qnorm((1 + conf.level) / 2)
     ci_mat <- matrix(NA, nrow = nrow(score_df), ncol = 2 * length(conf.level))
     colnames_ci <- character(2 * length(conf.level))
     for (i in seq_along(conf.level)) {
-      x <- score_vals  # use the equivalent scores (same length as score_df)
+      x <- x_vals
       if (ci.method == "csem") {
-        low <- x - z_vals[i] * csem_strong
-        high <- x + z_vals[i] * csem_strong
+        low <- x - z_vals[i] * score_df$csem.strong
+        high <- x + z_vals[i] * score_df$csem.strong
         low[low < 0] <- 0
         high[high > n] <- n
       } else { # wilson
@@ -261,7 +241,10 @@ csemStrong <- function(data,
   # --- Person-level data (optional) ---
   person_df <- NULL
   if (return.person) {
+    # Usar los mismos valores redondeados para hacer el match
     idx <- match(equiv_total, score_vals)
+    # idx puede tener NA si algún valor observado no está en score_vals (no debería)
+    # Reemplazar NA por el valor más cercano? En teoría todos deberían estar.
     person_df <- data.frame(
       id = seq_len(n_persons),
       raw.score = raw_total,
@@ -288,9 +271,8 @@ csemStrong <- function(data,
     )
   }
 
-  # --- Output (no $call, no class attribute for printing call) ---
+  # --- Output (sin $call) ---
   out <- list(score = score_df, person = person_df, summary = sum_df)
-  # Keep class for potential S3 methods but avoid printing call
   class(out) <- "csemStrong"
   return(out)
 }
