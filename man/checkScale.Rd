@@ -17,10 +17,10 @@ checkScale(half1, half2, conf = 0.95, na.rm = TRUE)
 }
 \value{
 A data frame with columns:
-\code{lnVR} (log ratio of SDs), \code{SE_lnVR}, \code{CI_lower}, \code{CI_upper},
-\code{cor_halves} (Pearson correlation between halves),
-\code{bs_stat} (Bonett-Seier chi-square statistic),
-\code{bs_p} (p-value for equality of variances),
+\code{lnVR} (log ratio of SDs), \code{SE.lnVR}, \code{lwr.ci}, \code{upr.ci},
+\code{cor.halves} (Pearson correlation between halves),
+\code{bs.stat} (Bonett-Seier chi-square statistic),
+\code{bs.p} (p-value for equality of variances),
 \code{n} (effective sample size after NA removal).
 }
 \description{

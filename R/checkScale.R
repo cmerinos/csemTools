@@ -13,10 +13,10 @@
 #' @param na.rm Logical. If TRUE, rows with missing values are removed.
 #'
 #' @return A data frame with columns:
-#'   \code{lnVR} (log ratio of SDs), \code{SE_lnVR}, \code{CI_lower}, \code{CI_upper},
-#'   \code{cor_halves} (Pearson correlation between halves),
-#'   \code{bs_stat} (Bonett-Seier chi-square statistic),
-#'   \code{bs_p} (p-value for equality of variances),
+#'   \code{lnVR} (log ratio of SDs), \code{SE.lnVR}, \code{lwr.ci}, \code{upr.ci},
+#'   \code{cor.halves} (Pearson correlation between halves),
+#'   \code{bs.stat} (Bonett-Seier chi-square statistic),
+#'   \code{bs.p} (p-value for equality of variances),
 #'   \code{n} (effective sample size after NA removal).
 #'
 #' @references
@@ -51,10 +51,10 @@ checkScale <- function(half1, half2, conf = 0.95, na.rm = TRUE) {
 
   # --- lnVR and CI (Hedges' approximation) ---
   lnVR <- log(sd1 / sd2)
-  SE_lnVR <- sqrt((1 - r^2) / (2 * (n - 3)) + (1/(2*(n-1))) * ((sd1^2/sd2^2) + (sd2^2/sd1^2) - 2))
+  SE.lnVR <- sqrt((1 - r^2) / (2 * (n - 3)) + (1/(2*(n-1))) * ((sd1^2/sd2^2) + (sd2^2/sd1^2) - 2))
   z <- qnorm(1 - (1 - conf)/2)
-  ci_low <- lnVR - z * SE_lnVR
-  ci_up <- lnVR + z * SE_lnVR
+  ci_low <- lnVR - z * SE.lnVR
+  ci_up <- lnVR + z * SE.lnVR
 
   # --- Bonett-Seier test for equality of variances (independent samples version) ---
   # Compute kurtosis (excess) for each half
@@ -74,18 +74,18 @@ checkScale <- function(half1, half2, conf = 0.95, na.rm = TRUE) {
   var2 <- sd2^2
   numerator <- N * (log(var1) - log(var2))^2
   denominator <- 4 * (1 - 1/N) * (g1 + g2 + 2)
-  bs_stat <- numerator / denominator
-  bs_p <- 1 - pchisq(bs_stat, df = 1)
+  bs.stat <- numerator / denominator
+  bs.p <- 1 - pchisq(bs.stat, df = 1)
 
   # Result data frame
   result <- data.frame(
     lnVR = round(lnVR, 4),
-    SE_lnVR = round(SE_lnVR, 4),
-    CI_lower = round(ci_low, 4),
-    CI_upper = round(ci_up, 4),
-    cor_halves = round(r, 4),
-    bs_stat = round(bs_stat, 4),
-    bs_p = round(bs_p, 5),
+    SE.lnVR = round(SE.lnVR, 4),
+    lwr.ci = round(ci_low, 4),
+    upr.ci = round(ci_up, 4),
+    cor.halves = round(r, 4),
+    bs.stat = round(bs.stat, 4),
+    bs.p = round(bs.p, 5),
     n = n
   )
   return(result)
