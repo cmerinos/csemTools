@@ -28,8 +28,8 @@ csemThorndike(
 
 \item{degree}{integer. Polynomial degree (used if smooth=TRUE).}
 
-\item{full.range}{logical. If TRUE and smooth=TRUE, evaluates CSEM for every
-integer score from \code{score.range[1]} to \code{score.range[2]}.}
+\item{full.range}{logical. If TRUE, report all integer scores from
+\code{score.range[1]} to \code{score.range[2]} (requires \code{score.range}).}
 
 \item{ci}{logical. If TRUE, compute confidence intervals for true score.}
 
@@ -41,11 +41,11 @@ integer score from \code{score.range[1]} to \code{score.range[2]}.}
 }
 \value{
 A list with elements:
-\item{CSEM}{data.frame with columns \code{score}, \code{n} (number of subjects with that score),
+\item{CSEM}{data.frame with columns \code{score}, \code{n} (number of subjects),
 and either \code{CSEM} (raw) or \code{CSEM.smooth} (smoothed).}
 \item{binned.CSEM}{(if bin.score is integer) data.frame with quantile groups.}
 }
 \description{
-Simplified version without manual merging of small groups. For stable estimates
-across the whole score range, use \code{smooth = TRUE} and \code{full.range = TRUE}.
+Simplified version without manual merging of small groups.
+Use \code{smooth = TRUE} for stable estimates across the whole score range.
 }
