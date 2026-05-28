@@ -19,28 +19,30 @@ csemThorndike(
 )
 }
 \arguments{
-\item{half1, }{half2 Data frames/matrices con las dos mitades del test.}
+\item{half1}{data.frame/matrix with first half items}
 
-\item{bin.score}{Entero (número de grupos cuantiles) o NULL (puntajes individuales).}
+\item{half2}{data.frame/matrix with second half items}
 
-\item{min.n}{Tamaño mínimo por grupo (solo cuando smooth=FALSE y bin.score=NULL).}
+\item{bin.score}{integer (quantile groups) or NULL (individual scores)}
 
-\item{smooth}{Lógico: si TRUE, suaviza con polinomio.}
+\item{min.n}{minimum group size for merging (ignored if smooth=TRUE or bin.score given)}
 
-\item{degree}{Grado del polinomio (si smooth=TRUE).}
+\item{smooth}{logical, apply polynomial smoothing}
 
-\item{full.range}{Lógico: si TRUE, evalúa en todo score.range (requiere smooth=TRUE y score.range).}
+\item{degree}{polynomial degree (if smooth=TRUE)}
 
-\item{ci}{Lógico: si TRUE, calcula intervalos de confianza.}
+\item{full.range}{logical, evaluate on full score.range (requires smooth=TRUE and score.range)}
 
-\item{conf.level}{Nivel de confianza (por defecto 0.95).}
+\item{ci}{logical, compute confidence intervals}
 
-\item{digits}{Decimales para redondeo.}
+\item{conf.level}{confidence level for intervals}
 
-\item{score.range}{Vector numérico de longitud 2: mínimo y máximo teórico del puntaje total.}
+\item{digits}{rounding digits}
+
+\item{score.range}{numeric vector length 2 (min, max) for theoretical range}
 }
 \value{
-Lista con elementos CSEM, binned.CSEM (si bin.score entero) y polynomial (si smooth=TRUE).
+list with CSEM data frame, optional binned.CSEM and polynomial info
 }
 \description{
 Thorndike's method for Conditional Standard Error of Measurement (CSEM)

@@ -1,17 +1,18 @@
 #' Thorndike's method for Conditional Standard Error of Measurement (CSEM)
 #'
-#' @param half1, half2 Data frames/matrices con las dos mitades del test.
-#' @param bin.score Entero (número de grupos cuantiles) o NULL (puntajes individuales).
-#' @param min.n Tamaño mínimo por grupo (solo cuando smooth=FALSE y bin.score=NULL).
-#' @param smooth Lógico: si TRUE, suaviza con polinomio.
-#' @param degree Grado del polinomio (si smooth=TRUE).
-#' @param full.range Lógico: si TRUE, evalúa en todo score.range (requiere smooth=TRUE y score.range).
-#' @param ci Lógico: si TRUE, calcula intervalos de confianza.
-#' @param conf.level Nivel de confianza (por defecto 0.95).
-#' @param digits Decimales para redondeo.
-#' @param score.range Vector numérico de longitud 2: mínimo y máximo teórico del puntaje total.
+#' @param half1 data.frame/matrix with first half items
+#' @param half2 data.frame/matrix with second half items
+#' @param bin.score integer (quantile groups) or NULL (individual scores)
+#' @param min.n minimum group size for merging (ignored if smooth=TRUE or bin.score given)
+#' @param smooth logical, apply polynomial smoothing
+#' @param degree polynomial degree (if smooth=TRUE)
+#' @param full.range logical, evaluate on full score.range (requires smooth=TRUE and score.range)
+#' @param ci logical, compute confidence intervals
+#' @param conf.level confidence level for intervals
+#' @param digits rounding digits
+#' @param score.range numeric vector length 2 (min, max) for theoretical range
 #'
-#' @return Lista con elementos CSEM, binned.CSEM (si bin.score entero) y polynomial (si smooth=TRUE).
+#' @return list with CSEM data frame, optional binned.CSEM and polynomial info
 #' @export
 csemThorndike <- function(half1, half2,
                           bin.score = NULL,
@@ -24,7 +25,7 @@ csemThorndike <- function(half1, half2,
                           digits = 3,
                           score.range = NULL) {
 
-  # --- Validación de argumentos ---
+  # --- Argument validation ---
   if (missing(half1) || missing(half2))
     stop("Both 'half1' and 'half2' must be provided.")
   half1 <- as.data.frame(half1)
@@ -37,18 +38,20 @@ csemThorndike <- function(half1, half2,
   total <- total1 + total2
   diff <- total1 - total2
 
-  # Rango teórico
+  # Theoretical range
   if (is.null(score.range)) {
     theo_min <- min(total, na.rm = TRUE)
     theo_max <- max(total, na.rm = TRUE)
   } else {
     if (!is.numeric(score.range) || length(score.range) != 2)
-      stop("score.range must be a numeric vector of length 2.")
+      stop("score.range must be numeric of length 2.")
     theo_min <- score.range[1]
     theo_max <- score.range[2]
   }
 
-  # --- Función de fusión de grupos pequeños ---
+  # ------------------------------------------------------------
+  # Helper: merge small groups (only for smooth=FALSE & bin.score=NULL)
+  # ------------------------------------------------------------
   merge_small_groups <- function(scores, diffs, min_n, min_score, max_score) {
     all_scores <- seq(min_score, max_score, by = 1)
     freq <- table(scores)
@@ -61,42 +64,38 @@ csemThorndike <- function(half1, half2,
 
     i <- 1
     while (i <= nrow(df)) {
-      # Caso 1: puntaje con n >= min_n -> se queda individual
+      # large group: keep individual
       if (df$n[i] >= min_n) {
         i <- i + 1
         next
       }
-      # Caso 2: puntaje con 0 < n < min_n -> iniciar bloque
+      # start a block if 0 < n < min_n
       if (df$n[i] > 0 && df$n[i] < min_n) {
         block_start <- i
-        block_indices <- c(i)          # índices de filas con n>0 dentro del bloque
+        block_indices <- c(i)
         block_n_sum <- df$n[i]
         j <- i + 1
-        # Avanzar mientras no encontremos un puntaje con n >= min_n
         while (j <= nrow(df) && df$n[j] < min_n) {
           if (df$n[j] > 0) {
             block_indices <- c(block_indices, j)
             block_n_sum <- block_n_sum + df$n[j]
           }
-          # Si la suma acumulada alcanza o supera min_n, cerramos el bloque aquí
           if (block_n_sum >= min_n) {
             block_end <- j
-            # Calcular CSEM conjunto para todos los puntajes con n>0 en [block_start, block_end]
+            # compute combined CSEM for all persons in this block
             scores_in_block <- df$score[block_indices]
             all_idx <- unlist(lapply(scores_in_block, function(s) which(scores == s)))
             csem_block <- sd(diffs[all_idx])
-            # Asignar a todas las filas desde block_start hasta block_end
             for (k in block_start:block_end) {
               df$CSEM.raw[k] <- csem_block
-              if (df$n[k] > 0) df$n[k] <- NA_integer_   # observados pasan a NA
-              # los n=0 se quedan 0
+              if (df$n[k] > 0) df$n[k] <- NA_integer_
             }
             i <- block_end + 1
             break
           }
           j <- j + 1
         }
-        # Si se llega al final sin alcanzar min_n, cerramos igualmente (no debería ocurrir con min_n=20)
+        # if we reached the end without reaching min_n (should not happen with min_n=20)
         if (j > nrow(df) && block_n_sum < min_n) {
           block_end <- nrow(df)
           scores_in_block <- df$score[block_indices]
@@ -109,20 +108,88 @@ csemThorndike <- function(half1, half2,
           i <- block_end + 1
         }
       } else {
-        # n == 0: solo avanzar (no inicia bloque)
+        # n == 0: just move forward
         i <- i + 1
       }
     }
     return(df)
   }
 
-  # --- Suavizamiento (si aplica) ---
+  # ------------------------------------------------------------
+  # Step 1: obtain raw CSEM estimates (data frame with score, n, CSEM.raw)
+  # ------------------------------------------------------------
+  if (smooth) {
+    # For smoothing, we need CSEM at each observed score with n>=2
+    unique_scores <- sort(unique(total))
+    raw_list <- list()
+    for (s in unique_scores) {
+      idx <- which(total == s)
+      n_s <- length(idx)
+      if (n_s >= 2) {
+        csem_raw <- sd(diff[idx])
+      } else {
+        csem_raw <- NA_real_
+      }
+      raw_list[[length(raw_list) + 1]] <- data.frame(score = s, n = n_s, CSEM.raw = csem_raw,
+                                                     stringsAsFactors = FALSE)
+    }
+    raw_df <- do.call(rbind, raw_list)
+    raw_df <- raw_df[!is.na(raw_df$CSEM.raw), , drop = FALSE]
+  } else {
+    if (is.null(bin.score)) {
+      raw_df <- merge_small_groups(total, diff, min.n, theo_min, theo_max)
+    } else {
+      # bin.score integer: first compute raw per unique score, then quantile groups
+      unique_scores <- sort(unique(total))
+      temp_list <- list()
+      for (s in unique_scores) {
+        idx <- which(total == s)
+        n_s <- length(idx)
+        if (n_s >= 2) {
+          csem_raw <- sd(diff[idx])
+        } else {
+          csem_raw <- NA_real_
+        }
+        temp_list[[length(temp_list) + 1]] <- data.frame(score = s, n = n_s, CSEM.raw = csem_raw,
+                                                         stringsAsFactors = FALSE)
+      }
+      temp_df <- do.call(rbind, temp_list)
+      temp_df <- temp_df[!is.na(temp_df$CSEM.raw), , drop = FALSE]
+
+      # quantile groups on persons
+      q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
+      q <- unique(q)
+      groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)
+      group_levels <- levels(groups)
+      binned_list <- list()
+      for (i in seq_along(group_levels)) {
+        idx_in_group <- which(groups == group_levels[i])
+        scores_in_group <- unique(total[idx_in_group])
+        sub_df <- temp_df[temp_df$score %in% scores_in_group, , drop = FALSE]
+        if (nrow(sub_df) == 0) next
+        csem_mean <- mean(sub_df$CSEM.raw)
+        range_str <- paste0(min(scores_in_group), "-", max(scores_in_group))
+        n_persons <- length(idx_in_group)
+        mean_score <- mean(total[idx_in_group])
+        binned_list[[i]] <- data.frame(group = i, range = range_str, n = n_persons,
+                                       mean_score = mean_score, CSEM.mean = csem_mean,
+                                       stringsAsFactors = FALSE)
+      }
+      binned_df <- do.call(rbind, binned_list)
+      raw_df <- temp_df
+    }
+  }
+
+  # ------------------------------------------------------------
+  # Step 2: smoothing (if requested)
+  # ------------------------------------------------------------
   poly_out <- NULL
   csem_final <- NULL
+
   if (smooth) {
-    fit_df <- raw_df[is.finite(raw_df$CSEM.raw) & !is.na(raw_df$CSEM.raw), ]
+    fit_df <- raw_df[is.finite(raw_df$CSEM.raw) & !is.na(raw_df$CSEM.raw), , drop = FALSE]
     if (nrow(fit_df) < degree + 1)
-      stop("Not enough data points for polynomial degree ", degree)
+      stop("Not enough data points to fit a polynomial of degree ", degree)
     y <- fit_df$CSEM.raw^2
     x <- fit_df$score
     poly_terms <- paste("I(x^", 1:degree, ")", sep = "", collapse = " + ")
@@ -145,8 +212,10 @@ csemThorndike <- function(half1, half2,
       smooth_df <- fit_df
       smooth_df$CSEM.smooth <- round(csem_smooth, digits)
       smooth_df$n <- as.integer(smooth_df$n)
+      smooth_df$CSEM.raw <- NULL   # remove raw column for cleaner output
     }
-    # Información del polinomio
+
+    # polynomial info
     coef_sum <- summary(fit)$coefficients
     coef_df <- data.frame(term = rownames(coef_sum), estimate = coef_sum[,1],
                           std.error = coef_sum[,2], t.value = coef_sum[,3],
@@ -160,7 +229,7 @@ csemThorndike <- function(half1, half2,
     poly_out <- list(coefficients = coef_df, fit.statistics = fit_stats, degree = degree)
     csem_final <- smooth_df
 
-    # Si hay bin.score, reconstruir binned.CSEM usando valores suavizados
+    # if bin.score is integer, recompute binned.CSEM using smoothed values
     if (!is.null(bin.score)) {
       q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
       q <- unique(q)
@@ -170,7 +239,7 @@ csemThorndike <- function(half1, half2,
       for (i in seq_along(group_levels)) {
         idx_in_group <- which(groups == group_levels[i])
         scores_in_group <- unique(total[idx_in_group])
-        # Predecir CSEM.smooth para esos puntajes usando el modelo
+        # predict CSEM.smooth for these scores
         pred_grp <- predict(fit, newdata = data.frame(x = scores_in_group))
         pred_grp <- pmax(pred_grp, 0)
         csem_pred <- sqrt(pred_grp)
@@ -185,12 +254,16 @@ csemThorndike <- function(half1, half2,
       binned_df <- do.call(rbind, binned_list2)
     }
   } else {
+    # No smoothing: use raw_df (which already has CSEM.raw)
     csem_final <- raw_df
     names(csem_final)[names(csem_final) == "CSEM.raw"] <- "CSEM"
     csem_final$n <- as.integer(csem_final$n)
+    csem_final$CSEM <- round(csem_final$CSEM, digits)
   }
 
-  # --- Intervalos de confianza ---
+  # ------------------------------------------------------------
+  # Step 3: confidence intervals
+  # ------------------------------------------------------------
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     if (smooth) {
@@ -211,7 +284,9 @@ csemThorndike <- function(half1, half2,
     }
   }
 
-  # --- Salida ---
+  # ------------------------------------------------------------
+  # Output
+  # ------------------------------------------------------------
   out <- list(CSEM = csem_final)
   if (exists("binned_df") && !is.null(binned_df) && nrow(binned_df) > 0)
     out$binned.CSEM <- binned_df
