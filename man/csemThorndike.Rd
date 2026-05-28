@@ -14,7 +14,8 @@ csemThorndike(
   full.range = FALSE,
   ci = FALSE,
   conf.level = 0.95,
-  digits = 3
+  digits = 3,
+  score.range = NULL
 )
 }
 \arguments{
@@ -38,7 +39,8 @@ squared CSEM estimates. Default = \code{FALSE}.}
 Default = 2.}
 
 \item{full.range}{Logical. If \code{TRUE} and \code{smooth = TRUE}, evaluates
-the smoothed CSEM for every integer score from 0 to the total number of items.
+the smoothed CSEM for every integer score from the minimum observed to the
+maximum observed (or to the theoretical range if \code{score.range} provided).
 Default = \code{FALSE}.}
 
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
@@ -48,6 +50,10 @@ Default = \code{FALSE}.}
 
 \item{digits}{Integer. Number of decimal places for CSEM and confidence limits.
 Default = 3.}
+
+\item{score.range}{Optional numeric vector of length 2 (min, max) to define the
+range of possible scores. Only used when \code{full.range = TRUE} and
+\code{smooth = TRUE}. If \code{NULL}, the observed range is used.}
 }
 \value{
 A list with elements:
@@ -57,7 +63,8 @@ A list with elements:
 \code{CSEM.smooth} (smoothed estimate, present if \code{smooth = TRUE}),
 and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
 \item{binned.CSEM}{(only if \code{bin.score} is an integer) data.frame with
-quantile group statistics: \code{group}, \code{range}, \code{n}, \code{CSEM.mean}.}
+quantile group statistics: \code{group}, \code{range}, \code{n},
+\code{CSEM.mean}, and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
 \item{polynomial}{(only if \code{smooth = TRUE}) list with polynomial coefficients,
 fit statistics, and degree.}
 }
@@ -65,14 +72,4 @@ fit statistics, and degree.}
 Computes the Conditional Standard Error of Measurement (CSEM) using Thorndike's
 half-test difference method. The CSEM for a given total score is the standard
 deviation of the difference between two parallel half-tests.
-}
-\examples{
-\dontrun{
-# Basic usage with individual scores (no smoothing)
-res <- csemThorndike(half1, half2, bin.score = NULL, smooth = FALSE)
-
-# With quantile grouping and smoothing
-res2 <- csemThorndike(half1, half2, bin.score = 4, smooth = TRUE, degree = 2)
-}
-
 }
