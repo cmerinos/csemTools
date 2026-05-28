@@ -7,81 +7,72 @@
 csemThorndike(
   half1,
   half2,
-  n.groups = 10,
-  bin.width = NULL,
-  smooth = TRUE,
+  bin.score = NULL,
+  min.n = 20,
+  smooth = FALSE,
   degree = 2,
+  full.range = FALSE,
   ci = FALSE,
   conf.level = 0.95,
-  digits = 3,
-  min.score = NULL,
-  max.score = NULL
+  digits = 3
 )
 }
 \arguments{
-\item{half1}{Data frame or matrix with items from the first half of the test.}
+\item{half1}{data.frame or matrix with items from the first half of the test.}
 
-\item{half2}{Data frame or matrix with items from the second half of the test.}
+\item{half2}{data.frame or matrix with items from the second half of the test.
+Must have the same number of rows as \code{half1}.}
 
-\item{n.groups}{Integer. Number of groups (quantiles) for total scores.
-Ignored if \code{bin.width} is not \code{NULL}.}
+\item{bin.score}{Either \code{NULL} (default) to work with individual scores,
+or an integer \code{k} to divide the total scores into \code{k} quantile groups.}
 
-\item{bin.width}{Numeric. If specified, divides total scores into intervals
-of this fixed width. Overrides \code{n.groups}.}
+\item{min.n}{Integer. Minimum number of observations per score group when
+\code{bin.score = NULL} and \code{smooth = FALSE}. Groups with fewer than
+\code{min.n} observations are merged with the nearest neighbor. Ignored
+when \code{smooth = TRUE} or \code{bin.score} is an integer. Default = 20.}
 
-\item{smooth}{Logical. If \code{TRUE}, fits a polynomial regression on CSEM^2
-(group-level) and returns smoothed CSEM for each possible total score.}
+\item{smooth}{Logical. If \code{TRUE}, applies polynomial smoothing to the
+squared CSEM estimates. Default = \code{FALSE}.}
 
-\item{degree}{Integer. Polynomial degree used when \code{smooth = TRUE}.}
+\item{degree}{Integer. Degree of the polynomial used when \code{smooth = TRUE}.
+Default = 2.}
 
-\item{ci}{Logical. If \code{TRUE}, computes confidence intervals for
-group-level CSEM and, when \code{smooth = TRUE}, for score-level CSEM.}
+\item{full.range}{Logical. If \code{TRUE} and \code{smooth = TRUE}, evaluates
+the smoothed CSEM for every integer score from 0 to the total number of items.
+Default = \code{FALSE}.}
 
-\item{conf.level}{Numeric. Confidence level for CIs (default 0.95).}
+\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
+Default = \code{FALSE}.}
 
-\item{digits}{Integer. Number of decimals for CSEM estimates in the output.}
+\item{conf.level}{Numeric. Confidence level for intervals (default 0.95).}
 
-\item{min.score}{Numeric or integer, optional. Minimum total score at which
-the smoothed CSEM curve will be evaluated. If \code{NULL}, the minimum
-observed total score (floored) is used.}
-
-\item{max.score}{Numeric or integer, optional. Maximum total score at which
-the smoothed CSEM curve will be evaluated. If \code{NULL}, the maximum
-observed total score (ceiled) is used.}
+\item{digits}{Integer. Number of decimal places for CSEM and confidence limits.
+Default = 3.}
 }
 \value{
-A list with:
-\itemize{
-\item \code{by_group}: data.frame with CSEM by score group (raw),
-including CIs if requested.
-\item \code{by.score}: data.frame with smoothed CSEM by total score,
-including CIs if requested and \code{smooth = TRUE}. \code{NULL} otherwise.
-\item \code{params}: data.frame with polynomial coefficients (if \code{smooth = TRUE}),
-including standard errors, t-values and p-values. \code{NULL} otherwise.
-\item \code{settings}: list with the main arguments used.
-\item \code{model}: fitted \code{lm} object for the polynomial on CSEM^2
-(if \code{smooth = TRUE}), otherwise \code{NULL}.
-}
+A list with elements:
+\item{CSEM}{data.frame with columns: \code{score} (integer score),
+\code{n} (number of subjects, \code{NA} for predicted scores),
+\code{CSEM.raw} (raw estimate, present if \code{smooth = FALSE}),
+\code{CSEM.smooth} (smoothed estimate, present if \code{smooth = TRUE}),
+and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
+\item{binned.CSEM}{(only if \code{bin.score} is an integer) data.frame with
+quantile group statistics: \code{group}, \code{range}, \code{n}, \code{CSEM.mean}.}
+\item{polynomial}{(only if \code{smooth = TRUE}) list with polynomial coefficients,
+fit statistics, and degree.}
 }
 \description{
-Computes the Conditional Standard Error of Measurement (CSEM) using
-Thorndike's half-test difference method. Optionally smooths the
-CSEM^2 values with a polynomial regression (Thorndike-style) and
-provides confidence intervals at the group and score levels.
+Computes the Conditional Standard Error of Measurement (CSEM) using Thorndike's
+half-test difference method. The CSEM for a given total score is the standard
+deviation of the difference between two parallel half-tests.
 }
 \examples{
-# Thorndike CSEM with 10 quantile groups, no smoothing
-# csemThorndike(half1 = dhalf1, half2 = dhalf2, n.groups = 10, smooth = FALSE)
+\dontrun{
+# Basic usage with individual scores (no smoothing)
+res <- csemThorndike(half1, half2, bin.score = NULL, smooth = FALSE)
 
-# Thorndike CSEM with smoothing (degree 2) and 95\% CIs
-# csemThorndike(half1 = dhalf1, half2 = dhalf2,
-#               n.groups = 10, smooth = TRUE,
-#               ci = TRUE, conf.level = 0.95)
-
-# Thorndike CSEM with smoothing over full possible score range
-# (e.g., dichotomous items, 10 items in total: 0 to 10)
-# csemThorndike(half1, half2,
-#               n.groups = 10, smooth = TRUE,
-#               min.score = 0, max.score = 10)
+# With quantile grouping and smoothing
+res2 <- csemThorndike(half1, half2, bin.score = 4, smooth = TRUE, degree = 2)
+}
 
 }
