@@ -14,7 +14,8 @@ csemThorndike(
   ci = FALSE,
   conf.level = 0.95,
   digits = 3,
-  score.range = NULL
+  score.range = NULL,
+  na.rm = TRUE
 )
 }
 \arguments{
@@ -37,12 +38,16 @@ csemThorndike(
 
 \item{digits}{integer. Rounding for output.}
 
-\item{score.range}{numeric vector of length 2 (min, max). Required for full.range=TRUE.}
+\item{score.range}{numeric vector of length 2 (min, max). Required for full.range=TRUE.
+Also used to truncate confidence intervals (if ci=TRUE).}
+
+\item{na.rm}{logical. Not used (kept for compatibility).}
 }
 \value{
 A list with elements:
-\item{CSEM}{data.frame with columns \code{score}, \code{n} (number of subjects),
-and either \code{CSEM} (raw) or \code{CSEM.smooth} (smoothed).}
+\item{CSEM}{data.frame with columns \code{score}, \code{n},
+and either \code{CSEM} (raw) or \code{CSEM.smooth} (smoothed). If ci=TRUE, also
+\code{lwr.ci} and \code{upr.ci} (truncated to possible score range).}
 \item{binned.CSEM}{(if bin.score is integer) data.frame with quantile groups.}
 }
 \description{
