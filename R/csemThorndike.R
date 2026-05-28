@@ -2,6 +2,8 @@
 #'
 #' Simplified version without manual merging of small groups.
 #' Use `smooth = TRUE` for stable estimates across the whole score range.
+#' When `smooth = FALSE` and `full.range = TRUE`, missing values (NA) are
+#' filled with the last valid observation (carried forward) for better readability.
 #'
 #' @param half1 data.frame/matrix with first half items.
 #' @param half2 data.frame/matrix with second half items.
@@ -44,39 +46,53 @@ csemThorndike <- function(half1, half2,
   total <- total1 + total2
   diff <- total1 - total2
 
-  # --- Función auxiliar para crear tabla de CSEM raw (solo puntajes con n>=2) ---
-  get_raw_csem <- function() {
-    unique_scores <- sort(unique(total))
-    res <- data.frame(score = unique_scores,
-                      n = as.integer(table(total)[as.character(unique_scores)]))
-    res$CSEM <- sapply(unique_scores, function(s) {
-      idx <- which(total == s)
-      if (length(idx) >= 2) sd(diff[idx]) else NA_real_
-    })
-    res <- res[!is.na(res$CSEM), , drop = FALSE]
-    res$CSEM <- round(res$CSEM, digits)
-    return(res)
+  # --- Función auxiliar: last observation carried forward (locf) ---
+  na_locf <- function(x) {
+    idx <- !is.na(x)
+    if (sum(idx) == 0) return(x)
+    last_val <- x[idx][1]
+    for (i in seq_along(x)) {
+      if (!is.na(x[i])) {
+        last_val <- x[i]
+      } else {
+        x[i] <- last_val
+      }
+    }
+    return(x)
   }
 
-  # --- Si smooth = FALSE ---
+  # --- Modo sin suavizamiento (smooth = FALSE) ---
   if (!smooth) {
+    # Obtener CSEM crudo solo para puntajes con n>=2
+    get_raw_csem <- function() {
+      unique_scores <- sort(unique(total))
+      res <- data.frame(score = unique_scores,
+                        n = as.integer(table(total)[as.character(unique_scores)]))
+      res$CSEM <- sapply(unique_scores, function(s) {
+        idx <- which(total == s)
+        if (length(idx) >= 2) sd(diff[idx]) else NA_real_
+      })
+      res <- res[!is.na(res$CSEM), , drop = FALSE]
+      res$CSEM <- round(res$CSEM, digits)
+      return(res)
+    }
+
     raw_df <- get_raw_csem()
 
-    # Opción full.range: expandir a todos los enteros del rango teórico
+    # Expandir a rango completo si se solicita
     if (full.range) {
       if (is.null(score.range))
         stop("full.range = TRUE requires 'score.range' (e.g., c(0,36)).")
       all_scores <- seq(score.range[1], score.range[2], by = 1)
-      # Frecuencias reales (0 para no observados)
       full_n <- sapply(all_scores, function(s) sum(total == s))
-      # Mapear CSEM de raw_df a cada score
       csem_map <- setNames(raw_df$CSEM, raw_df$score)
       csem_full <- csem_map[as.character(all_scores)]
       csem_full[is.na(csem_full)] <- NA_real_
-      raw_df <- data.frame(score = all_scores, n = full_n, CSEM = csem_full, stringsAsFactors = FALSE)
+      raw_df <- data.frame(score = all_scores, n = full_n, CSEM = csem_full,
+                           stringsAsFactors = FALSE)
     }
 
-    # Opcional: intervalos de confianza
+    # Intervalos de confianza (si se piden)
     if (ci) {
       z <- stats::qnorm(1 - (1 - conf.level) / 2)
       lwr <- raw_df$score - z * raw_df$CSEM
@@ -85,13 +101,21 @@ csemThorndike <- function(half1, half2,
       raw_df$upr.ci <- round(upr, digits)
     }
 
-    # Opcional: bin.score (agrupación por cuantiles)
+    # Rellenar NAs con el último valor válido (mejora de presentación)
+    if (full.range) {
+      raw_df$CSEM <- na_locf(raw_df$CSEM)
+      if (ci) {
+        raw_df$lwr.ci <- na_locf(raw_df$lwr.ci)
+        raw_df$upr.ci <- na_locf(raw_df$upr.ci)
+      }
+    }
+
+    # Agrupación por cuantiles (bin.score)
     binned_df <- NULL
     if (!is.null(bin.score)) {
-      # Usamos solo los puntajes con CSEM válido (no NA)
+      # Usamos solo las filas con CSEM no NA para promediar
       valid <- raw_df[!is.na(raw_df$CSEM), ]
       if (nrow(valid) == 0) stop("No valid scores for binning.")
-      # Cuantiles sobre las personas (no sobre puntajes)
       q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
       q <- unique(q)
       groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)
@@ -130,7 +154,7 @@ csemThorndike <- function(half1, half2,
     return(out)
   }
 
-  # --- smooth = TRUE ---
+  # --- Modo con suavizamiento (smooth = TRUE) ---
   # Obtener estimaciones crudas para todos los puntajes con n>=2
   unique_scores <- sort(unique(total))
   raw_list <- list()
@@ -142,8 +166,9 @@ csemThorndike <- function(half1, half2,
     } else {
       csem_val <- NA_real_
     }
-    raw_list[[length(raw_list)+1]] <- data.frame(score = s, n = n_s, CSEM.raw = csem_val,
-                                                 stringsAsFactors = FALSE)
+    raw_list[[length(raw_list)+1]] <- data.frame(
+      score = s, n = n_s, CSEM.raw = csem_val, stringsAsFactors = FALSE
+    )
   }
   raw_df <- do.call(rbind, raw_list)
   raw_df <- raw_df[!is.na(raw_df$CSEM.raw), , drop = FALSE]
@@ -154,7 +179,7 @@ csemThorndike <- function(half1, half2,
   # Ajuste polinómico sobre CSEM^2
   fit <- lm(CSEM.raw^2 ~ poly(score, degree, raw = TRUE), data = raw_df)
 
-  # Determinar rango de evaluación
+  # Rango de evaluación
   if (full.range) {
     if (is.null(score.range))
       stop("full.range = TRUE requires 'score.range' (e.g., c(0,36)).")
@@ -167,18 +192,19 @@ csemThorndike <- function(half1, half2,
   pred_var <- pmax(pred_var, 0)
   csem_smooth <- sqrt(pred_var)
 
-  # Frecuencias reales
   if (full.range) {
     n_vals <- sapply(eval_scores, function(s) sum(total == s))
   } else {
     n_vals <- raw_df$n
   }
 
-  result_df <- data.frame(score = eval_scores, n = n_vals,
-                          CSEM.smooth = round(csem_smooth, digits),
-                          stringsAsFactors = FALSE)
+  result_df <- data.frame(
+    score = eval_scores,
+    n = n_vals,
+    CSEM.smooth = round(csem_smooth, digits),
+    stringsAsFactors = FALSE
+  )
 
-  # Intervalos de confianza
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     lwr <- result_df$score - z * result_df$CSEM.smooth
@@ -187,7 +213,7 @@ csemThorndike <- function(half1, half2,
     result_df$upr.ci <- round(upr, digits)
   }
 
-  # Opcional: bin.score usando valores suavizados
+  # Agrupación por cuantiles usando valores suavizados
   binned_df <- NULL
   if (!is.null(bin.score)) {
     q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
@@ -198,7 +224,6 @@ csemThorndike <- function(half1, half2,
     for (i in seq_along(group_levels)) {
       idx_in_group <- which(groups == group_levels[i])
       scores_in_group <- unique(total[idx_in_group])
-      # Predecir CSEM para estos scores usando el modelo
       pred_grp <- predict(fit, newdata = data.frame(score = scores_in_group))
       pred_grp <- pmax(pred_grp, 0)
       csem_pred <- sqrt(pred_grp)

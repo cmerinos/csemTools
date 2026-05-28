@@ -48,4 +48,6 @@ and either \code{CSEM} (raw) or \code{CSEM.smooth} (smoothed).}
 \description{
 Simplified version without manual merging of small groups.
 Use \code{smooth = TRUE} for stable estimates across the whole score range.
+When \code{smooth = FALSE} and \code{full.range = TRUE}, missing values (NA) are
+filled with the last valid observation (carried forward) for better readability.
 }
