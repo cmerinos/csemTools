@@ -1,12 +1,22 @@
-#' Feldt's method for Conditional Standard Error of Measurement (CSEM)
+#' ANOVA method for Conditional Standard Error of Measurement (CSEM)
 #'
 #' @description
-#' Calculates the Conditional Standard Error of Measurement (CSEM) following the
-#' Feldt, Steffen, & Gupta (1985) variance-components approach. The CSEM is
-#' estimated at each score level or score band using item variances within groups.
+#' Estimates conditional standard errors of measurement using the ANOVA
+#' variance-components approach described in Feldt, Steffen, & Gupta (1985).
+#' This is the method referred to as "ANOVA" in the JASP Reliability module
+#' and in Pfadt et al. (2026).
 #'
-#' @param data A data frame or matrix with item responses (subjects in rows, items in columns).
-#'   Items can be dichotomous or polytomous (Likert). All items contribute to the total score.
+#' For each score group (e.g., each unique total score), the CSEM is computed as:
+#' \deqn{CSEM = \sqrt{ \frac{J}{J-1} \sum_{j=1}^J s_j^2 }}
+#' where \eqn{J} is the number of items and \eqn{s_j^2} is the sample variance
+#' of item \eqn{j} within the group (using divisor \eqn{n_g - 1}).
+#'
+#' The function allows grouping by unique scores, by quantile bands, or by
+#' user-defined number of groups. It also provides optional polynomial smoothing
+#' and expansion to a full range of integer scores.
+#'
+#' @param data A data frame or matrix with item responses (subjects in rows,
+#'   items in columns). Items can be dichotomous or polytomous.
 #' @param score.group Character. Method for grouping total scores. One of:
 #'   \itemize{
 #'     \item "all": CSEM for each unique total score.
@@ -18,112 +28,74 @@
 #'   Default is "all".
 #' @param k Integer. Number of bands if \code{score.group = "k"} (>= 2).
 #' @param aggregate Character. How to represent the central score of each band:
-#'   \code{"mean"}, \code{"median"}, or \code{"midpoint"} (midpoint of observed score range in the band).
-#'   Default is "midpoint".
-#' @param min.n Integer. Minimum band size. Bands with \code{n < min.n} are merged with adjacent bands
-#'   until all bands have at least \code{min.n} subjects. Default = 5.
-#' @param merge.method Character. Rule to merge undersized bands: \code{"nearest"} (default),
-#'   \code{"left"}, or \code{"right"}.
+#'   \code{"mean"}, \code{"median"}, or \code{"midpoint"} (midpoint of observed
+#'   score range in the band). Default is "midpoint".
+#' @param min.n Integer. Minimum band size. Bands with \code{n < min.n} are merged
+#'   with adjacent bands until all bands have at least \code{min.n} subjects.
+#'   Default = 5. Ignored if \code{score.group = "all"}.
+#' @param merge.method Character. Rule to merge undersized bands: \code{"nearest"},
+#'   \code{"left"}, or \code{"right"}. Default = "nearest".
 #' @param ci Logical. If \code{TRUE}, compute confidence intervals for the true score.
-#'   Default \code{FALSE}.
-#' @param conf.level Numeric vector or NULL. Confidence level(s) for score intervals
-#'   (e.g., 0.95 or c(0.90, 0.95)). If NULL (default), confidence intervals are not computed.
-#' @param bound.scores Logical. If TRUE (default), score-interval bounds are truncated to the chosen score range.
-#' @param score.range Numeric length-2 or NULL. If NULL (default), bounds use the \emph{observed}
-#'   total-score range. If provided as \code{c(min,max)}, bounds are truncated to this range
-#'   (e.g., the theoretical range).
+#'   Default = \code{FALSE}.
+#' @param conf.level Numeric. Confidence level for intervals (default 0.95).
+#' @param bound.scores Logical. If TRUE (default), score-interval bounds are truncated
+#'   to the chosen score range (observed or \code{score.range}).
+#' @param score.range Numeric vector of length 2 (min, max). If provided, defines
+#'   the theoretical score range (e.g., c(0,36) for 9 items with 0-4 scaling).
+#'   Used for truncating intervals and for \code{full.range}. If NULL, the observed
+#'   range is used.
 #' @param score.display Character. How to display the \strong{Score} column:
-#'   \code{"auto"} (default: numeric for "all", "lo, hi" for bands),
+#'   \code{"auto"} (numeric for "all", "lo, hi" for bands),
 #'   \code{"center"} (always the band center as a number), or
-#'   \code{"range"} (always "lo, hi").
-#' @param digits.csem Integer. Rounding digits for \code{CSEM} and confidence limits. Default = 4.
-#' @param smooth Logical. If TRUE, applies a polynomial smoothing to the CSEM as a function of the
-#'   score (or band center). The raw Feldt estimates are kept in \code{CSEM.raw}, and the smoothed
-#'   values replace \code{CSEM}. Confidence intervals are based on the smoothed CSEM. Default = FALSE.
-#' @param degree Integer. Degree of the polynomial used when \code{smooth = TRUE}. Default = 2.
-#' @param full.range Logical. If TRUE, CSEM values are reported for every integer score from the
-#'   minimum to the maximum possible. Requires \code{smooth = TRUE} for stable estimates;
-#'   if smooth=FALSE, linear interpolation is used (warning issued). Default FALSE.
-#' @param summary Logical. If TRUE, returns additional components with summary information
-#'   (general statistics and, if smoothing, polynomial coefficients and fit measures).
-#'   Default FALSE.
+#'   \code{"range"} (always "lo, hi"). Default = "auto".
+#' @param digits integer. Rounding for CSEM and confidence limits. Default = 3.
+#' @param smooth Logical. If TRUE, applies polynomial smoothing to the CSEM as a
+#'   function of the score (or band center). The raw estimates are kept in
+#'   \code{CSEM.raw}, and the smoothed values replace \code{CSEM}.
+#'   Default = FALSE.
+#' @param degree Integer. Degree of the polynomial used when \code{smooth = TRUE}.
+#'   Default = 2.
+#' @param full.range Logical. If TRUE, CSEM values are reported for every integer
+#'   score from the minimum to the maximum possible (defined by \code{score.range}
+#'   or observed range). Requires \code{smooth = TRUE} for stable estimates;
+#'   if \code{smooth = FALSE}, linear interpolation is used (warning issued).
+#'   Default = FALSE.
+#' @param summary Logical. If TRUE, returns additional components with summary
+#'   information (general statistics and, if smoothing, polynomial coefficients
+#'   and fit measures). Default = FALSE.
 #' @param na.rm Logical. If TRUE (default), removes rows with any NA across items.
 #'
-#' @details
-#' For each score group \eqn{g} with \eqn{N_g} examinees and \eqn{k} items, the conditional error variance is:
-#' \deqn{\widehat{\sigma}^2_{E(cond)}(g) =
-#'   \left(\frac{k}{k-1}\right)\left(\frac{N_g}{N_g-1}\right)\sum_{j=1}^k s^2_{jg}}
-#' where \eqn{s^2_{jg}} is the sample variance of item \eqn{j} in group \eqn{g} (using divisor \eqn{N_g-1}).
-#' Then \eqn{CSEM(g) = \sqrt{\widehat{\sigma}^2_{E(cond)}(g)}}.
-#'
-#' When bands are used (deciles/quartiles/quintiles/k), the representative score for centering the CI is
-#' determined by \code{aggregate}: mean, median, or midpoint of the observed score range in the band.
-#'
-#' Confidence intervals for the \emph{true score} are centered on that representative score:
-#' \deqn{[\; \text{Score}_\text{center} - z \cdot CSEM,\;\; \text{Score}_\text{center} + z \cdot CSEM \;]}
-#' where \eqn{z} is the standard normal quantile for the requested \code{conf.level}.
-#'
-#' When \code{smooth = TRUE}, a polynomial regression \eqn{CSEM \sim \text{poly}(Score, degree)} is fitted
-#' to the raw Feldt estimates, and the predicted values (truncated at zero) replace \code{CSEM}. The raw
-#' estimates are retained in \code{CSEM.raw}.
-#'
-#' If \code{full.range = TRUE}, the function evaluates the CSEM (smoothed or interpolated) at each integer
-#' score within the observed (or user-supplied) range. This is particularly useful for creating a complete
-#' CSEM table. It is strongly recommended to use \code{smooth = TRUE} together with \code{full.range = TRUE}
-#' to avoid erratic estimates.
-#'
-#' @return
-#' A list with components:
-#' \item{table}{Data frame with columns:
-#'   \itemize{
-#'     \item \strong{Score}: numeric if \code{score.group = "all"} (unless \code{score.display = "range"}),
-#'           otherwise either a center value or a "lo, hi" string depending on \code{score.display}.
-#'     \item \strong{CSEM}: conditional standard error (numeric). If \code{smooth = TRUE}, the smoothed
-#'           estimates; the raw Feldt estimates are in \code{CSEM.raw}.
-#'     \item \strong{CSEM.raw}: raw Feldt CSEM estimates (only when \code{smooth = TRUE}).
-#'     \item \strong{lwr.xx}, \strong{upr.xx}: lower/upper CI bounds for each requested level (if any).
-#'     \item \strong{n}: number of examinees in the score or band (for full.range = TRUE, n is NA).
-#'   }}
-#' \item{summary}{(if \code{summary = TRUE}) a list with:
-#'   \itemize{
-#'     \item \code{general}: a data frame with method, number of groups, persons, items, score range, etc.
-#'     \item \code{polynomial}: (if \code{smooth = TRUE}) a list with coefficients, R-squared, AIC, BIC,
-#'           residual standard error, and other fit statistics.
-#'   }}
+#' @return A list with components:
+#' \item{table}{Data frame with columns: \code{Score}, \code{n}, \code{CSEM}
+#'   (and \code{CSEM.raw} if \code{smooth = TRUE}), and confidence limits if requested.}
+#' \item{summary}{(if \code{summary = TRUE}) a list with general information
+#'   and polynomial details (if smoothing).}
 #'
 #' @references
 #' Feldt, L. S., Steffen, M., & Gupta, N. C. (1985).
-#' A comparison of five methods for estimating the standard error of measurement at specific score levels.
-#' \emph{Applied Psychological Measurement}, 9(4), 351–361. \doi{10.1177/014662168500900402}
+#' A comparison of five methods for estimating the standard error of measurement
+#' at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351–361.
 #'
 #' @examples
-#' set.seed(123)
-#' X <- data.frame(matrix(sample(1:5, 200 * 8, replace = TRUE), ncol = 8))
-#'
-#' # CSEM for each unique score, with 95% CI
-#' res <- csemFeldt(X, score.group = "all", ci = TRUE, conf.level = 0.95)
+#' \dontrun{
+#' data(ADD_symptoms)  # hypothetical data set
+#' res <- csemANOVA(ADD_symptoms, score.group = "all", ci = TRUE)
 #' head(res$table)
-#'
-#' # Bands by quartiles, smoothed, full range, with summary
-#' res2 <- csemFeldt(X, score.group = "quartiles", smooth = TRUE, degree = 2,
-#'                   full.range = TRUE, summary = TRUE)
-#' res2$table
-#' res2$summary$general
-#' res2$summary$polynomial
+#' }
 #'
 #' @export
-csemFeldt <- function(data,
+csemANOVA <- function(data,
                       score.group   = c("all", "deciles", "quartiles", "quintiles", "k"),
                       k             = NULL,
                       aggregate     = c("mean", "median", "midpoint"),
                       min.n         = 5,
                       merge.method  = c("nearest", "left", "right"),
                       ci            = FALSE,
-                      conf.level    = NULL,
+                      conf.level    = 0.95,
                       bound.scores  = TRUE,
                       score.range   = NULL,
                       score.display = c("auto", "center", "range"),
-                      digits.csem   = 4,
+                      digits        = 3,
                       smooth        = FALSE,
                       degree        = 2,
                       full.range    = FALSE,
@@ -137,9 +109,8 @@ csemFeldt <- function(data,
   score.display <- match.arg(score.display)
 
   # --- Data preparation ---
-  if (!is.data.frame(data) && !is.matrix(data)) {
+  if (!is.data.frame(data) && !is.matrix(data))
     stop("`data` must be a data.frame or matrix of item responses.")
-  }
   data <- as.data.frame(data)
 
   if (na.rm) {
@@ -155,19 +126,18 @@ csemFeldt <- function(data,
 
   total <- rowSums(data)
 
-  # Score bounds (observed or user-specified)
+  # Score bounds (observed or user-supplied)
   if (is.null(score.range)) {
     bound_min <- min(total)
     bound_max <- max(total)
   } else {
-    if (!is.numeric(score.range) || length(score.range) != 2L || score.range[1] >= score.range[2]) {
+    if (!is.numeric(score.range) || length(score.range) != 2L || score.range[1] >= score.range[2])
       stop("`score.range` must be numeric c(min, max) with min < max.")
-    }
     bound_min <- score.range[1]
     bound_max <- score.range[2]
   }
 
-  # --- Build groups (indices of persons) ---
+  # --- Helper: cut by quantiles for groups ---
   cut_by_quantiles <- function(x, m) {
     probs <- seq(0, 1, length.out = m + 1)
     qs <- unique(stats::quantile(x, probs = probs, type = 7, names = FALSE))
@@ -178,6 +148,7 @@ csemFeldt <- function(data,
     split(seq_along(x), f, drop = TRUE)
   }
 
+  # --- Build groups (indices of persons) ---
   if (score.group == "all") {
     f <- factor(total, levels = sort(unique(total)))
     group_list <- split(seq_along(total), f)
@@ -194,7 +165,7 @@ csemFeldt <- function(data,
     group_list <- cut_by_quantiles(total, m)
   }
 
-  # --- Merge undersized groups ---
+  # --- Merge undersized bands (only if score.group != "all") ---
   merge_small_groups <- function(group_list, tot_scores, min_n, method = "nearest") {
     sizes <- sapply(group_list, length)
     if (length(group_list) == 0) return(group_list)
@@ -233,7 +204,7 @@ csemFeldt <- function(data,
     group_list <- merge_small_groups(group_list, total, min.n, merge.method)
   }
 
-  # --- Compute raw Feldt CSEM per group ---
+  # --- Compute raw CSEM per group (corrected formula, no extra Ng/(Ng-1)) ---
   build_row_raw <- function(idx) {
     Ng <- length(idx)
     if (Ng < 2) {
@@ -242,12 +213,14 @@ csemFeldt <- function(data,
       s2j <- apply(data[idx, , drop = FALSE], 2, stats::var)
       s2j[is.na(s2j)] <- 0
     }
-    sigma2_cond <- (n_items/(n_items - 1)) * (Ng/(Ng - 1)) * sum(s2j)
+    # Correct formula: (J/(J-1)) * sum(s2j)   (without Ng/(Ng-1))
+    sigma2_cond <- (n_items / (n_items - 1)) * sum(s2j)
     sigma2_cond <- max(sigma2_cond, 0)
     CSEM_raw <- sqrt(sigma2_cond)
 
     scores_g <- total[idx]
     if (score.group == "all") {
+      # For "all", each group is a single score
       score_lo <- score_hi <- as.numeric(names(table(scores_g)))[1]
       score_center <- score_lo
     } else {
@@ -274,11 +247,14 @@ csemFeldt <- function(data,
   df <- df[order(df$.center), , drop = FALSE]
   rownames(df) <- NULL
 
-  # --- Optional smoothing and polynomial info ---
+  # --- Optional smoothing ---
   poly_info <- NULL
   if (smooth) {
     if (!is.numeric(degree) || degree < 1) stop("`degree` must be a positive integer.")
-    fit <- stats::lm(CSEM.raw ~ stats::poly(.center, degree, raw = TRUE), data = df)
+    valid <- !is.na(df$CSEM.raw) & is.finite(df$CSEM.raw)
+    if (sum(valid) < degree + 1)
+      stop("Not enough valid groups to fit polynomial of degree ", degree, ". Reduce degree or set smooth=FALSE.")
+    fit <- stats::lm(CSEM.raw ~ stats::poly(.center, degree, raw = TRUE), data = df[valid, ])
     CSEM_sm <- stats::predict(fit, newdata = df)
     CSEM_sm[!is.finite(CSEM_sm)] <- NA_real_
     CSEM_sm <- pmax(0, CSEM_sm)
@@ -302,24 +278,22 @@ csemFeldt <- function(data,
     df$CSEM <- df$CSEM.raw
   }
 
-  # --- Confidence intervals (original metric) ---
-  if (ci && !is.null(conf.level)) {
-    clv <- sort(unique(conf.level))
-    for (cl in clv) {
-      if (!is.numeric(cl) || cl <= 0 || cl >= 1) next
-      z <- stats::qnorm(1 - (1 - cl)/2)
-      lwr <- df$.center - z * df$CSEM
-      upr <- df$.center + z * df$CSEM
-      if (bound.scores) {
-        lwr <- pmax(lwr, bound_min)
-        upr <- pmin(upr, bound_max)
-      }
-      lwr <- round(lwr, digits.csem)
-      upr <- round(upr, digits.csem)
-      tag <- sprintf("%.0f", 100 * cl)
-      df[[paste0("lwr.", tag)]] <- lwr
-      df[[paste0("upr.", tag)]] <- upr
+  # --- Confidence intervals ---
+  if (ci) {
+    if (!is.numeric(conf.level) || length(conf.level) != 1 || conf.level <= 0 || conf.level >= 1)
+      stop("conf.level must be a single number between 0 and 1.")
+    z <- stats::qnorm(1 - (1 - conf.level) / 2)
+    lwr <- df$.center - z * df$CSEM
+    upr <- df$.center + z * df$CSEM
+    if (bound.scores) {
+      lwr <- pmax(lwr, bound_min)
+      upr <- pmin(upr, bound_max)
     }
+    lwr <- round(lwr, digits)
+    upr <- round(upr, digits)
+    tag <- sprintf("%.0f", 100 * conf.level)
+    df[[paste0("lwr.", tag)]] <- lwr
+    df[[paste0("upr.", tag)]] <- upr
   }
 
   # --- Build Score label according to score.display ---
@@ -340,11 +314,11 @@ csemFeldt <- function(data,
   }
 
   # --- Round CSEM and optionally drop CSEM.raw ---
-  df$CSEM <- round(df$CSEM, digits.csem)
+  df$CSEM <- round(df$CSEM, digits)
   if (!smooth) {
     df$CSEM.raw <- NULL
   } else {
-    df$CSEM.raw <- round(df$CSEM.raw, digits.csem)
+    df$CSEM.raw <- round(df$CSEM.raw, digits)
   }
 
   # --- Full range evaluation (if requested) ---
@@ -360,54 +334,43 @@ csemFeldt <- function(data,
       pred_CSEM <- pmax(0, pred_CSEM)
       full_df <- data.frame(
         Score = all_scores,
-        CSEM = round(pred_CSEM, digits.csem),
+        CSEM = round(pred_CSEM, digits),
         n = NA
       )
       if (smooth) full_df$CSEM.raw <- NA
-      if (ci && !is.null(conf.level)) {
-        for (cl in clv) {
-          z <- stats::qnorm(1 - (1 - cl)/2)
-          lwr <- all_scores - z * pred_CSEM
-          upr <- all_scores + z * pred_CSEM
-          if (bound.scores) {
-            lwr <- pmax(lwr, bound_min)
-            upr <- pmin(upr, bound_max)
-          }
-          lwr <- round(lwr, digits.csem)
-          upr <- round(upr, digits.csem)
-          tag <- sprintf("%.0f", 100 * cl)
-          full_df[[paste0("lwr.", tag)]] <- lwr
-          full_df[[paste0("upr.", tag)]] <- upr
+      if (ci) {
+        lwr_full <- all_scores - z * pred_CSEM
+        upr_full <- all_scores + z * pred_CSEM
+        if (bound.scores) {
+          lwr_full <- pmax(lwr_full, bound_min)
+          upr_full <- pmin(upr_full, bound_max)
         }
+        full_df[[paste0("lwr.", tag)]] <- round(lwr_full, digits)
+        full_df[[paste0("upr.", tag)]] <- round(upr_full, digits)
       }
       df <- full_df
     } else {
+      # Linear interpolation (not recommended, but possible)
       interp_csem <- stats::approx(x = df$.center, y = df$CSEM, xout = all_scores, rule = 2)
       full_df <- data.frame(
         Score = all_scores,
-        CSEM = round(interp_csem$y, digits.csem),
+        CSEM = round(interp_csem$y, digits),
         n = NA
       )
-      if (ci && !is.null(conf.level)) {
-        for (cl in clv) {
-          z <- stats::qnorm(1 - (1 - cl)/2)
-          lwr <- all_scores - z * interp_csem$y
-          upr <- all_scores + z * interp_csem$y
-          if (bound.scores) {
-            lwr <- pmax(lwr, bound_min)
-            upr <- pmin(upr, bound_max)
-          }
-          lwr <- round(lwr, digits.csem)
-          upr <- round(upr, digits.csem)
-          tag <- sprintf("%.0f", 100 * cl)
-          full_df[[paste0("lwr.", tag)]] <- lwr
-          full_df[[paste0("upr.", tag)]] <- upr
+      if (ci) {
+        lwr_full <- all_scores - z * interp_csem$y
+        upr_full <- all_scores + z * interp_csem$y
+        if (bound.scores) {
+          lwr_full <- pmax(lwr_full, bound_min)
+          upr_full <- pmin(upr_full, bound_max)
         }
+        full_df[[paste0("lwr.", tag)]] <- round(lwr_full, digits)
+        full_df[[paste0("upr.", tag)]] <- round(upr_full, digits)
       }
       df <- full_df
     }
   } else {
-    # Remove internal columns from original df
+    # Remove internal columns
     df$.score_lo <- NULL
     df$.score_hi <- NULL
     df$.center   <- NULL
@@ -423,9 +386,9 @@ csemFeldt <- function(data,
   if (summary) {
     general_info <- data.frame(
       parameter = c("score.group", "n_groups", "n_persons", "n_items",
-                    "min_score", "max_score", "smooth", "full.range"),
+                    "min_score", "max_score", "smooth", "full.range", "ci", "conf.level"),
       value = c(score.group, if (full.range) NA else length(group_list), n_persons, n_items,
-                bound_min, bound_max, smooth, full.range),
+                bound_min, bound_max, smooth, full.range, ci, if (ci) conf.level else NA),
       stringsAsFactors = FALSE
     )
     summary_out <- list(general = general_info)
