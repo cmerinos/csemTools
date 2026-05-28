@@ -8,7 +8,6 @@ csemThorndike(
   half1,
   half2,
   bin.score = NULL,
-  min.n = 20,
   smooth = FALSE,
   degree = 2,
   full.range = FALSE,
@@ -19,31 +18,34 @@ csemThorndike(
 )
 }
 \arguments{
-\item{half1}{data.frame/matrix with first half items}
+\item{half1}{data.frame/matrix with first half items.}
 
-\item{half2}{data.frame/matrix with second half items}
+\item{half2}{data.frame/matrix with second half items.}
 
-\item{bin.score}{integer (quantile groups) or NULL (individual scores)}
+\item{bin.score}{integer (number of quantile groups) or NULL (individual scores).}
 
-\item{min.n}{minimum group size for merging (ignored if smooth=TRUE or bin.score given)}
+\item{smooth}{logical. If TRUE, applies polynomial smoothing.}
 
-\item{smooth}{logical, apply polynomial smoothing}
+\item{degree}{integer. Polynomial degree (used if smooth=TRUE).}
 
-\item{degree}{polynomial degree (if smooth=TRUE)}
+\item{full.range}{logical. If TRUE and smooth=TRUE, evaluates CSEM for every
+integer score from \code{score.range[1]} to \code{score.range[2]}.}
 
-\item{full.range}{logical, evaluate on full score.range (requires smooth=TRUE and score.range)}
+\item{ci}{logical. If TRUE, compute confidence intervals for true score.}
 
-\item{ci}{logical, compute confidence intervals}
+\item{conf.level}{numeric. Confidence level (default 0.95).}
 
-\item{conf.level}{confidence level for intervals}
+\item{digits}{integer. Rounding for output.}
 
-\item{digits}{rounding digits}
-
-\item{score.range}{numeric vector length 2 (min, max) for theoretical range}
+\item{score.range}{numeric vector of length 2 (min, max). Required for full.range=TRUE.}
 }
 \value{
-list with CSEM data frame, optional binned.CSEM and polynomial info
+A list with elements:
+\item{CSEM}{data.frame with columns \code{score}, \code{n} (number of subjects with that score),
+and either \code{CSEM} (raw) or \code{CSEM.smooth} (smoothed).}
+\item{binned.CSEM}{(if bin.score is integer) data.frame with quantile groups.}
 }
 \description{
-Thorndike's method for Conditional Standard Error of Measurement (CSEM)
+Simplified version without manual merging of small groups. For stable estimates
+across the whole score range, use \code{smooth = TRUE} and \code{full.range = TRUE}.
 }
