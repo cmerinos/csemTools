@@ -61,116 +61,59 @@ csemThorndike <- function(half1, half2,
 
     i <- 1
     while (i <= nrow(df)) {
+      # Caso 1: puntaje con n >= min_n -> se queda individual
       if (df$n[i] >= min_n) {
-        # Puntaje grande: individual
         i <- i + 1
         next
       }
+      # Caso 2: puntaje con 0 < n < min_n -> iniciar bloque
       if (df$n[i] > 0 && df$n[i] < min_n) {
-        # Iniciar bloque
-        block_indices <- c(i)
+        block_start <- i
+        block_indices <- c(i)          # índices de filas con n>0 dentro del bloque
         block_n_sum <- df$n[i]
         j <- i + 1
+        # Avanzar mientras no encontremos un puntaje con n >= min_n
         while (j <= nrow(df) && df$n[j] < min_n) {
           if (df$n[j] > 0) {
             block_indices <- c(block_indices, j)
             block_n_sum <- block_n_sum + df$n[j]
           }
+          # Si la suma acumulada alcanza o supera min_n, cerramos el bloque aquí
           if (block_n_sum >= min_n) {
-            # Cerrar bloque en j
-            start_idx <- i
-            end_idx <- j
+            block_end <- j
+            # Calcular CSEM conjunto para todos los puntajes con n>0 en [block_start, block_end]
             scores_in_block <- df$score[block_indices]
             all_idx <- unlist(lapply(scores_in_block, function(s) which(scores == s)))
             csem_block <- sd(diffs[all_idx])
-            for (k in start_idx:end_idx) {
+            # Asignar a todas las filas desde block_start hasta block_end
+            for (k in block_start:block_end) {
               df$CSEM.raw[k] <- csem_block
-              if (df$n[k] > 0) df$n[k] <- NA_integer_
+              if (df$n[k] > 0) df$n[k] <- NA_integer_   # observados pasan a NA
+              # los n=0 se quedan 0
             }
-            i <- end_idx + 1
+            i <- block_end + 1
             break
           }
           j <- j + 1
         }
+        # Si se llega al final sin alcanzar min_n, cerramos igualmente (no debería ocurrir con min_n=20)
         if (j > nrow(df) && block_n_sum < min_n) {
-          # Bloque final que no alcanza min_n (no debería ocurrir)
-          start_idx <- i
-          end_idx <- nrow(df)
+          block_end <- nrow(df)
           scores_in_block <- df$score[block_indices]
           all_idx <- unlist(lapply(scores_in_block, function(s) which(scores == s)))
           csem_block <- sd(diffs[all_idx])
-          for (k in start_idx:end_idx) {
+          for (k in block_start:block_end) {
             df$CSEM.raw[k] <- csem_block
             if (df$n[k] > 0) df$n[k] <- NA_integer_
           }
-          i <- end_idx + 1
+          i <- block_end + 1
         }
       } else {
+        # n == 0: solo avanzar (no inicia bloque)
         i <- i + 1
       }
     }
     return(df)
-  }
-  # --- Obtener estimaciones raw ---
-  if (smooth) {
-    # Para suavizar, necesitamos CSEM en cada puntaje observado con n>=2
-    unique_scores <- sort(unique(total))
-    raw_list <- list()
-    for (s in unique_scores) {
-      idx <- which(total == s)
-      n_s <- length(idx)
-      if (n_s >= 2) {
-        csem_raw <- sd(diff[idx])
-      } else {
-        csem_raw <- NA_real_
-      }
-      raw_list[[length(raw_list)+1]] <- data.frame(score = s, n = n_s, CSEM.raw = csem_raw,
-                                                   stringsAsFactors = FALSE)
-    }
-    raw_df <- do.call(rbind, raw_list)
-    raw_df <- raw_df[!is.na(raw_df$CSEM.raw), ]
-  } else {
-    if (is.null(bin.score)) {
-      raw_df <- merge_small_groups(total, diff, min.n, theo_min, theo_max)
-    } else {
-      # bin.score entero: primero raw por puntaje, luego agrupar por cuantiles
-      unique_scores <- sort(unique(total))
-      temp_list <- list()
-      for (s in unique_scores) {
-        idx <- which(total == s)
-        n_s <- length(idx)
-        if (n_s >= 2) {
-          csem_raw <- sd(diff[idx])
-        } else {
-          csem_raw <- NA_real_
-        }
-        temp_list[[length(temp_list)+1]] <- data.frame(score = s, n = n_s, CSEM.raw = csem_raw,
-                                                       stringsAsFactors = FALSE)
-      }
-      temp_df <- do.call(rbind, temp_list)
-      temp_df <- temp_df[!is.na(temp_df$CSEM.raw), ]
-      # Grupos cuantiles sobre personas
-      q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
-      q <- unique(q)
-      groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)
-      group_levels <- levels(groups)
-      binned_list <- list()
-      for (i in seq_along(group_levels)) {
-        idx_in_group <- which(groups == group_levels[i])
-        scores_in_group <- unique(total[idx_in_group])
-        sub_df <- temp_df[temp_df$score %in% scores_in_group, ]
-        if (nrow(sub_df) == 0) next
-        csem_mean <- mean(sub_df$CSEM.raw)
-        range_str <- paste0(min(scores_in_group), "-", max(scores_in_group))
-        n_persons <- length(idx_in_group)
-        mean_score <- mean(total[idx_in_group])
-        binned_list[[i]] <- data.frame(group = i, range = range_str, n = n_persons,
-                                       mean_score = mean_score, CSEM.mean = csem_mean,
-                                       stringsAsFactors = FALSE)
-      }
-      binned_df <- do.call(rbind, binned_list)
-      raw_df <- temp_df
-    }
   }
 
   # --- Suavizamiento (si aplica) ---
