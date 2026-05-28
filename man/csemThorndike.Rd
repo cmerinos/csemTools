@@ -39,8 +39,8 @@ squared CSEM estimates. Default = \code{FALSE}.}
 Default = 2.}
 
 \item{full.range}{Logical. If \code{TRUE} and \code{smooth = TRUE}, evaluates
-the smoothed CSEM for every integer score from the minimum observed to the
-maximum observed (or to the theoretical range if \code{score.range} provided).
+the smoothed CSEM for every integer score from \code{score.range[1]} to
+\code{score.range[2]}. Requires \code{score.range} to be provided.
 Default = \code{FALSE}.}
 
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
@@ -51,20 +51,22 @@ Default = \code{FALSE}.}
 \item{digits}{Integer. Number of decimal places for CSEM and confidence limits.
 Default = 3.}
 
-\item{score.range}{Optional numeric vector of length 2 (min, max) to define the
-range of possible scores. Only used when \code{full.range = TRUE} and
-\code{smooth = TRUE}. If \code{NULL}, the observed range is used.}
+\item{score.range}{Optional numeric vector of length 2 (min, max) defining the
+theoretical score range. Required when \code{full.range = TRUE}. If \code{NULL}
+but \code{full.range = TRUE}, the observed range is used (with a warning).}
 }
 \value{
 A list with elements:
 \item{CSEM}{data.frame with columns: \code{score} (integer score),
-\code{n} (number of subjects, \code{NA} for predicted scores),
+\code{n} (number of subjects, 0 for unobserved, NA for merged scores),
 \code{CSEM.raw} (raw estimate, present if \code{smooth = FALSE}),
 \code{CSEM.smooth} (smoothed estimate, present if \code{smooth = TRUE}),
 and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
 \item{binned.CSEM}{(only if \code{bin.score} is an integer) data.frame with
 quantile group statistics: \code{group}, \code{range}, \code{n},
-\code{CSEM.mean}, and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
+\code{mean_score} (mean total score in the group),
+\code{CSEM.mean} (mean CSEM in the group, raw or smoothed),
+and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
 \item{polynomial}{(only if \code{smooth = TRUE}) list with polynomial coefficients,
 fit statistics, and degree.}
 }
