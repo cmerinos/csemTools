@@ -59,49 +59,75 @@ csemThorndike <- function(half1, half2,
     })
     df <- data.frame(score = all_scores, n = n_vec, CSEM.raw = csem_raw, stringsAsFactors = FALSE)
 
-    # Puntajes que necesitan fusionarse (0 < n < min_n y no tienen CSEM válido)
-    to_fuse <- which(df$n > 0 & df$n < min_n & is.na(df$CSEM.raw))
-    if (length(to_fuse) == 0) return(df)
+    # Recorremos todos los puntajes. Los que tienen n >= min_n se quedan individuales.
+    # Los que tienen 0 < n < min_n se acumulan en bloques, sin que los n=0 interrumpan el bloque.
+    # Un bloque termina cuando:
+    #   - Se encuentra un puntaje con n >= min_n, o
+    #   - Se llega al final de la lista.
+    # Al finalizar un bloque, se asigna un CSEM (calculado con todos los individuos de los puntajes con n>0 dentro del bloque)
+    # a TODOS los puntajes (incluyendo los n=0) dentro del rango [inicio, fin] del bloque.
 
     blocks <- list()
-    current_block <- c()
+    current_block_indices <- c()   # índices en df de puntajes que serán fusionados (solo aquellos con n>0)
     current_n_sum <- 0
+    block_start <- NULL
     i <- 1
     while (i <= nrow(df)) {
       if (df$n[i] >= min_n) {
-        if (length(current_block) > 0) {
-          blocks <- c(blocks, list(list(scores = current_block, total_n = current_n_sum)))
-          current_block <- c()
+        # Puntaje grande: cerramos cualquier bloque pendiente y luego lo dejamos individual
+        if (length(current_block_indices) > 0) {
+          # Guardar bloque
+          blocks <- c(blocks, list(list(indices = current_block_indices,
+                                        total_n = current_n_sum,
+                                        start = block_start,
+                                        end = df$score[i-1])))
+          current_block_indices <- c()
           current_n_sum <- 0
+          block_start <- NULL
         }
-        # este puntaje se queda individual (ya está en df)
+        # Este puntaje se queda individual (ya está en df)
       } else if (df$n[i] > 0 && df$n[i] < min_n) {
-        current_block <- c(current_block, i)
+        # Puntaje pequeño: añadir al bloque actual
+        if (is.null(block_start)) block_start <- i
+        current_block_indices <- c(current_block_indices, i)
         current_n_sum <- current_n_sum + df$n[i]
-        if (current_n_sum >= min_n) {
-          blocks <- c(blocks, list(list(scores = current_block, total_n = current_n_sum)))
-          current_block <- c()
-          current_n_sum <- 0
-        }
+        # No cerramos automáticamente al alcanzar min_n; seguimos hasta el final del rango
       } else if (df$n[i] == 0) {
-        # los no observados no se incluyen en bloques, pero no interrumpen
+        # Puntaje no observado: no se añade al bloque, pero tampoco lo corta.
+        # Solo avanzamos.
       }
       i <- i + 1
     }
-    if (length(current_block) > 0) {
-      blocks <- c(blocks, list(list(scores = current_block, total_n = current_n_sum)))
+    # Al final, si hay bloque pendiente, lo cerramos
+    if (length(current_block_indices) > 0) {
+      blocks <- c(blocks, list(list(indices = current_block_indices,
+                                    total_n = current_n_sum,
+                                    start = block_start,
+                                    end = nrow(df))))
     }
 
-    # Asignar CSEM combinado a cada bloque
+    # Ahora, para cada bloque, calcular CSEM conjunto y asignarlo a todos los puntajes
+    # desde el primer score del bloque hasta el último (incluyendo n=0 intermedios)
     for (blk in blocks) {
-      idx_scores <- blk$scores
-      all_idx <- unlist(lapply(idx_scores, function(j) which(scores == df$score[j])))
+      idx_scores <- blk$indices
+      scores_in_block <- df$score[idx_scores]
+      # Obtener todos los individuos de esos puntajes
+      all_idx <- unlist(lapply(scores_in_block, function(s) which(scores == s)))
       csem_block <- sd(diffs[all_idx])
-      for (j in idx_scores) {
+      # Rango completo del bloque (desde el primer score hasta el último)
+      start_score <- df$score[blk$start]
+      end_score <- df$score[blk$end]
+      full_range <- which(df$score >= start_score & df$score <= end_score)
+      for (j in full_range) {
         df$CSEM.raw[j] <- csem_block
-        df$n[j] <- NA_integer_
+        # Para puntajes fusionados, n se reemplaza por NA (excepto si es 0, se mantiene 0)
+        if (df$n[j] > 0) df$n[j] <- NA_integer_
+        # Si n==0, se queda 0
       }
     }
+
+    # Los puntajes que no cayeron en ningún bloque y tienen n>=min_n ya están individuales.
+    # Los que tienen n>0 y no están en bloques y tienen n<min_n se quedan con NA (no debería ocurrir con min_n=20)
     return(df)
   }
 
