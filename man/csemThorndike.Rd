@@ -19,59 +19,29 @@ csemThorndike(
 )
 }
 \arguments{
-\item{half1}{data.frame or matrix with items from the first half of the test.}
+\item{half1, }{half2 Data frames/matrices con las dos mitades del test.}
 
-\item{half2}{data.frame or matrix with items from the second half of the test.
-Must have the same number of rows as \code{half1}.}
+\item{bin.score}{Entero (número de grupos cuantiles) o NULL (puntajes individuales).}
 
-\item{bin.score}{Either \code{NULL} (default) to work with individual scores,
-or an integer \code{k} to divide the total scores into \code{k} quantile groups.}
+\item{min.n}{Tamaño mínimo por grupo (solo cuando smooth=FALSE y bin.score=NULL).}
 
-\item{min.n}{Integer. Minimum number of observations per score group when
-\code{bin.score = NULL} and \code{smooth = FALSE}. Groups with fewer than
-\code{min.n} observations are merged with the nearest neighbor. Ignored
-when \code{smooth = TRUE} or \code{bin.score} is an integer. Default = 20.}
+\item{smooth}{Lógico: si TRUE, suaviza con polinomio.}
 
-\item{smooth}{Logical. If \code{TRUE}, applies polynomial smoothing to the
-squared CSEM estimates. Default = \code{FALSE}.}
+\item{degree}{Grado del polinomio (si smooth=TRUE).}
 
-\item{degree}{Integer. Degree of the polynomial used when \code{smooth = TRUE}.
-Default = 2.}
+\item{full.range}{Lógico: si TRUE, evalúa en todo score.range (requiere smooth=TRUE y score.range).}
 
-\item{full.range}{Logical. If \code{TRUE} and \code{smooth = TRUE}, evaluates
-the smoothed CSEM for every integer score from \code{score.range[1]} to
-\code{score.range[2]}. Requires \code{score.range} to be provided.
-Default = \code{FALSE}.}
+\item{ci}{Lógico: si TRUE, calcula intervalos de confianza.}
 
-\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
-Default = \code{FALSE}.}
+\item{conf.level}{Nivel de confianza (por defecto 0.95).}
 
-\item{conf.level}{Numeric. Confidence level for intervals (default 0.95).}
+\item{digits}{Decimales para redondeo.}
 
-\item{digits}{Integer. Number of decimal places for CSEM and confidence limits.
-Default = 3.}
-
-\item{score.range}{Optional numeric vector of length 2 (min, max) defining the
-theoretical score range. Required when \code{full.range = TRUE}. If \code{NULL}
-but \code{full.range = TRUE}, the observed range is used (with a warning).}
+\item{score.range}{Vector numérico de longitud 2: mínimo y máximo teórico del puntaje total.}
 }
 \value{
-A list with elements:
-\item{CSEM}{data.frame with columns: \code{score} (integer score),
-\code{n} (number of subjects, 0 for unobserved, NA for merged scores),
-\code{CSEM.raw} (raw estimate, present if \code{smooth = FALSE}),
-\code{CSEM.smooth} (smoothed estimate, present if \code{smooth = TRUE}),
-and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
-\item{binned.CSEM}{(only if \code{bin.score} is an integer) data.frame with
-quantile group statistics: \code{group}, \code{range}, \code{n},
-\code{mean_score} (mean total score in the group),
-\code{CSEM.mean} (mean CSEM in the group, raw or smoothed),
-and \code{lwr.ci}, \code{upr.ci} if \code{ci = TRUE}.}
-\item{polynomial}{(only if \code{smooth = TRUE}) list with polynomial coefficients,
-fit statistics, and degree.}
+Lista con elementos CSEM, binned.CSEM (si bin.score entero) y polynomial (si smooth=TRUE).
 }
 \description{
-Computes the Conditional Standard Error of Measurement (CSEM) using Thorndike's
-half-test difference method. The CSEM for a given total score is the standard
-deviation of the difference between two parallel half-tests.
+Thorndike's method for Conditional Standard Error of Measurement (CSEM)
 }
