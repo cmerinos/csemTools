@@ -154,9 +154,16 @@ csemFSG <- function(data,
       result_df <- data.frame(score = all_scores, n = full_n,
                               CSEM.smooth = csem_smooth,
                               stringsAsFactors = FALSE)
-      # Rellenar hacia atrás (backward fill) para mejorar presentación
+      # ----- INICIO CORRECCIÓN -----
+      # Convertir a NA aquellos valores predichos que son exactamente cero
+      # y además corresponden a puntajes sin datos observados (n == 0)
+      idx_na <- which(result_df$CSEM.smooth == 0 & result_df$n == 0)
+      result_df$CSEM.smooth[idx_na] <- NA_real_
+      # Aplicar backward fill (propagar el primer valor no-NA hacia la izquierda)
       result_df$CSEM.smooth <- na_locb(result_df$CSEM.smooth)
+      # Finalmente redondear
       result_df$CSEM.smooth <- round(result_df$CSEM.smooth, digits)
+      # ----- FIN CORRECCIÓN -----
     } else {
       pred_var <- predict(fit, newdata = data.frame(score = raw_df$score))
       pred_var <- pmax(pred_var, 0)
