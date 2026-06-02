@@ -2,131 +2,67 @@
 % Please edit documentation in R/csemMF.R
 \name{csemMF}
 \alias{csemMF}
-\title{Mollenkopf-Feldt Conditional Standard Error of Measurement (MF-CSEM)}
+\title{Mollenkopf-Feldt method for Conditional Standard Error of Measurement (CSEM)}
 \usage{
 csemMF(
-  half1,
-  half2,
+  data,
+  n.parts = NULL,
+  part_items = NULL,
+  min.items.per.part = 2,
   degree = 2,
-  constant = c("0", "free"),
-  center.on = c("observed", "true"),
-  reliability = NULL,
+  full.range = FALSE,
   ci = FALSE,
   conf.level = 0.95,
-  digits.csem = 3,
-  full.range = FALSE,
+  digits = 3,
   score.range = NULL,
-  table.person = FALSE,
-  summary = FALSE,
   na.rm = TRUE
 )
 }
 \arguments{
-\item{half1}{A data frame or matrix with items from the first half of the test.}
+\item{data}{A data frame or matrix with item responses (subjects in rows,
+items in columns). Items can be dichotomous or polytomous.}
 
-\item{half2}{A data frame or matrix with items from the second half of the test.
-Must have the same number of rows as \code{half1}.}
+\item{n.parts}{Integer. Number of parts into which the test will be split
+(by column order, as balanced as possible). Ignored if \code{part_items} is provided.
+Default is \code{NULL}, which with \code{part_items = NULL} sets \code{n.parts = ncol(data)}
+(each item as a part).}
 
-\item{degree}{Integer. Degree of the polynomial regression (default = 2).}
+\item{part_items}{Optional list. Each element is a character vector of column names
+or an integer vector of column indices defining the items in that part.
+If provided, \code{n.parts} is ignored.}
 
-\item{constant}{Character. Whether to force the polynomial regression through
-the origin: \code{"0"} (default) or \code{"free"} (allow intercept).}
+\item{min.items.per.part}{Integer. Minimum number of items per part (default 2).
+A warning is issued if any part has fewer items.}
 
-\item{center.on}{Character. Where to center confidence intervals:
-\code{"observed"} (default) centers on the observed score;
-\code{"true"} centers on the estimated true score (ETS) using reliability.}
+\item{degree}{Integer. Degree of the polynomial (default 2).}
 
-\item{reliability}{Optional numeric value. Reliability coefficient (e.g., alpha)
-used to compute ETS. If \code{NULL} and \code{center.on = "true"}, reliability
-is estimated internally using Cronbach's alpha on the full test.}
+\item{full.range}{Logical. If \code{TRUE}, evaluates the smoothed CSEM for every
+integer score from \code{score.range[1]} to \code{score.range[2]} (requires \code{score.range}).}
 
-\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.
-Default \code{FALSE}.}
+\item{ci}{Logical. If \code{TRUE}, compute confidence intervals for the true score.}
 
-\item{conf.level}{Numeric. Confidence level for intervals (default 0.95).}
+\item{conf.level}{Numeric. Confidence level (default 0.95).}
 
-\item{digits.csem}{Integer. Number of decimal places for CSEM and confidence limits.
-Default 3.}
+\item{digits}{Integer. Rounding for output.}
 
-\item{full.range}{Logical. If \code{TRUE}, the smoothed CSEM curve is evaluated
-for every integer score from 0 to the total number of items (theoretical range).
-Requires \code{smooth = TRUE}? This function always smooths. Default \code{FALSE}.}
+\item{score.range}{Numeric vector length 2. Required if \code{full.range = TRUE}.}
 
-\item{score.range}{Numeric vector of length 2, optional. Overrides the score range
-for evaluation (e.g., \code{c(0, 40)}). Only used when \code{full.range = FALSE}.}
-
-\item{table.person}{Logical. If \code{TRUE}, returns a data frame with CSEM values
-for each individual in the original data. Default \code{FALSE}.}
-
-\item{summary}{Logical. If \code{TRUE}, returns additional information about the
-polynomial fit (coefficients, R-squared, AIC, BIC, etc.). Default \code{FALSE}.}
-
-\item{na.rm}{Logical. If \code{TRUE} (default), removes rows with any missing
-values in \code{half1} or \code{half2}. If \code{FALSE}, stops on missing values.}
+\item{na.rm}{Logical. Remove rows with missing values.}
 }
 \value{
-A list with components:
-\item{table_score}{Data frame with columns: \code{Score}, \code{CSEM}, and
-confidence limits (if \code{ci = TRUE}).}
-\item{table_person}{(if \code{table.person = TRUE}) Data frame with:
-\code{id}, \code{total_score}, \code{CSEM}, and confidence limits (if \code{ci = TRUE}).}
-\item{summary}{(if \code{summary = TRUE}) A list with:
-\code{general} (parameters of the call) and \code{polynomial} (coefficients,
-R-squared, AIC, BIC, residual SE, etc.).}
-\item{reliability}{(if \code{center.on = "true"} and \code{reliability} was
-computed internally) The reliability coefficient used for ETS.}
+A list with elements:
+\item{CSEM}{data.frame with columns \code{score}, \code{n}, \code{CSEM.smooth}, and
+if \code{ci = TRUE}, \code{lwr.ci} and \code{upr.ci}.}
+\item{...}{No \code{binned.CSEM} (can be added later).}
 }
 \description{
-Computes the Conditional Standard Error of Measurement (CSEM) using the
-Mollenkopf-Feldt (MF) procedure. This method uses polynomial regression
-to smooth the squared adjusted differences between two test halves, and
-optionally centers confidence intervals on observed scores or estimated
-true scores (ETS). The regression can be forced through the origin
-(constant = 0) as recommended in the literature.
-}
-\details{
-The Mollenkopf-Feldt procedure (Mollenkopf, 1949; Feldt et al., 1985) consists of:
-\enumerate{
-\item Divide the test into two parallel halves (same number of items, similar difficulty).
-\item For each examinee, compute the total score \eqn{X = X_1 + X_2} and the
-adjusted squared difference \eqn{Y = ((X_1 - X_2) - (\bar{X}_1 - \bar{X}_2))^2}.
-\item Fit a polynomial regression of \eqn{Y} on \eqn{X} of degree \code{degree},
-optionally forcing the intercept to 0.
-\item The predicted values \eqn{\hat{Y}} are estimates of the conditional error variance.
-The CSEM for a score \eqn{s} is \eqn{\sqrt{\max(\hat{Y}(s), 0)}}.
-\item If \code{center.on = "true"}, confidence intervals for the true score are
-centered on the Estimated True Score (ETS) using the reliability coefficient:
-\eqn{ETS = r_{xx} \cdot X + (1 - r_{xx}) \cdot \bar{X}}.
-\item Otherwise, intervals are centered on the observed score.
-}
-}
-\examples{
-\dontrun{
-# Simulate data: 200 persons, 10 items per half (total 20 items)
-set.seed(123)
-half1 <- matrix(rbinom(200*10, 1, 0.6), ncol=10)
-half2 <- matrix(rbinom(200*10, 1, 0.6), ncol=10)
-
-# Basic MF-CSEM with default settings
-res <- csemMF(half1, half2, degree = 2, constant = "0")
-head(res$table_score)
-
-# With confidence intervals centered on observed scores
-res2 <- csemMF(half1, half2, ci = TRUE, conf.level = 0.95,
-               center.on = "observed", full.range = TRUE)
-
-# With confidence intervals centered on true scores (reliability estimated)
-res3 <- csemMF(half1, half2, ci = TRUE, center.on = "true", full.range = TRUE)
-
-# Return person-level CSEM and polynomial summary
-res4 <- csemMF(half1, half2, table.person = TRUE, summary = TRUE)
-}
-
+Implements the Mollenkopf-Feldt method, which applies polynomial regression
+to the individual error variance estimates from Feldt & Qualls (1996).
+This provides smoothed CSEM values along the score scale.
 }
 \references{
-Mollenkopf, W. G. (1949). Variation of the standard error of measurement of scores.
+Mollenkopf, W. G. (1949). Variation of the standard error of measurement.
 \emph{Psychometrika}, 14(3), 189–229.
-Feldt, L. S., Steffen, M., & Gupta, N. C. (1985). A comparison of five methods
-for estimating the standard error of measurement at specific score levels.
-\emph{Applied Psychological Measurement}, 9(4), 351–361.
+Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
+at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141–156.
 }
