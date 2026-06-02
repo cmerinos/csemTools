@@ -73,7 +73,7 @@ csemFSG <- function(data,
 
   total <- rowSums(data)
 
-  # --- Definir rango de puntajes (para truncar CI) ---
+  # --- Rango para truncar CI ---
   if (!is.null(score.range)) {
     if (!is.numeric(score.range) || length(score.range) != 2)
       stop("score.range must be a numeric vector of length 2.")
@@ -84,12 +84,23 @@ csemFSG <- function(data,
     score_max_teo <- max(total, na.rm = TRUE)
   }
 
-  # --- Helper: last observation carried forward (for raw CSEM with full.range) ---
+  # --- Helpers: forward and backward fill ---
   na_locf <- function(x) {
     idx <- !is.na(x)
     if (sum(idx) == 0) return(x)
     last_val <- x[idx][1]
     for (i in seq_along(x)) {
+      if (!is.na(x[i])) last_val <- x[i]
+      else x[i] <- last_val
+    }
+    return(x)
+  }
+
+  na_locb <- function(x) {
+    idx <- !is.na(x)
+    if (sum(idx) == 0) return(x)
+    last_val <- x[idx][length(idx)]
+    for (i in rev(seq_along(x))) {
       if (!is.na(x[i])) last_val <- x[i]
       else x[i] <- last_val
     }
@@ -121,7 +132,7 @@ csemFSG <- function(data,
       csem_full[is.na(csem_full)] <- NA_real_
       result_df <- data.frame(score = all_scores, n = full_n, CSEM = csem_full,
                               stringsAsFactors = FALSE)
-      # Rellenar NA hacia abajo para mejorar presentación
+      # Rellenar NA hacia abajo (mejora de presentación)
       result_df$CSEM <- na_locf(result_df$CSEM)
     } else {
       result_df <- raw_df
@@ -141,8 +152,11 @@ csemFSG <- function(data,
       csem_smooth <- sqrt(pred_var)
       full_n <- sapply(all_scores, function(s) sum(total == s))
       result_df <- data.frame(score = all_scores, n = full_n,
-                              CSEM.smooth = round(csem_smooth, digits),
+                              CSEM.smooth = csem_smooth,
                               stringsAsFactors = FALSE)
+      # Rellenar hacia atrás (backward fill) para mejorar presentación
+      result_df$CSEM.smooth <- na_locb(result_df$CSEM.smooth)
+      result_df$CSEM.smooth <- round(result_df$CSEM.smooth, digits)
     } else {
       pred_var <- predict(fit, newdata = data.frame(score = raw_df$score))
       pred_var <- pmax(pred_var, 0)
@@ -153,7 +167,7 @@ csemFSG <- function(data,
     }
   }
 
-  # --- Intervalos de confianza (si ci = TRUE) ---
+  # --- Intervalos de confianza ---
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     if (smooth) {
@@ -163,7 +177,6 @@ csemFSG <- function(data,
     }
     lwr <- result_df$score - z * csem_vals
     upr <- result_df$score + z * csem_vals
-    # Truncar al rango de puntajes
     lwr <- pmax(lwr, score_min_teo)
     upr <- pmin(upr, score_max_teo)
     result_df$lwr.ci <- round(lwr, digits)
@@ -175,17 +188,15 @@ csemFSG <- function(data,
   if (!is.null(bin.score)) {
     # Obtener CSEM para cada score único observado (raw o smooth)
     if (smooth) {
-      # Predicciones del modelo para los scores observados
       scores_obs <- sort(unique(total))
       pred_obs <- predict(fit, newdata = data.frame(score = scores_obs))
       pred_obs <- pmax(pred_obs, 0)
       csem_obs <- sqrt(pred_obs)
       temp_df <- data.frame(score = scores_obs, CSEM = csem_obs)
     } else {
-      # Usamos raw_df (que ya tiene CSEM)
       temp_df <- raw_df
     }
-    # Cuantiles sobre las personas
+
     q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
     q <- unique(q)
     groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)
