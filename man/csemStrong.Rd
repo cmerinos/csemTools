@@ -10,13 +10,14 @@ csemStrong(
   nitems = NULL,
   min.resp = NULL,
   max.resp = NULL,
+  bin.score = NULL,
   ci = FALSE,
   ci.method = c("csem", "wilson"),
   conf.level = NULL,
-  digits.csem = 3,
-  summary = FALSE,
+  digits = 3,
   full.range = TRUE,
-  return.person = FALSE,
+  score.range = NULL,
+  summary = FALSE,
   na.rm = TRUE
 )
 }
@@ -36,6 +37,10 @@ taken as \code{ncol(data)}.}
 \item{max.resp}{Numeric. Maximum response value per item.
 \strong{Required when \code{score.type = "poly"}}.}
 
+\item{bin.score}{Integer. Number of quantile groups (e.g., 5 for quintiles).
+If \code{NULL} (default), no binning is performed. If provided, the function
+returns a data frame \code{binned.CSEM} with average CSEM per quantile group.}
+
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.}
 
 \item{ci.method}{Character: \code{"csem"} (classic) or \code{"wilson"}.
@@ -44,11 +49,7 @@ Default \code{"csem"}.}
 \item{conf.level}{Numeric vector of confidence levels (e.g., 0.95).
 Default \code{NULL} → 0.95.}
 
-\item{digits.csem}{Integer for rounding. Default 3.}
-
-\item{summary}{Logical. If \code{TRUE}, returns a data frame with key
-parameters (mu_X, var_Xp, var_Xi, mean_pq, correction_factor).
-Default \code{FALSE}.}
+\item{digits}{Integer for rounding CSEM and confidence limits. Default 3.}
 
 \item{full.range}{Logical. If \code{TRUE} (default), CSEM values are
 reported for the full score range (all possible scores). For dichotomous,
@@ -56,18 +57,25 @@ that is 0:nitems; for polytomous, all observed equivalent scores plus
 the extremes 0 and nitems. If \code{FALSE}, only scores observed in
 \code{data} are reported.}
 
-\item{return.person}{Logical. If \code{TRUE}, includes a person‑level
-data frame. Default \code{FALSE}.}
+\item{score.range}{Optional numeric vector of length 2 (min, max). If provided,
+confidence intervals are truncated to this range. If NULL, the observed
+score range (or theoretical range for full.range) is used.}
+
+\item{summary}{Logical. If \code{TRUE}, returns a data frame with key
+parameters (mu_X, var_Xp, var_Xi, mean_pq, correction_factor).
+Default \code{FALSE}.}
 
 \item{na.rm}{Logical. If \code{TRUE} (default), rows with missing values
 are removed. If \code{FALSE}, stops on missing values.}
 }
 \value{
 A list with components:
-\item{score}{Data frame with columns: \code{raw.score} (original total),
+\item{CSEM}{Data frame with columns: \code{raw.score} (original total),
 \code{equiv.score} (if polytomous), \code{n} (frequency), \code{csem.strong},
 and confidence limits if requested.}
-\item{person}{(if \code{return.person = TRUE}) Person‑level data frame.}
+\item{binned.CSEM}{(if \code{bin.score} is provided) Data frame with
+quantile groups: \code{group}, \code{range}, \code{n}, \code{mean_score},
+\code{CSEM.mean}, and confidence limits if \code{ci = TRUE}.}
 \item{summary}{(if \code{summary = TRUE}) Data frame with parameters.}
 }
 \description{
@@ -76,16 +84,6 @@ strong true score theory (compound binomial model) for dichotomously
 scored items. The estimator follows Lord (1965) as summarized by
 Tong and Kolen (2018). Optionally, the function computes confidence
 intervals for the true number‑correct score.
-}
-\examples{
-\dontrun{
-# Dichotomous example
-csemStrong(data = data_u, score.type = "dich", ci = TRUE, summary = TRUE)
-
-# Polytomous example
-csemStrong(data = data_poly, score.type = "poly", min.resp = 1, max.resp = 6)
-}
-
 }
 \references{
 Lord, F. M. (1965). A strong true score theory, with applications.
