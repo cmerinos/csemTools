@@ -117,9 +117,9 @@
 #' }
 #'
 #' @references
-#' Colton, D. A., Gao, X., & Kolen, M. J. (1996). Assessing the reliability of
-#' performance level scores using bootstrapping. In *Paper Presented at the
-#' Annual Meeting of the American Educational Research Association* (New York, NY).
+#' Colton, D. A., Gao, X., & Kolen, M. J. (1997). Assessing the reliability of
+#' performance level scores using bootstrapping. ACT Research Report Series,
+#' 97-3. Iowa City, 1A: ACT.
 #'
 #' @examples
 #' \donttest{
@@ -225,10 +225,12 @@ csemBoots <- function(data,
   df <- data.frame(score = total, csem = csem_person)
 
   # Raw CSEM per observed score (at least 2 persons)
-  raw <- aggregate(csem ~ score, data = df, FUN = function(x) c(mean = mean(x), n = length(x)))
+  raw <- aggregate(csem ~ score, data = df, FUN = function(x) {
+    c(CSEM = sqrt(mean(x^2)), n = length(x))})
   raw <- do.call(data.frame, raw)  # flatten
   names(raw) <- c("score", "CSEM", "n")
   raw$CSEM <- round(raw$CSEM, digits)
+  raw <- raw[raw$n >= 2, ]
 
   # Remove scores with n < 2 (CSEM already NA? Actually aggregate with mean gives NaN if n<2? But we only have n>=2)
   # In our aggregate, every score present has at least one person, but the csem is computed per person.
