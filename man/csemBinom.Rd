@@ -104,7 +104,7 @@ for both dichotomous and polytomous (after transformation) cases.
  csemBinom(score.type = "dich", nitems = 40)
  }
 
-# Polytomous (0 to 4 scale) with Lord‑Keats using rhoxx
+# Polytomous (0 to 4 scale) with Lord-Keats using rhoxx
  \dontest{
  csemBinom(score.type = "poly", nitems = 10, min.resp = 0, max.resp = 4,
           csem.method = "LordKeats", rhoxx = 0.85)
@@ -125,7 +125,7 @@ error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-
 Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference.
 \emph{Journal of the American Statistical Association}, 22, 209-212.
 Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). \emph{An empirical adjustment of the
-Kuder-Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient}
+Kuder-Richardson 21 reliability coefficient to better estimate the Kuder-Richardson 20 coefficient}
 (ED173387). ERIC. https://eric.ed.gov/?id=ED173387
 Frisbie, D. A. (1988). Reliability of scores from teacher-made tests.
 \emph{Educational Measurement: Issues and Practice}, 7(1), 25-35.
