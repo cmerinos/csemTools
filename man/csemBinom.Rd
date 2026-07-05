@@ -31,27 +31,27 @@ csemBinom(
 \strong{Required when \code{score.type = "poly"}}; ignored for dichotomous.}
 
 \item{csem.method}{Character: \code{"Lord"} (default), \code{"binom"} (alias, same as Lord),
-or \code{"LordKeats"} (adjusts Lord's CSEM using KR‑20/KR‑21 or empirical factor).}
+or \code{"LordKeats"} (adjusts Lord's CSEM using KR-20/KR-21 or empirical factor).}
 
 \item{data}{Optional data frame or matrix of dichotomous (0/1) item responses.
 Required for \code{csem.method = "LordKeats"} if \code{rhoxx} is not provided.
 Only used when \code{score.type = "dich"}.}
 
 \item{rhoxx}{Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
-(interpreted as KR‑20). Used for \code{csem.method = "LordKeats"} when no \code{data}
-is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).}
+(interpreted as KR-20). Used for \code{csem.method = "LordKeats"} when no \code{data}
+is supplied. Applies the empirical adjustment KR-21 =~ 0.8 * KR-20 (Wilson, Downing & Ebel, 1979).}
 
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.}
 
 \item{ci.method}{Character: \code{"csem"} (classic) or \code{"wilson"}. Default \code{"csem"}.}
 
-\item{conf.level}{Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} → 0.95.}
+\item{conf.level}{Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} : 0.95.}
 
 \item{digits.csem}{Integer for rounding. Default 3.}
 
 \item{rho.report}{Logical. If \code{TRUE} and \code{csem.method = "LordKeats"},
 the function returns a list with the CSEM table and the reliability values
-(KR‑20 and KR‑21, either empirical or approximated). Default \code{FALSE}.}
+(KR-20 and KR-21, either empirical or approximated). Default \code{FALSE}.}
 }
 \value{
 If \code{rho.report = FALSE} (default), a data frame with rows for each possible
@@ -67,13 +67,13 @@ Computes the Conditional Standard Error of Measurement (CSEM) under
 Lord's (1955, 1957) binomial error model. This formulation treats the test
 as a random sample of dichotomously scored items measuring a single ability.
 The method can be applied to both dichotomous and polytomous items by
-transforming raw scores into binomial‑equivalent scores. Optionally, the
-function computes confidence intervals for the true number‑correct score
-using either the classic CSEM‑based method or the Wilson score method.
+transforming raw scores into binomial equivalent scores. Optionally, the
+function computes confidence intervals for the true number correct score
+using either the classic CSEM based method or the Wilson score method.
 }
 \details{
 \strong{Binomial error model (Lord, 1955, 1957)}:
-Each examinee has true proportion‑correct \eqn{\phi}; observed number‑correct \eqn{X}
+Each examinee has true proportion-correct \eqn{\phi}; observed number-correct \eqn{X}
 is Binomial(\eqn{n},\eqn{\phi}) with \eqn{n = \code{nitems}}. Lord's estimator of the
 conditional error variance is
 \deqn{\widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},}
@@ -82,19 +82,19 @@ numerically identical results.
 
 \strong{Polytomous items}:
 Raw scores are linearly transformed to a proportion and then multiplied by \eqn{n}
-to obtain a binomial‑equivalent score:
+to obtain a binomial-equivalent score:
 \deqn{\text{equiv} = n \times \frac{\text{raw} - n\cdot\text{min.resp}}{n\cdot(\text{max.resp} - \text{min.resp})}.}
 
-\strong{Lord‑Keats method} (\code{csem.method = "LordKeats"}):
+\strong{Lord-Keats method} (\code{csem.method = "LordKeats"}):
 Adjusts Lord's CSEM using the ratio \eqn{\sqrt{(1-\text{KR20})/(1-\text{KR21})}}.
-If a data matrix is provided, KR‑20 and KR‑21 are computed directly.
-If only \code{rhoxx} (interpreted as KR‑20) is given, KR‑21 is approximated as
+If a data matrix is provided, KR-20 and KR-21 are computed directly.
+If only \code{rhoxx} (interpreted as KR-20) is given, KR-21 is approximated as
 \code{0.8 * rhoxx} following Wilson, Downing & Ebel (1979). This approximation works
 for both dichotomous and polytomous (after transformation) cases.
 
 \strong{Confidence intervals}:
 \itemize{
-\item \code{ci.method = "csem"}: \code{equiv.score ± z * CSEM}.
+\item \code{ci.method = "csem"}: \code{equiv.score -/+ z * CSEM}.
 \item \code{ci.method = "wilson"}: Wilson interval for proportion \eqn{p = equiv.score/n}.
 }
 }
@@ -102,7 +102,7 @@ for both dichotomous and polytomous (after transformation) cases.
 # Dichotomous, Lord method
 csemBinom(score.type = "dich", nitems = 40)
 
-# Polytomous (0–4 scale) with Lord‑Keats using rhoxx
+# Polytomous (0-4 scale) with Lord‑Keats using rhoxx
 csemBinom(score.type = "poly", nitems = 10, min.resp = 0, max.resp = 4,
           csem.method = "LordKeats", rhoxx = 0.85)
 
@@ -115,14 +115,14 @@ csemBinom(score.type = "dich", nitems = 40, csem.method = "LordKeats",
 }
 \references{
 Lord, F. M. (1955). Estimating test reliability.
-\emph{Educational and Psychological Measurement}, 15, 325–336.
+\emph{Educational and Psychological Measurement}, 15, 325-336.
 Lord, F. M. (1957). Do tests of the same length have the same standard
-error of measurement? \emph{Educational and Psychological Measurement}, 17, 510–521.
+error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-521.
 Wilson, E. B. (1927). Probable inference, the law of succession, and statistical inference.
-\emph{Journal of the American Statistical Association}, 22, 209–212.
+\emph{Journal of the American Statistical Association}, 22, 209-212.
 Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). \emph{An empirical adjustment of the
 Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient}
 (ED173387). ERIC.
 Frisbie, D. A. (1988). Reliability of scores from teacher‑made tests.
-\emph{Educational Measurement: Issues and Practice}, 7(1), 25–35.
+\emph{Educational Measurement: Issues and Practice}, 7(1), 25-35.
 }
