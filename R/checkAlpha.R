@@ -24,10 +24,15 @@
 #'   \code{lwr.ci}, \code{upr.ci} (bootstrap confidence interval).
 #'
 #' @examples
-#' set.seed(123)
+#'  \dontest{
+#'  set.seed(123)
+#'
 #' half1 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' half2 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' checkAlpha(half1, half2)
+#' }
 #'
 #' @importFrom boot boot boot.ci
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/checkAngoff.R
 \name{checkAngoff}
 \alias{checkAngoff}
-\title{Compute Angoff-Feldt Reliability Coefficient}
+\title{Compute Angoff-Feldt Reliability Coefficient for two test halves}
 \usage{
 checkAngoff(half1, half2, B = 500, conf = 0.95, na.rm = TRUE)
 }
@@ -38,10 +38,15 @@ require equal length halves. For equal lengths, it reduces to the usual
 Spearman-Brown reliability.
 }
 \examples{
+\dontest{
 set.seed(123)
+
 half1 <- matrix(rnorm(100*5), ncol=5)
+
 half2 <- matrix(rnorm(100*5), ncol=5)
+
 checkAngoff(half1, half2)
+}
 
 }
 \references{

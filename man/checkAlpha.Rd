@@ -36,9 +36,14 @@ where \eqn{k} is the number of items and \eqn{\bar{r}} is the average inter-item
 Confidence intervals are estimated via percentile bootstrap.
 }
 \examples{
-set.seed(123)
+ \dontest{
+ set.seed(123)
+
 half1 <- matrix(rnorm(100*5), ncol=5)
+
 half2 <- matrix(rnorm(100*5), ncol=5)
+
 checkAlpha(half1, half2)
+}
 
 }

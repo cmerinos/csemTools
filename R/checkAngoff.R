@@ -1,4 +1,4 @@
-#' Compute Angoff-Feldt Reliability Coefficient
+#' Compute Angoff-Feldt Reliability Coefficient for two test halves
 #'
 #' @description
 #' Calculates the Angoff-Feldt reliability coefficient for two test halves,
@@ -32,10 +32,15 @@
 #'   \emph{Measurement in Education}, 15(3), 295-308.
 #'
 #' @examples
+#' \dontest{
 #' set.seed(123)
+#'
 #' half1 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' half2 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' checkAngoff(half1, half2)
+#' }
 #'
 #' @importFrom boot boot boot.ci
 #' @export
