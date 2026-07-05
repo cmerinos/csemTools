@@ -20,7 +20,7 @@
 #' @references
 #' Raju, N. S., Price, L. R., Oshima, T. C., & Nering, M. L. (2007).
 #' Standardized conditional SEM: A comparison of methods.
-#' *Educational and Psychological Measurement*, 67(6), 903-916.
+#' \emph{Educational and Psychological Measurement}, 67(6), 903-916.
 #'
 #' @examples
 #' \dontest{
