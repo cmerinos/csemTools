@@ -123,22 +123,27 @@
 #'
 #' @examples
 #' \donttest{
-#' # Simulate data: 500 persons, 10 Likert items (1-5)
-#' set.seed(123)
-#' resp <- matrix(sample(1:5, 500*10, replace = TRUE), nrow = 500)
+#' library(psych)
 #'
-#' # Basic usage (sequential, no smoothing)
-#' result <- csemBoots(resp, B = 100, cores = 1)
-#' head(result$CSEM)
+#' # Loading data
+#' data("bfi")
 #'
-#' # With smoothing, full range, and confidence intervals
-#' result2 <- csemBoots(resp, B = 200, smooth = TRUE, full.range = TRUE,
+#' # Choosing variables
+#' data.bfi <- bfi[, c("N1", "N2", "N3", "N4", "N5", "gender", "age")]
+#'
+#' # Clean for missing values
+#' data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
+#'
+#' # CSEM with bootstrapping
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 2000, cores = 1)
+#'
+#' # CSEM with bootstrapping, smoothing, full range, CI
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 20000, smooth = TRUE, full.range = TRUE,
 #'                      score.range = c(10, 50), ci = TRUE, cores = 2)
-#' print(result2$CSEM)
 #'
 #' # Quantile groups (quintiles)
-#' result3 <- csemBoots(resp, B = 100, bin.score = 5)
-#' print(result3$binned.CSEM)
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 20000, smooth = TRUE, full.range = TRUE,
+#'                      score.range = c(10, 50), ci = TRUE, cores = 2, bin.score = 5)
 #' }
 #'
 #' @importFrom pbapply pblapply
