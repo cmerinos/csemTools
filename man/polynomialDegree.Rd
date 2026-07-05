@@ -2,7 +2,7 @@
 % Please edit documentation in R/polynomialDegree.R
 \name{polynomialDegree}
 \alias{polynomialDegree}
-\title{Selección del grado polinomial para suavizado de CSEM (regresión lineal)}
+\title{Selecting the Polynomial Degree for CSEM Smoothing (Linear Regression)}
 \usage{
 polynomialDegree(
   x,
@@ -14,36 +14,40 @@ polynomialDegree(
 )
 }
 \arguments{
-\item{x}{Vector numérico de puntuaciones (centros de grupo).}
+\item{x}{Numeric vector of scores (cluster centers).}
 
-\item{y}{Vector numérico de CSEM.raw (estimaciones sin suavizar).}
+\item{y}{Numeric vector of CSEM.raw (unsmoothed estimates).}
 
-\item{min_degree}{Grado mínimo a evaluar (por defecto 1).}
+\item{min_degree}{Minimum degree to evaluate (default 1).}
 
-\item{max_degree}{Grado máximo a evaluar (por defecto 6).}
+\item{max_degree}{Maximum degree to evaluate (default 6).}
 
-\item{show.coefs}{Si TRUE, muestra los coeficientes de cada modelo.}
+\item{show.coefs}{If TRUE, displays the coefficients for each model.}
 
-\item{plot}{Si TRUE, genera gráfico de AIC y BIC frente al grado.}
+\item{plot}{If TRUE, generates a plot of AIC and BIC versus degree.}
 }
 \value{
-Una lista con:
-\item{summary}{data.frame con grados, AIC, BIC, R² ajustado, p-valor del
-término de mayor grado (comparación con modelo anterior), y si el grado
-es "mejor" según AIC o BIC.}
-\item{models}{Lista de modelos \code{lm} para cada grado.}
+A list containing:
+\item{summary}{A data.frame with degrees of freedom, AIC, BIC, adjusted R², p-value of the
+term with the highest degrees of freedom (compared to the previous model), and whether the degrees of freedom
+are "better" according to AIC or BIC.}
+\item{models}{A list of \code{lm} models for each degrees of freedom.}
 }
 \description{
-Ajusta modelos polinomiales de grado 1 a \code{max_degree} a los datos \verb{(x, y)}
-y devuelve una tabla con criterios de información (AIC, BIC), R² ajustado,
-y significación del término de mayor grado. Ayuda a elegir el grado apropiado
-para usar en \code{csemFeldt(..., smooth = TRUE, degree = ...)}.
+Fits polynomial models of degree 1 to \code{max_degree} to the data \verb{(x, y)}
+and returns a table containing information criteria (AIC, BIC), adjusted R^2,
+and the significance of the term of the highest degree. This helps in choosing the appropriate degree
+to use in \code{csemFeldt(..., smooth = TRUE, degree = ...)}.
 }
 \examples{
+\dontest{
 set.seed(123)
 x <- 0:20
 y <- 2 + 0.5*x - 0.02*x^2 + rnorm(21, sd=0.2)
+
 res <- polynomialDegree(x, y, max_degree = 4, plot = TRUE)
+
 print(res$summary)
+}
 
 }

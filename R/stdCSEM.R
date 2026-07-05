@@ -23,9 +23,11 @@
 #' *Educational and Psychological Measurement*, 67(6), 903–916.
 #'
 #' @examples
+#' \dontest{
 #' csem_vals <- c(2.0, 2.5, 3.0)
 #' var_obs <- 25
 #' stdCSEM(csem_vals, var_obs)
+#' }
 #'
 #' @export
 stdCSEM <- function(csem, var_obs, na.rm = FALSE) {

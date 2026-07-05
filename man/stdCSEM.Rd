@@ -28,9 +28,11 @@ where \eqn{\sigma_X^2} is the variance of observed scores in the sample.
 Values are truncated to the 0 to 1 interval.
 }
 \examples{
+\dontest{
 csem_vals <- c(2.0, 2.5, 3.0)
 var_obs <- 25
 stdCSEM(csem_vals, var_obs)
+}
 
 }
 \references{

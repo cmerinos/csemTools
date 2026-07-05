@@ -1,30 +1,34 @@
-#' Selección del grado polinomial para suavizado de CSEM (regresión lineal)
+#' Selecting the Polynomial Degree for CSEM Smoothing (Linear Regression)
 #'
 #' @description
-#' Ajusta modelos polinomiales de grado 1 a `max_degree` a los datos `(x, y)`
-#' y devuelve una tabla con criterios de información (AIC, BIC), R² ajustado,
-#' y significación del término de mayor grado. Ayuda a elegir el grado apropiado
-#' para usar en `csemFeldt(..., smooth = TRUE, degree = ...)`.
+#' Fits polynomial models of degree 1 to `max_degree` to the data `(x, y)`
+#' and returns a table containing information criteria (AIC, BIC), adjusted R^2,
+#' and the significance of the term of the highest degree. This helps in choosing the appropriate degree
+#' to use in `csemFeldt(..., smooth = TRUE, degree = ...)`.
 #'
-#' @param x Vector numérico de puntuaciones (centros de grupo).
-#' @param y Vector numérico de CSEM.raw (estimaciones sin suavizar).
-#' @param min_degree Grado mínimo a evaluar (por defecto 1).
-#' @param max_degree Grado máximo a evaluar (por defecto 6).
-#' @param show.coefs Si TRUE, muestra los coeficientes de cada modelo.
-#' @param plot Si TRUE, genera gráfico de AIC y BIC frente al grado.
+#' @param x Numeric vector of scores (cluster centers).
+#' @param y Numeric vector of CSEM.raw (unsmoothed estimates).
+#' @param min_degree Minimum degree to evaluate (default 1).
+#' @param max_degree Maximum degree to evaluate (default 6).
+#' @param show.coefs If TRUE, displays the coefficients for each model.
+#' @param plot If TRUE, generates a plot of AIC and BIC versus degree.
 #'
-#' @return Una lista con:
-#' \item{summary}{data.frame con grados, AIC, BIC, R² ajustado, p-valor del
-#'   término de mayor grado (comparación con modelo anterior), y si el grado
-#'   es "mejor" según AIC o BIC.}
-#' \item{models}{Lista de modelos `lm` para cada grado.}
+#' @return A list containing:
+#' \item{summary}{A data.frame with degrees of freedom, AIC, BIC, adjusted R², p-value of the
+#'   term with the highest degrees of freedom (compared to the previous model), and whether the degrees of freedom
+#'   are "better" according to AIC or BIC.}
+#' \item{models}{A list of `lm` models for each degrees of freedom.}
 #'
 #' @examples
+#' \dontest{
 #' set.seed(123)
 #' x <- 0:20
 #' y <- 2 + 0.5*x - 0.02*x^2 + rnorm(21, sd=0.2)
+#'
 #' res <- polynomialDegree(x, y, max_degree = 4, plot = TRUE)
+#'
 #' print(res$summary)
+#' }
 #'
 #' @export
 polynomialDegree <- function(x, y,
@@ -56,7 +60,8 @@ polynomialDegree <- function(x, y,
   prev_model <- NULL
 
   for (d in degrees) {
-    # Polinomio sin centrar (raw = TRUE) para facilitar interpretación
+    # Uncentered polynomial (raw = TRUE) to facilitate interpretation
+
     form <- as.formula(paste("y ~ poly(x,", d, ", raw = TRUE)"))
     mod <- lm(form, data = data.frame(x = x, y = y))
     models_list[[as.character(d)]] <- mod
@@ -65,7 +70,7 @@ polynomialDegree <- function(x, y,
     aic <- AIC(mod)
     bic <- BIC(mod)
 
-    # Test F de mejora respecto al modelo anterior (si existe)
+    # F-test for improvement over the previous model (if applicable)
     p_improve <- NA
     if (d > min_degree && !is.null(prev_model)) {
       ftest <- anova(prev_model, mod)
@@ -78,15 +83,15 @@ polynomialDegree <- function(x, y,
     prev_model <- mod
   }
 
-  # Identificar mejores grados según AIC y BIC (el menor valor)
+  # Identify the best models based on AIC and BIC (the lowest value)
   results$best_AIC <- results$AIC == min(results$AIC, na.rm = TRUE)
   results$best_BIC <- results$BIC == min(results$BIC, na.rm = TRUE)
 
   if (plot) {
     graphics::par(mar = c(5, 4, 4, 4))
     plot(results$degree, results$AIC, type = "b", col = "red", pch = 19,
-         xlab = "Grado del polinomio", ylab = "AIC / BIC",
-         main = "Criterios de información para selección de grado")
+         xlab = "Degree of the polynomial", ylab = "AIC / BIC",
+         main = "Information Criteria for Grade Selection")
     lines(results$degree, results$BIC, type = "b", col = "blue", pch = 17)
     legend("topright", legend = c("AIC", "BIC"), col = c("red", "blue"),
            lty = 1, pch = c(19, 17), bty = "n")
@@ -100,13 +105,13 @@ polynomialDegree <- function(x, y,
     }
   }
 
-  # Mensaje resumen
+  # Summary Message
   best_aic_deg <- results$degree[results$best_AIC][1]
   best_bic_deg <- results$degree[results$best_BIC][1]
-  cat("\n=== Resumen de modelos polinomiales ===\n")
+  cat("\n=== Summary of Polynomial Models ===\n")
   print(results[, c("degree", "AIC", "BIC", "adjR2", "p_improve")])
-  cat("\nMejor grado según AIC:", best_aic_deg, "(AIC =", round(min(results$AIC), 2), ")")
-  cat("\nMejor grado según BIC:", best_bic_deg, "(BIC =", round(min(results$BIC), 2), ")")
+  cat("\nBest degree according to AIC:", best_aic_deg, "(AIC =", round(min(results$AIC), 2), ")")
+  cat("\nBest degree according to BIC:", best_bic_deg, "(BIC =", round(min(results$BIC), 2), ")")
   cat("\n")
 
   invisible(list(summary = results, models = models_list))

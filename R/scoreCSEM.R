@@ -16,7 +16,7 @@
 #'   containing columns: `score.indiv`, `CSEM`, and if `ci = TRUE`, `lwr` and `upr`.
 #'
 #' @examples
-#' \dontrun{
+#' \dontest{
 #' # Example: get CSEM for scores 5, 8, 12 from a strong CSEM table
 #' res <- csemStrong(data.ability, score.type = "dich", nitems = 16)
 #' scoreCsem(score.indiv = c(5, 8, 12),

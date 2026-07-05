@@ -28,7 +28,7 @@ score is not found in the reference, a warning is issued and NA is returned.
 Optionally, it computes confidence intervals assuming normality.
 }
 \examples{
-\dontrun{
+\dontest{
 # Example: get CSEM for scores 5, 8, 12 from a strong CSEM table
 res <- csemStrong(data.ability, score.type = "dich", nitems = 16)
 scoreCsem(score.indiv = c(5, 8, 12),
