@@ -40,7 +40,7 @@ checkLocation <- function(half1, half2, trim = 0.2, conf = 0.95, na.rm = TRUE, i
     }
   }
 
-  # --- Resto del código igual (sin cambios) ---
+  # --- code, final version ---
   total1 <- rowSums(half1, na.rm = na.rm)
   total2 <- rowSums(half2, na.rm = na.rm)
   if (na.rm) {

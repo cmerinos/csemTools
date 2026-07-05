@@ -1,7 +1,7 @@
 #' Bootstrap Conditional Standard Error of Measurement (CSEM) based on Item Sampling
 #'
 #' Estimates the conditional standard error of measurement for each total score
-#' using a non‑parametric bootstrap of items (tasks). This method simulates
+#' using a non parametric bootstrap of items (tasks). This method simulates
 #' parallel test forms by resampling items with replacement and computes the
 #' standard deviation of the resulting bootstrap scores for each person.
 #' The individual standard errors are then averaged within each observed total
@@ -32,7 +32,7 @@
 #'   last observed CSEM (`na.locf`). Requires `score.range` to be provided.
 #'   Default = `FALSE`.
 #' @param ci Logical. If `TRUE`, confidence intervals for the true score are
-#'   computed as `score ± z * CSEM`, assuming normally distributed errors.
+#'   computed as `score +/- z * CSEM`, assuming normally distributed errors.
 #'   The intervals are truncated to `score.range` (if supplied) or to the
 #'   observed range. Default = `FALSE`.
 #' @param conf.level Numeric. Confidence level for the intervals (default = 0.95).
@@ -70,7 +70,7 @@
 #' @details
 #' \subsection{Methodological flow (adapted from Colton et al., 1996)}{
 #' 1. The observed total score is computed for each person as the sum of item responses.
-#' 2. For each bootstrap replication `b = 1 … B`:
+#' 2. For each bootstrap replication `b = 1 ... B`:
 #'    \itemize{
 #'      \item A bootstrap sample of **items** (columns) is drawn with replacement,
 #'            preserving the original number of items.
@@ -90,7 +90,7 @@
 #' }
 #'
 #' \subsection{Why bootstrap items (not persons)?}{
-#' The standard error of measurement refers to the variability of a person’s score
+#' The standard error of measurement refers to the variability of a person's score
 #' across hypothetically parallel test forms. Resampling persons would simulate
 #' sampling from the population, not parallel forms. Resampling **items** creates
 #' different versions of the test, which is the correct approach to estimate the

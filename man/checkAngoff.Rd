@@ -46,7 +46,7 @@ checkAngoff(half1, half2)
 }
 \references{
 Angoff, W. H. (1953). Test reliability and effective test length.
-\emph{Psychometrika}, 18(1), 1–14.
+\emph{Psychometrika}, 18(1), 1-14.
 Feldt, L. S. (2002). Reliability estimation when a test is split into two parts of unknown effective length.
-\emph{Measurement in Education}, 15(3), 295–308.
+\emph{Measurement in Education}, 15(3), 295-308.
 }

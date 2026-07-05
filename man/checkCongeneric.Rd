@@ -46,5 +46,5 @@ checkCongeneric(half1, half2, B = 200)
 }
 \references{
 Gilmer, J. S., & Feldt, L. S. (1983). Reliability estimation for a test
-with parts of unknown lengths. \emph{Psychometrika}, 48(1), 99–111.
+with parts of unknown lengths. \emph{Psychometrika}, 48(1), 99-111.
 }

@@ -3,7 +3,7 @@
 #' @description
 #' Evaluates distributional similarity between two test halves using:
 #' \itemize{
-#'   \item Anderson-Darling test (from package \pkg{kSamples}) – optional,
+#'   \item Anderson-Darling test (from package \pkg{kSamples}) - optional,
 #'   \item Overlapping Index (OVI) based on kernel density estimation,
 #'   \item Kendall's W (concordance) derived from Spearman's rho.
 #' }
@@ -38,10 +38,13 @@
 #'   \code{ES} (effect size).
 #'
 #' @examples
-#' set.seed(123)
+#' \dontest{set.seed(123)
 #' half1 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' half2 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' checkDistribution(half1, half2, B = 200)
+#' }
 #'
 #' @importFrom boot boot boot.ci
 #'

@@ -50,7 +50,7 @@ last observed CSEM (\code{na.locf}). Requires \code{score.range} to be provided.
 Default = \code{FALSE}.}
 
 \item{ci}{Logical. If \code{TRUE}, confidence intervals for the true score are
-computed as \verb{score ± z * CSEM}, assuming normally distributed errors.
+computed as \verb{score +/- z * CSEM}, assuming normally distributed errors.
 The intervals are truncated to \code{score.range} (if supplied) or to the
 observed range. Default = \code{FALSE}.}
 
@@ -92,7 +92,7 @@ A list with up to two elements:
 }
 \description{
 Estimates the conditional standard error of measurement for each total score
-using a non‑parametric bootstrap of items (tasks). This method simulates
+using a non parametric bootstrap of items (tasks). This method simulates
 parallel test forms by resampling items with replacement and computes the
 standard deviation of the resulting bootstrap scores for each person.
 The individual standard errors are then averaged within each observed total
@@ -104,7 +104,7 @@ Colton, Gao, & Kolen (1996) but is adapted to continuous total scores
 \subsection{Methodological flow (adapted from Colton et al., 1996)}{
 \enumerate{
 \item The observed total score is computed for each person as the sum of item responses.
-\item For each bootstrap replication \verb{b = 1 … B}:
+\item For each bootstrap replication \verb{b = 1 ... B}:
 \itemize{
 \item A bootstrap sample of \strong{items} (columns) is drawn with replacement,
 preserving the original number of items.
@@ -125,7 +125,7 @@ is reported.
 }
 
 \subsection{Why bootstrap items (not persons)?}{
-The standard error of measurement refers to the variability of a person’s score
+The standard error of measurement refers to the variability of a person's score
 across hypothetically parallel test forms. Resampling persons would simulate
 sampling from the population, not parallel forms. Resampling \strong{items} creates
 different versions of the test, which is the correct approach to estimate the
@@ -173,7 +173,7 @@ print(result3$binned.CSEM)
 
 }
 \references{
-Colton, D. A., Gao, X., & Kolen, M. J. (1996). Assessing the reliability of
-performance level scores using bootstrapping. In \emph{Paper Presented at the
-Annual Meeting of the American Educational Research Association} (New York, NY).
+Colton, D. A., Gao, X., & Kolen, M. J. (1997). Assessing the reliability of
+performance level scores using bootstrapping. ACT Research Report Series,
+97-3. Iowa City, 1A: ACT.
 }

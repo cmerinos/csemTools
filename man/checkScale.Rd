@@ -32,9 +32,13 @@ Evaluates differences in variability between two test halves using:
 }
 \examples{
 # Simulated data
+\dontest{
 half1 <- matrix(rnorm(100*5), ncol=5)
+
 half2 <- matrix(rnorm(100*5), ncol=5)
+
 checkScale(half1, half2)
+}
 
 }
 \references{

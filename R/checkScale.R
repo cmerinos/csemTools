@@ -25,9 +25,13 @@
 #'
 #' @examples
 #' # Simulated data
+#' \dontest{
 #' half1 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' half2 <- matrix(rnorm(100*5), ncol=5)
+#'
 #' checkScale(half1, half2)
+#' }
 #'
 #' @export
 checkScale <- function(half1, half2, conf = 0.95, na.rm = TRUE) {
@@ -68,7 +72,7 @@ checkScale <- function(half1, half2, conf = 0.95, na.rm = TRUE) {
   g2 <- kurt1(total2)
 
   # Bonett-Seier statistic (chi-square with 1 df)
-  # Equation: χ² = N * [ln(sd1²) - ln(sd2²)]² / [4 * (1 - 1/N) * (γ1 + γ2 + 2)]
+  # Equation: x^2 = N * [ln(sd1^2) - ln(sd2^2)]^2 / [4 * (1 - 1/N) * (gamma1 + gamma2 + 2)]
   N <- n  # total sample size (same for both halves because paired)
   var1 <- sd1^2
   var2 <- sd2^2

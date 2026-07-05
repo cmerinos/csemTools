@@ -4,7 +4,7 @@
 #' Compares a conditional standard error of measurement (CSEM) function against the
 #' global (constant) SEM. The global SEM is computed from the observed score standard
 #' deviation and a reliability coefficient (e.g., alpha or omega). Optionally,
-#' confidence intervals for the global SEM can be obtained from user‑supplied
+#' confidence intervals for the global SEM can be obtained from user supplied
 #' reliability confidence bounds. The function produces a data frame with ratios
 #' and, if requested, plots of the CSEM vs. global SEM and/or the ratio.
 #'
@@ -16,7 +16,7 @@
 #' @param lwr.ci.CSEM Character. Optional name of the column with lower confidence limits for CSEM.
 #' @param upr.ci.CSEM Character. Optional name of the column with upper confidence limits for CSEM.
 #' @param sd.score Numeric. Standard deviation of the observed scores (calculated externally from \code{raw.score}).
-#' @param reliability Numeric. Reliability coefficient (e.g., alpha, omega, Gilmer‑Feldt) used to compute global SEM.
+#' @param reliability Numeric. Reliability coefficient (e.g., alpha, omega, Gilmer-Feldt) used to compute global SEM.
 #' @param reliab.lwrci Numeric. Optional lower confidence bound for \code{reliability}. If provided, must be used with \code{reliab.uprci}.
 #' @param reliab.uprci Numeric. Optional upper confidence bound for \code{reliability}.
 #' @param plot Character. Type of plot to produce: \code{"csem"} (CSEM vs. global SEM),

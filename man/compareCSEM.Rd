@@ -35,7 +35,7 @@ can be provided for confidence bands.}
 
 \item{sd.score}{Numeric. Standard deviation of the observed scores (calculated externally from \code{raw.score}).}
 
-\item{reliability}{Numeric. Reliability coefficient (e.g., alpha, omega, Gilmer‑Feldt) used to compute global SEM.}
+\item{reliability}{Numeric. Reliability coefficient (e.g., alpha, omega, Gilmer-Feldt) used to compute global SEM.}
 
 \item{reliab.lwrci}{Numeric. Optional lower confidence bound for \code{reliability}. If provided, must be used with \code{reliab.uprci}.}
 
@@ -54,7 +54,7 @@ can be provided for confidence bands.}
 Compares a conditional standard error of measurement (CSEM) function against the
 global (constant) SEM. The global SEM is computed from the observed score standard
 deviation and a reliability coefficient (e.g., alpha or omega). Optionally,
-confidence intervals for the global SEM can be obtained from user‑supplied
+confidence intervals for the global SEM can be obtained from user supplied
 reliability confidence bounds. The function produces a data frame with ratios
 and, if requested, plots of the CSEM vs. global SEM and/or the ratio.
 }
