@@ -28,7 +28,7 @@ polynomialDegree(
 }
 \value{
 A list containing:
-\item{summary}{A data.frame with degrees of freedom, AIC, BIC, adjusted R², p-value of the
+\item{summary}{A data.frame with degrees of freedom, AIC, BIC, adjusted R^2, p-value of the
 term with the highest degrees of freedom (compared to the previous model), and whether the degrees of freedom
 are "better" according to AIC or BIC.}
 \item{models}{A list of \code{lm} models for each degrees of freedom.}

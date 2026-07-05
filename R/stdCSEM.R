@@ -20,7 +20,7 @@
 #' @references
 #' Raju, N. S., Price, L. R., Oshima, T. C., & Nering, M. L. (2007).
 #' Standardized conditional SEM: A comparison of methods.
-#' *Educational and Psychological Measurement*, 67(6), 903–916.
+#' *Educational and Psychological Measurement*, 67(6), 903-916.
 #'
 #' @examples
 #' \dontest{
@@ -32,7 +32,7 @@
 #' @export
 stdCSEM <- function(csem, var_obs, na.rm = FALSE) {
 
-  # Validaciones
+  # Checks
   if (!is.numeric(csem) && !is.numeric(var_obs)) {
     stop("Both 'csem' and 'var_obs' must be numeric.")
   }
@@ -40,22 +40,22 @@ stdCSEM <- function(csem, var_obs, na.rm = FALSE) {
     stop("'var_obs' must be a single positive number.")
   }
 
-  # Manejo de NAs
+  # NAs
   if (na.rm) {
     csem <- csem[!is.na(csem)]
   } else if (anyNA(csem)) {
     stop("Missing values in 'csem'. Use na.rm = TRUE to remove them.")
   }
 
-  # Cálculo
+  # Calculate
   rel <- 1 - (csem^2) / var_obs
   rel <- pmax(pmin(rel, 1), 0)   # truncar a [0,1]
 
-  # Mensaje si hubo truncamiento
+  # Message if truncation occurred
   if (any(rel == 0 | rel == 1)) {
     message("Note: Some reliability values were truncated to the [0,1] range.")
   }
 
-  # Redondear a 3 decimales y devolver vector numérico (no data.frame)
+  # Round to 3 decimal places and return a numeric vector (not a data.frame)
   round(rel, 3)
 }

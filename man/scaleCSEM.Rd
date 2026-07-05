@@ -61,6 +61,6 @@ rather than relying on historic test-length heuristics. Boundary corrections fol
 }
 \references{
 Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
-Measurement From the Raw Score Standard Error. Applied Measurement in Education,
-11(2), 159–177. doi.org
+Measurement From the Raw Score Standard Error. \emph{Applied Measurement in Education},
+11(2), 159-177. https://doi.org/10.1177/0013164499591001
 }
