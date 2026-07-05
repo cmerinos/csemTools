@@ -72,6 +72,30 @@ averaged within each total score group to obtain the CSEM.
 This function does not apply smoothing; for the smoothed version (polynomial
 regression) see \code{csemMF}.
 }
+\examples{
+\donttest{
+library(psych)
+
+# Loading data
+data("bfi")
+
+# Choosing variables
+data.bfi <- bfi[, c("N1", "N2", "N3", "N4", "N5", "gender", "age")]
+
+# Clean for missing values
+data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
+
+# CSEM, Feldt-Qualls method
+csemFeldtQualls(data.bfi.nmiss[, 1:5])
+
+# With Quantile groups (quintiles)
+csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5)
+
+# With ci = T
+csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5, ci = T, conf-level = .68)
+}
+
+}
 \references{
 Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
 at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141-156.

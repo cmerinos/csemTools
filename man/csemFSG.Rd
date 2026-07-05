@@ -69,6 +69,32 @@ The function offers polynomial smoothing (\code{smooth = TRUE}) and expansion to
 a full range of integer scores (\code{full.range = TRUE}). It also allows
 aggregation into quantile groups (\code{bin.score}).
 }
+\examples{
+\donttest{
+library(psych)
+
+# Loading data
+data("bfi")
+
+# Choosing variables
+data.bfi <- bfi[, c("N1", "N2", "N3", "N4", "N5", "gender", "age")]
+
+# Clean for missing values
+data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
+
+# CSEM, Feldt, Steffen, & Gupta method, no smooting
+csemFSG(bfi[, 1:5])
+
+# with smooting
+csemFSG(bfi[, 1:5], smooth = T, degree = 2)
+
+# with binned score (quntiles)
+csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5)
+
+# add confidence intervals
+csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5, ci = T, conf.level = .68)}
+
+}
 \references{
 Feldt, L. S., Steffen, M., & Gupta, N. C. (1985).
 A comparison of five methods for estimating the standard error of measurement

@@ -46,6 +46,31 @@
 #' A comparison of five methods for estimating the standard error of measurement
 #' at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351–361.
 #'
+#' @examples
+#' \donttest{
+#' library(psych)
+#'
+#' # Loading data
+#' data("bfi")
+#'
+#' # Choosing variables
+#' data.bfi <- bfi[, c("N1", "N2", "N3", "N4", "N5", "gender", "age")]
+#'
+#' # Clean for missing values
+#' data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
+#'
+#' # CSEM, Feldt, Steffen, & Gupta method, no smooting
+#' csemFSG(bfi[, 1:5])
+#'
+#' # with smooting
+#' csemFSG(bfi[, 1:5], smooth = T, degree = 2)
+#'
+#' # with binned score (quntiles)
+#' csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5)
+#'
+#' # add confidence intervals
+#' csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5, ci = T, conf.level = .68)}
+#'
 #' @export
 csemFSG <- function(data,
                     bin.score = NULL,
