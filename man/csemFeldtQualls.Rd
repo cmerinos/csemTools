@@ -74,5 +74,5 @@ regression) see \code{csemMF}.
 }
 \references{
 Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
-at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141–156.
+at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141-156.
 }

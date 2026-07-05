@@ -44,7 +44,7 @@
 #'
 #' @references
 #' Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
-#' at specific score levels. *Journal of Educational Measurement*, 33(2), 141–156.
+#' at specific score levels. *Journal of Educational Measurement*, 33(2), 141-156.
 #'
 #' @export
 csemFeldtQualls <- function(data,
@@ -59,7 +59,7 @@ csemFeldtQualls <- function(data,
                             score.range = NULL,
                             na.rm = TRUE) {
 
-  # --- Validaciones iniciales ---
+  # --- Inicial validations ---
   if (!is.data.frame(data) && !is.matrix(data))
     stop("`data` must be a data frame or matrix.")
   data <- as.data.frame(data)
@@ -68,13 +68,13 @@ csemFeldtQualls <- function(data,
   if (anyNA(data)) stop("Missing values present. Set na.rm = TRUE to remove them.")
 
   n_persons <- nrow(data)
-  J <- ncol(data)                 # número total de ítems
+  J <- ncol(data)                 # total number of items
   if (n_persons < 2) stop("At least 2 persons required.")
   if (J < 2) stop("At least 2 items required.")
 
-  # --- Construcción de partes (part_test scores) ---
+  # --- Building parts (part_test scores) ---
   if (!is.null(part_items)) {
-    # Partición manual
+    # Handly partition
     if (!is.list(part_items)) stop("`part_items` must be a list.")
     n.parts <- length(part_items)
     part_scores <- matrix(NA, nrow = n_persons, ncol = n.parts)
@@ -99,26 +99,28 @@ csemFeldtQualls <- function(data,
       warning("Some parts have fewer than ", min.items.per.part,
               " items. Estimates may be unstable.")
     }
-    # factor d = J / k, donde k es el número de items por parte (no constante)
-    # Para la fórmula (13), se necesita k (items por parte) y luego d = J/k.
-    # Como las partes pueden tener distinto k, usaremos el promedio? La teoría
-    # asume partes iguales. Para ser fieles, advertimos si no son iguales.
+    # factor d = J / k; k is item number by part (non constant)
+    # For the  formula (13), we need k (items by part), then d = J/k.
+    # Every part can have different k, but by theory, we will thin in
+    # equal parts. For filedity, warning if non equal.
     if (length(unique(items_per_part)) > 1) {
       warning("Parts have unequal number of items. The method assumes equal length; results may be biased.")
     }
-    # Usamos k = J / n.parts (no el real) porque la fórmula original espera partes iguales.
-    # Pero para una implementación robusta, usaremos el k medio redondeado? Mejor seguir
-    # la recomendación: si las partes son desiguales, el usuario debe reordenar.
-    # Por simplicidad, usaremos k = J / n.parts (puede no ser entero) y d = n.parts.
-    # Esto es lo que hace Feldt & Qualls cuando omiten items para balancear.
+
+    # We use k = J / n.parts (not the actual value) because the original formula assumes equal parts.
+    # But for a robust implementation, should we use the rounded average k? Better to follow
+    # the recommendation: if the parts are unequal, the user should reorder them.
+    # For simplicity, we'll use k = J / n.parts (which may not be an integer) and d = n.parts.
+    # This is what Feldt & Qualls do when they omit items to balance the scale.
     k <- J / n.parts
     d <- J / k   # = n.parts
   } else {
-    # Partición automática
-    if (is.null(n.parts)) n.parts <- J   # por defecto, cada ítem es una parte
+    # Automatic Partitioning
+    if (is.null(n.parts)) n.parts <- J   # By default, each item is a part
     if (n.parts < 2) stop("n.parts must be at least 2.")
     if (n.parts > J) stop("n.parts cannot exceed number of items.")
-    # Crear partes balanceadas por orden de columnas
+
+    # Create balanced reports by column order
     idx_split <- split(1:J, cut(1:J, breaks = n.parts, labels = FALSE))
     part_scores <- matrix(NA, nrow = n_persons, ncol = n.parts)
     items_per_part <- numeric(n.parts)
@@ -131,20 +133,20 @@ csemFeldtQualls <- function(data,
       warning("Some parts have fewer than ", min.items.per.part,
               " items. Estimates may be unstable.")
     }
-    k <- J / n.parts   # puede no ser entero
-    d <- J / k         # = n.parts (exactamente)
+    k <- J / n.parts   # may not be an integer
+    d <- J / k         # = n.parts (exactly)
   }
 
-  # --- Calcular Y_i para cada persona (ecuación 13, Feldt & Qualls 1996) ---
+  # --- Calculate Y_i for each person (Equation 13, Feldt & Qualls 1996) ---
   # Y_i = d * [ sum_j ( (X_ij - barX_i) - (barX_j - M) )^2 / (n.parts - 1) ]
-  # donde barX_i = media de las partes de la persona i,
-  # barX_j = media de la parte j (sobre personas),
-  # M = media de los barX_j.
+  # where barX_i = the mean of person i's shares,
+  # barX_j = the mean of share j (across persons),
+  # M = the mean of the barX_j values.
 
   Xij <- part_scores
-  barX_i <- rowMeans(Xij, na.rm = TRUE)           # media por persona
-  barX_j <- colMeans(Xij, na.rm = TRUE)           # media por parte
-  M <- mean(barX_j)                               # media de las medias de partes
+  barX_i <- rowMeans(Xij, na.rm = TRUE)           # average per person
+  barX_j <- colMeans(Xij, na.rm = TRUE)           # average per part
+  M <- mean(barX_j)                               # average of the averages of the parts
 
   # Matriz de desviaciones: (X_ij - barX_i) - (barX_j - M)
   dev <- sweep(Xij, 1, barX_i, "-")               # X_ij - barX_i
@@ -152,18 +154,18 @@ csemFeldtQualls <- function(data,
 
   # Suma de cuadrados por persona
   SS_i <- rowSums(dev^2, na.rm = TRUE)
-  var_adj_i <- SS_i / (n.parts - 1)               # varianza ajustada
-  Y_i <- d * var_adj_i                            # estimación de error varianza para el test completo
+  var_adj_i <- SS_i / (n.parts - 1)               # adjusted variance
+  Y_i <- d * var_adj_i                            # Variance error estimate for the complete test
 
-  # --- CSEM por puntaje total (raw) ---
-  total <- rowSums(data)   # puntaje total original (suma de ítems, no de partes)
+  # --- CSEM by total score (raw) ---
+  total <- rowSums(data)   # original total score (sum of items, not sections)
   unique_scores <- sort(unique(total))
   raw_list <- list()
   for (s in unique_scores) {
     idx <- which(total == s)
     n_s <- length(idx)
     if (n_s >= 2) {
-      csem_raw <- sqrt(mean(Y_i[idx]))      # promedio de Y_i, luego raíz
+      csem_raw <- sqrt(mean(Y_i[idx]))      # average of Y_i, then square root
     } else {
       csem_raw <- NA_real_
     }
@@ -174,7 +176,7 @@ csemFeldtQualls <- function(data,
   raw_df <- raw_df[!is.na(raw_df$CSEM), , drop = FALSE]
   raw_df$CSEM <- round(raw_df$CSEM, digits)
 
-  # --- Definir rango de puntajes (para truncar CI y full.range) ---
+  # --- Define score range (for truncated CI and full range) ---
   if (!is.null(score.range)) {
     if (!is.numeric(score.range) || length(score.range) != 2)
       stop("score.range must be a numeric vector of length 2.")
@@ -185,7 +187,7 @@ csemFeldtQualls <- function(data,
     score_max_teo <- max(total, na.rm = TRUE)
   }
 
-  # --- Función auxiliar: last observation carried forward (locf) ---
+  # --- Auxiliary function: last observation carried forward (locf) ---
   na_locf <- function(x) {
     idx <- !is.na(x)
     if (sum(idx) == 0) return(x)
@@ -214,7 +216,7 @@ csemFeldtQualls <- function(data,
     result_df <- raw_df
   }
 
-  # --- Intervalos de confianza ---
+  # --- Confidence Intervals ---
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     lwr <- result_df$score - z * result_df$CSEM
@@ -225,10 +227,10 @@ csemFeldtQualls <- function(data,
     result_df$upr.ci <- round(upr, digits)
   }
 
-  # --- Agrupación por cuantiles (bin.score) ---
+  # --- Grouping by quantiles (bin.score) ---
   binned_df <- NULL
   if (!is.null(bin.score)) {
-    # Usamos raw_df (CSEM por cada score observado)
+    # We use raw_df (CSEM for each observed score)
     q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
     q <- unique(q)
     groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)
