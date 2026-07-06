@@ -24,10 +24,5 @@ The KR-21 formula is:
 where \eqn{k} is the number of items, \eqn{\bar{X}} is the mean total score,
 and \eqn{\sigma_X^2} is the variance of total scores (population variance).
 
-Rows with missing values are removed using \code{na.exclude}.
-}
-\examples{
-# data.u is a hypothetical dataset of 3000 persons and 40 dichotomous items
-# kr21(data.u)
-
+Rows with missing values are removed using \code{na.omit}.
 }

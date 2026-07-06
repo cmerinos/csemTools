@@ -15,22 +15,21 @@
 #' on item \eqn{j}, \eqn{q_j = 1-p_j}, and \eqn{\sigma_X^2} is the variance
 #' of the total test scores (using population variance divisor \eqn{N}).
 #'
-#' Rows with missing values are removed using \code{na.exclude}.
+#' Rows with missing values are removed using \code{na.omit}.
 #'
 #' @return A single numeric value: the KR-20 reliability coefficient.
 #'
-#' @importFrom stats na.exclude var
-#'
-#' @examples
-#' # data.u is a hypothetical dataset of 3000 persons and 40 dichotomous items
-#' # kr20(data.u)
-#'
+#' @importFrom stats var
 #' @export
 kr20 <- function(data) {
-  data <- stats::na.exclude(data)
-  data <- as.matrix(data)
-  if (any(!data %in% c(0, 1))) {
-    warning("Non-binary values detected; ensure 0/1 scoring for KR-20.")
+  if (!is.data.frame(data) && !is.matrix(data))
+    stop("'data' must be a data frame or matrix.")
+  data <- as.data.frame(data)
+  data <- stats::na.omit(data)
+  if (nrow(data) < 2) stop("At least 2 complete rows are required.")
+  # Check that all values are 0 or 1 (after removing NAs)
+  if (any(sapply(data, function(x) any(!x %in% c(0, 1))))) {
+    stop("KR-20 requires binary (0/1) item scores.")
   }
   k <- ncol(data)
   N <- nrow(data)
@@ -38,7 +37,7 @@ kr20 <- function(data) {
   q <- 1 - p
   sum_pq <- sum(p * q)
   total_scores <- rowSums(data)
-  var_total <- var(total_scores) * (N - 1) / N  # population variance
+  var_total <- stats::var(total_scores) * (N - 1) / N  # population variance
   kr20_val <- (k / (k - 1)) * (1 - sum_pq / var_total)
   return(kr20_val)
 }
@@ -59,27 +58,26 @@ kr20 <- function(data) {
 #' where \eqn{k} is the number of items, \eqn{\bar{X}} is the mean total score,
 #' and \eqn{\sigma_X^2} is the variance of total scores (population variance).
 #'
-#' Rows with missing values are removed using \code{na.exclude}.
+#' Rows with missing values are removed using \code{na.omit}.
 #'
 #' @return A single numeric value: the KR-21 reliability coefficient.
 #'
-#' @importFrom stats na.exclude var
-#' @examples
-#' # data.u is a hypothetical dataset of 3000 persons and 40 dichotomous items
-#' # kr21(data.u)
-#'
+#' @importFrom stats var
 #' @export
 kr21 <- function(data) {
-  data <- stats::na.exclude(data)
-  data <- as.matrix(data)
-  if (any(!data %in% c(0, 1))) {
-    warning("Non-binary values detected; ensure 0/1 scoring for KR-21.")
+  if (!is.data.frame(data) && !is.matrix(data))
+    stop("'data' must be a data frame or matrix.")
+  data <- as.data.frame(data)
+  data <- stats::na.omit(data)
+  if (nrow(data) < 2) stop("At least 2 complete rows are required.")
+  if (any(sapply(data, function(x) any(!x %in% c(0, 1))))) {
+    stop("KR-21 requires binary (0/1) item scores.")
   }
   k <- ncol(data)
   N <- nrow(data)
   total_scores <- rowSums(data)
   mean_total <- mean(total_scores)
-  var_total <- var(total_scores) * (N - 1) / N  # population variance
+  var_total <- stats::var(total_scores) * (N - 1) / N  # population variance
   kr21_val <- (k / (k - 1)) * (1 - (mean_total * (k - mean_total)) / (k * var_total))
   return(kr21_val)
 }

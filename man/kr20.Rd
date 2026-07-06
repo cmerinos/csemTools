@@ -25,10 +25,5 @@ where \eqn{k} is the number of items, \eqn{p_j} is the proportion correct
 on item \eqn{j}, \eqn{q_j = 1-p_j}, and \eqn{\sigma_X^2} is the variance
 of the total test scores (using population variance divisor \eqn{N}).
 
-Rows with missing values are removed using \code{na.exclude}.
-}
-\examples{
-# data.u is a hypothetical dataset of 3000 persons and 40 dichotomous items
-# kr20(data.u)
-
+Rows with missing values are removed using \code{na.omit}.
 }
