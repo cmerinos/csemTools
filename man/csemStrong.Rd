@@ -85,6 +85,46 @@ scored items. The estimator follows Lord (1965) as summarized by
 Tong and Kolen (2018). Optionally, the function computes confidence
 intervals for the true number‑correct score.
 }
+\examples{
+# Dichotomous,  strong true score
+\donttest{
+library(psychTools)
+data(ability)
+data.ability <- ability[complete.cases(ability),]
+
+csemStrong(score.type = "dich",
+data = data.ability,
+nitems = 16,
+ci = T,
+summary = F)
+
+# Dichotomous,  Compound Binomial Model (strong true score), more summary and binned score
+csemStrong(score.type = "dich",
+data = data.ability,
+nitems = 16,
+ci = F,
+summary = T,
+bin.score = 5)
+
+# Polytomous items,
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+csemStrong(score.type = "poly",
+data = data_RSE,
+min.resp = 1,
+max.resp = 4,
+ci = F,
+summary = T,
+full.range = T,
+bin.score = 4)
+}
+
+}
 \references{
 Lord, F. M. (1965). A strong true score theory, with applications.
 \emph{Psychometrika}, 30, 239–270.

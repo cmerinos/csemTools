@@ -55,6 +55,45 @@
 #' Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
 #'   In \emph{Wiley StatsRef: Statistics Reference Online}.
 #'
+#' @examples
+#' # Dichotomous,  strong true score
+#' \donttest{
+#' library(psychTools)
+#' data(ability)
+#' data.ability <- ability[complete.cases(ability),]
+#'
+#' csemStrong(score.type = "dich",
+#' data = data.ability,
+#' nitems = 16,
+#' ci = T,
+#' summary = F)
+#'
+#' # Dichotomous,  Compound Binomial Model (strong true score), more summary and binned score
+#' csemStrong(score.type = "dich",
+#' data = data.ability,
+#' nitems = 16,
+#' ci = F,
+#' summary = T,
+#' bin.score = 5)
+#'
+#' # Polytomous items,
+#' ## Load data
+#' library(EFA.dimensions)
+#' data("data_RSE")
+#'
+#' ## Recode negative items
+#' data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+#'
+#' csemStrong(score.type = "poly",
+#' data = data_RSE,
+#' min.resp = 1,
+#' max.resp = 4,
+#' ci = F,
+#' summary = T,
+#' full.range = T,
+#' bin.score = 4)
+#' }
+#'
 #' @export
 csemStrong <- function(data,
                        score.type = c("dich", "poly"),
