@@ -18,7 +18,8 @@
 #' @param digits integer. Rounding for output.
 #' @param score.range numeric vector of length 2 (min, max). Required for full.range=TRUE.
 #'   Also used to truncate confidence intervals (if ci=TRUE).
-#' @param na.rm logical. Not used (kept for compatibility).
+#' @param na.rm Logical. If TRUE, missing values in items are ignored when computing
+#'   half-test totals (passed to `rowSums`). Rows are not removed. Default TRUE.
 #'
 #' @return A list with elements:
 #'   \item{CSEM}{data.frame with columns `score`, `n`,
@@ -33,9 +34,9 @@
 #'Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
 #'Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
 #'
+#' @examples
 #'
-#'
-#' \donttest{
+#' #' \donttest{
 #' ## Load data
 #' library(EFA.dimensions)
 #' data("data_RSE")
