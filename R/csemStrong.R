@@ -52,6 +52,7 @@
 #' @references
 #' Lord, F. M. (1965). A strong true score theory, with applications.
 #'   \emph{Psychometrika}, 30, 239–270.
+#'
 #' Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
 #'   In \emph{Wiley StatsRef: Statistics Reference Online}.
 #'

@@ -23,10 +23,29 @@
 #' \emph{Educational and Psychological Measurement}, 67(6), 903-916.
 #'
 #' @examples
-#' \dontest{
+#' \donttest{
+#' # Sample of values
 #' csem_vals <- c(2.0, 2.5, 3.0)
 #' var_obs <- 25
 #' stdCSEM(csem_vals, var_obs)
+#'
+#' #From Strong true score model
+#' #' library(psychTools)
+#' data(ability)
+#' data.ability <- ability[complete.cases(ability),]
+#'
+#' strongCSEM.out <- csemStrong(score.type = "dich",
+#' data = data.ability,
+#' nitems = 16,
+#' ci = T,
+#' summary = T)
+#'
+#' # Looking ouput
+#' strongCSEM.out
+#'
+#' # Standardized CSEM
+#' stdCSEM(csem = strongCSEM.out$CSEM$csem.strong,
+#' var_obs = strongCSEM.out$summary$value[3])
 #' }
 #'
 #' @export
