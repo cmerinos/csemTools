@@ -41,7 +41,8 @@ csemThorndike(
 \item{score.range}{numeric vector of length 2 (min, max). Required for full.range=TRUE.
 Also used to truncate confidence intervals (if ci=TRUE).}
 
-\item{na.rm}{logical. Not used (kept for compatibility).}
+\item{na.rm}{Logical. If TRUE, missing values in items are ignored when computing
+half-test totals (passed to \code{rowSums}). Rows are not removed. Default TRUE.}
 }
 \value{
 A list with elements:
@@ -56,14 +57,9 @@ Use \code{smooth = TRUE} for stable estimates across the whole score range.
 When \code{smooth = FALSE} and \code{full.range = TRUE}, missing values (NA) are
 filled with the last valid observation (carried forward) for better readability.
 }
-\references{
-Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
-(pp. 560–620). American Council on Education.
+\examples{
 
-Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
-Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
-
-\donttest{
+#' \donttest{
 ## Load data
 library(EFA.dimensions)
 data("data_RSE")
@@ -100,4 +96,12 @@ ci = T,
 conf.level = .90,
 bin.score = 5)
 }
+
+}
+\references{
+Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
+(pp. 560–620). American Council on Education.
+
+Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
+Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
 }
