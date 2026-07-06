@@ -39,9 +39,22 @@ Bootstrap confidence intervals are obtained via the percentile method.
 }
 \examples{
 set.seed(123)
-half1 <- matrix(rnorm(100*5), ncol=5)
-half2 <- matrix(rnorm(100*5), ncol=5)
-checkCongeneric(half1, half2, B = 200)
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Check split: difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+## check Distribution
+checkCongeneric(half1 = data_RSE[,RSE.namesHalf$half1],
+                 half2 = data_RSE[,RSE.namesHalf$half2],
+                 B = 1000, conf = .95)
+}
 
 }
 \references{

@@ -38,14 +38,21 @@ require equal length halves. For equal lengths, it reduces to the usual
 Spearman-Brown reliability.
 }
 \examples{
-\dontest{
-set.seed(123)
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
 
-half1 <- matrix(rnorm(100*5), ncol=5)
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
 
-half2 <- matrix(rnorm(100*5), ncol=5)
+## Check split: difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
 
-checkAngoff(half1, half2)
+## check Distribution
+checkAngoff(half1 = data_RSE[,RSE.namesHalf$half1],
+                 half2 = data_RSE[,RSE.namesHalf$half2],
+                 B = 1000, conf = .95)
 }
 
 }
