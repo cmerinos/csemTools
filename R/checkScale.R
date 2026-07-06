@@ -24,13 +24,21 @@
 #'   Computational Statistics & Data Analysis, 40(3), 603-608.
 #'
 #' @examples
-#' # Simulated data
-#' \dontest{
-#' half1 <- matrix(rnorm(100*5), ncol=5)
+#' \donttest{
+#' ## Load data
+#' library(EFA.dimensions)
+#' data("data_RSE")
 #'
-#' half2 <- matrix(rnorm(100*5), ncol=5)
+#' ## Recode negative items
+#' data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
 #'
-#' checkScale(half1, half2)
+#' ## Check split: difficulty criteria
+#' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+#'
+#'## check Distribution
+#' checkScale(half1 = data_RSE[,RSE.namesHalf$half1],
+#'                  half2 = data_RSE[,RSE.namesHalf$half2],
+#'                  B = 1000, conf = .95)
 #' }
 #'
 #' @export
