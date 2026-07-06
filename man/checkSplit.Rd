@@ -36,3 +36,26 @@ and method.
 \description{
 Divides the items of a test into two halves using different methods.
 }
+\examples{
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Check split
+checkSplit(data = data_RSE, method = "ritc")
+checkSplit(data = data_RSE, method = "random")
+checkSplit(data = data_RSE, method = "optimized")
+checkSplit(data = data_RSE, method = "difficulty")
+
+## Choosing split by difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+RSE.namesHalf$half1
+RSE.namesHalf$half2
+}
+
+}

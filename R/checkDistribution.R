@@ -38,7 +38,7 @@
 #'   \code{ES} (effect size).
 #'
 #' @examples
-#' \dontest{
+#' \donttest{
 #' ## Load data
 #' library(EFA.dimensions)
 #' data("data_RSE")

@@ -15,7 +15,7 @@
 #'   and method.
 #'
 #' @examples
-#' \dontest{
+#' \donttest{
 #' ## Load data
 #' library(EFA.dimensions)
 #' data("data_RSE")
@@ -34,6 +34,7 @@
 #'
 #' RSE.namesHalf$half1
 #' RSE.namesHalf$half2
+#' }
 #'
 #' @export
 checkSplit <- function(data,

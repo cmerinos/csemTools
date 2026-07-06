@@ -4,14 +4,7 @@
 \alias{checkLocation}
 \title{Robust Location Comparison for Two Test Halves (Yuen's trimmed t-test)}
 \usage{
-checkLocation(
-  half1,
-  half2,
-  trim = 0.2,
-  conf = 0.95,
-  na.rm = TRUE,
-  install = FALSE
-)
+checkLocation(half1, half2, trim = 0.2, conf = 0.95, na.rm = TRUE)
 }
 \arguments{
 \item{half1}{A numeric matrix or data frame for the first test half.}
@@ -23,8 +16,6 @@ checkLocation(
 \item{conf}{Numeric. Confidence level (default = 0.95).}
 
 \item{na.rm}{Logical. If TRUE, rows with missing values are removed.}
-
-\item{install}{Logical. If TRUE and required package not installed, attempt to install it (default = FALSE).}
 }
 \value{
 A data frame with columns:
@@ -41,6 +32,34 @@ The test statistic follows a t distribution with trimmed degrees of freedom.
 The effect size (AKP) is defined as the trimmed mean difference divided by the
 winsorized standard deviation of the differences (Algina, Keselman, & Penfield, 2005).
 The confidence interval for the effect size is obtained using the noncentral t distribution
-via the \code{MBESS} package. If \code{MBESS} is not installed and \code{install = TRUE},
-the function attempts to install it. Otherwise, the CI is omitted.
+via the \code{MBESS} package. If \code{MBESS} is not installed, the CI is omitted
+and a warning is issued.
+}
+\examples{
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Check split: difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+## check Location
+checkLocation(half1 = data_RSE[,RSE.namesHalf$half1],
+              half2 = data_RSE[,RSE.namesHalf$half2],
+              conf = .95)
+}
+
+}
+\references{
+Yuen, K. K. (1974). The two-sample trimmed t for unequal population variances. Biometrika, 61(1), 165-170.
+
+Algina, J., Keselman, H. J., & Penfield, R. D. (2005). An alternative to Cohen's standardized mean difference effect size: a robust parameter and confidence interval in the two independent groups case.
+Psychological methods, 10(3), 317–328. \doi{10.1037/1082-989X.10.3.317}
+
+Algina, J., Keselman, H. J., & Penfield, R. D. (2005). Effect Sizes and their Intervals: The Two-Level Repeated Measures Case.
+Educational and Psychological Measurement, 65(2), 241-258. \doi{10.1177/0013164404268675}
 }
