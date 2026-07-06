@@ -56,3 +56,48 @@ Use \code{smooth = TRUE} for stable estimates across the whole score range.
 When \code{smooth = FALSE} and \code{full.range = TRUE}, missing values (NA) are
 filled with the last valid observation (carried forward) for better readability.
 }
+\references{
+Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
+(pp. 560–620). American Council on Education.
+
+Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
+Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
+
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Choosing split by difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+RSE.namesHalf$half1
+RSE.namesHalf$half2
+
+#' # Thorndike csem, basic ouput
+csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
+half2 = data_RSE[, RSE.namesHalf$half2],
+smooth = F,
+ci = F)
+
+# Thorndike csem, smoothing and binned score
+csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
+half2 = data_RSE[, RSE.namesHalf$half2],
+smooth = T,
+degree = 2,
+ci = F,
+bin.score = 5)
+
+# Thorndike csem, smoothing, binned score, and confidence interval
+csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
+half2 = data_RSE[, RSE.namesHalf$half2],
+smooth = T,
+degree = 2,
+ci = T,
+conf.level = .90,
+bin.score = 5)
+}
+}
