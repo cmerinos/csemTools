@@ -35,9 +35,21 @@ where \eqn{r} is the Pearson correlation between the total scores of the two hal
 Confidence intervals are estimated via percentile bootstrap.
 }
 \examples{
-set.seed(123)
-half1 <- matrix(rnorm(100*5), ncol=5)
-half2 <- matrix(rnorm(100*5), ncol=5)
-checkSpearmanBrown(half1, half2)
+\donttest{
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Check split: difficulty criteria
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+## check Distribution
+checkSpearmanBrown(half1 = data_RSE[,RSE.namesHalf$half1],
+                 half2 = data_RSE[,RSE.namesHalf$half2],
+                 B = 1000, conf = .95)
+}
 
 }
