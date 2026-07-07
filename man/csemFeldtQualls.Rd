@@ -92,7 +92,7 @@ csemFeldtQualls(data.bfi.nmiss[, 1:5])
 csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5)
 
 # With ci = T
-csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5, ci = T, conf-level = .68)
+csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5, ci = T, conf.level = .68)
 }
 
 }
