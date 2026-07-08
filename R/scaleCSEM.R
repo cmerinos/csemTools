@@ -30,9 +30,9 @@
 #'         directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
 #'         vectors. Therefore, it is mandatory that the raw vector contains all integer values
 #'         required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
-#'         all integer raw scores from 0 to the maximum (\eqn{k}) of the test. If any required
-#'         raw score is missing, the function stops with an informative error. No interpolation
-#'         is performed.
+#'         all integer raw scores from the minimum to the maximum observed in the data.
+#'         If any required raw score is missing, the function stops with an informative error.
+#'         No interpolation is performed.
 #' }
 #'
 #' @references
@@ -72,7 +72,9 @@ scaleCSEM <- function(raw, scale, csem,
   scale <- scale[ord]
   csem <- csem[ord]
 
-  k <- max(raw)   # número máximo de ítems (supuesto)
+  # Determinar rango real de raw (no asumir que empieza en 0)
+  min_raw <- min(raw)
+  max_raw <- max(raw)
 
   # --- 2. Configurar C para método "approx" ---
   if (method == "approx") {
@@ -87,16 +89,16 @@ scaleCSEM <- function(raw, scale, csem,
     }
 
     # Validar que para cada raw, los valores X0±C existan en el vector raw
-    L_vals <- pmax(raw - C, 0)
-    U_vals <- pmin(raw + C, k)
+    L_vals <- pmax(raw - C, min_raw)
+    U_vals <- pmin(raw + C, max_raw)
     needed <- unique(c(L_vals, U_vals))
     missing <- setdiff(needed, raw)
     if (length(missing) > 0) {
       missing_str <- paste(sort(missing), collapse = ", ")
       stop(sprintf(
         "The raw vector is missing the following values required for the intervals: %s.
-        Please provide a complete conversion table (all integer raw scores from 0 to %d).",
-        missing_str, k
+        Please provide a complete conversion table for all integer raw scores from %d to %d.",
+        missing_str, min_raw, max_raw
       ))
     }
 
@@ -130,7 +132,7 @@ scaleCSEM <- function(raw, scale, csem,
       }
     )
 
-    # Derivada numérica
+    # Derivada numérica usando diferencias finitas
     eps <- 1e-5
     pred0 <- predict(scam_model, newdata = df)
     df_eps <- df
@@ -144,7 +146,7 @@ scaleCSEM <- function(raw, scale, csem,
                          slope = slope, scale_csem = scale_csem)
   }
 
-  # --- 4. Visualización opcional ---
+  # --- 4. Visualización (opcional) ---
   if (plot) {
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warning("ggplot2 not installed. Skipping plot.")
@@ -195,6 +197,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
   }
 
-  # --- 5. Salida ---
+  # --- 5. Retornar resultado ---
   return(output)
 }

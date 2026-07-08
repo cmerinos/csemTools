@@ -52,9 +52,9 @@ The \code{scam} approach avoids arbitrary post-hoc adjustments.
 directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
 vectors. Therefore, it is mandatory that the raw vector contains all integer values
 required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
-all integer raw scores from 0 to the maximum (\eqn{k}) of the test. If any required
-raw score is missing, the function stops with an informative error. No interpolation
-is performed.
+all integer raw scores from the minimum to the maximum observed in the data.
+If any required raw score is missing, the function stops with an informative error.
+No interpolation is performed.
 }
 }
 \examples{
