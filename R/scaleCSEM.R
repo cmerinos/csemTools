@@ -15,6 +15,26 @@
 #'
 #' @return A data.frame with columns: raw, scale, csem, slope, scale_csem.
 #'
+#' @details
+#' \strong{Important technical notes:}
+#' \enumerate{
+#'   \item \strong{Use of SCAM in the "polym" method:} This method uses the \code{scam} package
+#'         (Shape Constrained Additive Models) with a monotonic increasing P-spline basis
+#'         (\code{bs = "mpi"}). This choice mathematically enforces a strictly non-negative
+#'         first derivative across the entire raw score range, matching the psychometric
+#'         requirement stated by Feldt & Qualls (1998, p. 163). Unconstrained splines
+#'         (\code{smooth.spline}) or high-degree polynomials can produce negative slopes
+#'         at the boundaries, leading to invalid negative scale score standard errors.
+#'         The \code{scam} approach avoids arbitrary post-hoc adjustments.
+#'   \item \strong{Completeness of the conversion table (method "approx"):} This method
+#'         directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
+#'         vectors. Therefore, it is mandatory that the raw vector contains all integer values
+#'         required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
+#'         all integer raw scores from 0 to the maximum (\eqn{k}) of the test. If any required
+#'         raw score is missing, the function stops with an informative error. No interpolation
+#'         is performed.
+#' }
+#'
 #' @references
 #' Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
 #' Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
@@ -67,7 +87,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
 
     # Validar que para cada raw, los valores X0±C existan en el vector raw
-    # (esto asegura que la tabla es completa)
     L_vals <- pmax(raw - C, 0)
     U_vals <- pmin(raw + C, k)
     needed <- unique(c(L_vals, U_vals))
@@ -82,7 +101,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
 
     # Calcular slopes y scale_csem de forma vectorizada
-    # Usamos match para obtener índices
     idx_L <- match(L_vals, raw)
     idx_U <- match(U_vals, raw)
     scale_L <- scale[idx_L]
@@ -97,18 +115,13 @@ scaleCSEM <- function(raw, scale, csem,
 
   # --- 3. Método "polym" (monotonic spline) ---
   if (method == "polym") {
-    # Verificar que scam esté instalado
     if (!requireNamespace("scam", quietly = TRUE)) {
       stop("Package 'scam' is required for method 'polym'. Please install it.")
     }
 
-    # Preparar datos para scam
     df <- data.frame(raw = raw, scale = scale)
-
-    # Fórmula con s() sin prefijo (scam importa mgcv)
     scam_formula <- as.formula("scale ~ s(raw, bs = 'mpi')")
 
-    # Ajustar modelo con manejo de errores
     scam_model <- tryCatch(
       scam::scam(scam_formula, data = df),
       error = function(e) {
@@ -117,25 +130,22 @@ scaleCSEM <- function(raw, scale, csem,
       }
     )
 
-    # Derivada numérica usando diferencias finitas
+    # Derivada numérica
     eps <- 1e-5
     pred0 <- predict(scam_model, newdata = df)
     df_eps <- df
     df_eps$raw <- df_eps$raw + eps
     pred1 <- predict(scam_model, newdata = df_eps)
     slope <- (pred1 - pred0) / eps
-
-    # Asegurar que slope no sea negativo (por si acaso)
-    slope <- pmax(slope, 0)
+    slope <- pmax(slope, 0)   # seguridad
     scale_csem <- csem * slope
 
     output <- data.frame(raw = raw, scale = scale, csem = csem,
                          slope = slope, scale_csem = scale_csem)
   }
 
-  # --- 4. Visualización (opcional) ---
+  # --- 4. Visualización opcional ---
   if (plot) {
-    # Verificar ggplot2
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warning("ggplot2 not installed. Skipping plot.")
     } else {
@@ -163,8 +173,7 @@ scaleCSEM <- function(raw, scale, csem,
                x = "Scale Score", y = "Scale CSEM") +
           theme_minimal()
         print(p)
-      } else if (plot.what == "both") {
-        # Superposición simple sin eje secundario (más claro)
+      } else {  # "both" por defecto
         p <- ggplot(output) +
           geom_line(aes(x = scale, y = scale_csem, color = "Scale CSEM"),
                     linewidth = 1) +
@@ -186,6 +195,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
   }
 
-  # --- 5. Retornar resultado ---
+  # --- 5. Salida ---
   return(output)
 }

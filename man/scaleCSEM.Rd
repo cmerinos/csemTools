@@ -37,6 +37,26 @@ Applies the formal methodologies proposed by Feldt and Qualls (1998) to translat
 raw score CSEMs into non-linear scale score metrics. Supports both the calculus-based
 Polynomial Method (using monotonic splines) and the interval-based Approximation Method.
 }
+\details{
+\strong{Important technical notes:}
+\enumerate{
+\item \strong{Use of SCAM in the "polym" method:} This method uses the \code{scam} package
+(Shape Constrained Additive Models) with a monotonic increasing P-spline basis
+(\code{bs = "mpi"}). This choice mathematically enforces a strictly non-negative
+first derivative across the entire raw score range, matching the psychometric
+requirement stated by Feldt & Qualls (1998, p. 163). Unconstrained splines
+(\code{smooth.spline}) or high-degree polynomials can produce negative slopes
+at the boundaries, leading to invalid negative scale score standard errors.
+The \code{scam} approach avoids arbitrary post-hoc adjustments.
+\item \strong{Completeness of the conversion table (method "approx"):} This method
+directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
+vectors. Therefore, it is mandatory that the raw vector contains all integer values
+required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
+all integer raw scores from 0 to the maximum (\eqn{k}) of the test. If any required
+raw score is missing, the function stops with an informative error. No interpolation
+is performed.
+}
+}
 \examples{
 raw <- 0:10
 scale <- seq(20, 70, by = 5)
