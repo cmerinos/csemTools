@@ -71,21 +71,6 @@ present in the \code{raw} vector as the natural boundaries of the score scale. T
 suitable for Likert-type scales (e.g., summing 5 items each scored 1-5 gives a minimum of 5).
 Internally, the intervals \eqn{X_0 \pm C} are truncated to the observed range \eqn{[min(raw), max(raw)]}.
 }
-\examples{
-# Example with linear transformation (slope = 5)
-raw <- 0:10
-scale <- seq(20, 70, by = 5)
-csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
-scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
-
-# Simular escala no lineal (ejemplo: raíz cuadrada)
-raw <- 0:10
-scale <- round(20 + 30 * sqrt(raw/10))  # no lineal
-csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
-
-scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
-
-}
 \references{
 Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
 Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
