@@ -5,10 +5,9 @@
 \title{Compute Conditional Standard Error of Measurement (CSEM) for Non-Linear Scale Scores}
 \usage{
 scaleCSEM(
-  data,
-  raw.col,
-  scale.col,
-  rawcsem.col,
+  raw,
+  scale,
+  csem,
   method = c("approx", "polym"),
   C = NULL,
   plot = FALSE,
@@ -16,51 +15,37 @@ scaleCSEM(
 )
 }
 \arguments{
-\item{data}{A data frame containing the raw-to-scale score conversion table and baseline errors.}
+\item{raw}{Numeric vector. Raw scores (must be integer values, ideally consecutive).}
 
-\item{raw.col}{Character string. The name of the column containing raw scores.}
+\item{scale}{Numeric vector. Scale scores corresponding to each raw score.}
 
-\item{scale.col}{Character string. The name of the column containing transformed scale scores.}
+\item{csem}{Numeric vector. Conditional standard errors of measurement in raw score units.}
 
-\item{rawcsem.col}{Character string. The name of the column containing pre-computed raw score CSEMs.}
+\item{method}{Character. "approx" (interval method) or "polym" (monotonic spline method).}
 
-\item{method}{Character string. The psychometric approach to estimate conversion slopes.
-Options are "approx" (Interval Approximation Method) or "polym" (Monotonic Smoothing Method). Default is "approx".}
+\item{C}{Integer. Interval width for "approx". If NULL, uses round(1.5 * mean(csem)).}
 
-\item{C}{Integer. The interval constant for the raw score window (X0 +/- C) when method = "approx". If NULL, it automatically computes \code{round(1.5 * mean(rawcsem))}.}
+\item{plot}{Logical. If TRUE, generates a plot.}
 
-\item{plot}{Logical. If TRUE, generates a graphical visualization of the conditional errors. Default is FALSE.}
-
-\item{plot.what}{Character string. Layout options: "both" (overlayed metrics), "scale" (scale CSEM only), or "raw" (raw CSEM only). Default is "both".}
+\item{plot.what}{Character. "both", "raw", or "scale" to choose what to display.}
 }
 \value{
-A data frame sorted by raw score with appended columns:
-\item{slope}{The exact conversion derivative or local interval slope computed via specified method.}
-\item{scale_csem}{The approximated Conditional Standard Error of Measurement mapped onto the scale score metric.}
+A data.frame with columns: raw, scale, csem, slope, scale_csem.
 }
 \description{
 Applies the formal methodologies proposed by Feldt and Qualls (1998) to translate
 raw score CSEMs into non-linear scale score metrics. Supports both the calculus-based
-Polynomial Method (evaluating exact local derivatives under monotonicity constraints)
-and the interval-based Approximation Method (employing an empirical symmetric window of 1.5 * Mean CSEM).
+Polynomial Method (using monotonic splines) and the interval-based Approximation Method.
 }
-\details{
-\enumerate{
-\item \strong{Monotone Spline Smoothing (method = "polym"):} Instead of unconstrained high-degree
-polynomials which suffer from boundary oscillations (Runge's phenomenon), this function fits a
-Shape Constrained Additive Model (SCAM) forcing a strictly monotonic increasing relationship. This maps
-to the authors' premise that the conversion function derivative must never be negative, avoiding
-arbitrary post-hoc absolute value adjustments.
-\item \strong{Exact Derivative Evaluation (method = "polym"):} Computes the point-specific instantaneous
-conversion slope by extracting the numerical first derivative of the fitted monotonic smoothing spline.
-\item \strong{Empirical Window Width (method = "approx"):} Following page 165 of Feldt & Qualls (1998),
-if the parameter \code{C} is omitted, it is determined dynamically as \eqn{C = 1.5 \times \text{mean}(\sigma_{E(X)})},
-rounded to the nearest integer. This aligns with the psychometric properties of the target test
-rather than relying on historic test-length heuristics. Boundary corrections follow Equations 5 and 6 exactly.
-}
+\examples{
+raw <- 0:10
+scale <- seq(20, 70, by = 5)
+csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+result <- scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+head(result)
+
 }
 \references{
 Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
-Measurement From the Raw Score Standard Error. \emph{Applied Measurement in Education},
-11(2), 159-177. \doi{10.1177/0013164499591001}
+Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
 }

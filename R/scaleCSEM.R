@@ -3,286 +3,180 @@
 #' @description
 #' Applies the formal methodologies proposed by Feldt and Qualls (1998) to translate
 #' raw score CSEMs into non-linear scale score metrics. Supports both the calculus-based
-#' Polynomial Method (evaluating exact local derivatives under monotonicity constraints)
-#' and the interval-based Approximation Method (employing an empirical symmetric window of 1.5 * Mean CSEM).
+#' Polynomial Method (using monotonic splines) and the interval-based Approximation Method.
 #'
-#' @details
-#' \enumerate{
-#'   \item \strong{Polynomial Method (method = "polym"):} Fits a Shape Constrained Additive Model
-#'   (SCAM) with a monotonic increasing P-spline (\code{bs = "mpi"}) to the raw-to-scale conversion.
-#'   This guarantees a strictly non-negative first derivative across the entire score range,
-#'   avoiding arbitrary post-hoc absolute value adjustments. The derivative is evaluated
-#'   numerically at each raw score point and multiplied by the raw CSEM.
+#' @param raw Numeric vector. Raw scores (must be integer values, ideally consecutive).
+#' @param scale Numeric vector. Scale scores corresponding to each raw score.
+#' @param csem Numeric vector. Conditional standard errors of measurement in raw score units.
+#' @param method Character. "approx" (interval method) or "polym" (monotonic spline method).
+#' @param C Integer. Interval width for "approx". If NULL, uses round(1.5 * mean(csem)).
+#' @param plot Logical. If TRUE, generates a plot.
+#' @param plot.what Character. "both", "raw", or "scale" to choose what to display.
 #'
-#'   \item \strong{Approximation Method (method = "approx"):} Uses a symmetric raw score window
-#'   of width \eqn{2C} around each raw score \eqn{X_0}. The slope is approximated as
-#'   \eqn{(Scale(X_0+C) - Scale(X_0-C)) / (2C)}, with boundary corrections when the window
-#'   exceeds the valid raw score range (0 to k). The scale CSEM is then \eqn{slope * rawCSEM}.
-#'   \strong{Important:} This method requires that the conversion table contains all raw scores
-#'   needed for the intervals \eqn{X_0 \pm C}. No interpolation is performed; the function will
-#'   stop with an error if any required raw score is missing.
-#' }
-#'
-#' @param data Optional data frame containing the raw-to-scale conversion table and CSEMs.
-#'        If provided, \code{raw.col}, \code{scale.col}, and \code{rawcsem.col} must be specified.
-#' @param raw.col Character string. Name of the column containing raw scores (if \code{data} is used).
-#' @param scale.col Character string. Name of the column containing transformed scale scores.
-#' @param rawcsem.col Character string. Name of the column containing raw score CSEMs.
-#' @param raw Numeric vector. Alternative to \code{data}: raw scores.
-#' @param scale Numeric vector. Alternative to \code{data}: scale scores.
-#' @param csem Numeric vector. Alternative to \code{data}: raw CSEMs.
-#' @param method Character string. Either \code{"approx"} (default) or \code{"polym"}.
-#' @param C Integer. Window width for the approximation method. If \code{NULL} (default),
-#'        computed as \code{round(1.5 * mean(csem))}, with a minimum of 1.
-#' @param plot Logical. If \code{TRUE}, generates a plot of the CSEMs. Default \code{FALSE}.
-#' @param plot.what Character string. One of \code{"both"} (overlay raw and scale CSEMs),
-#'        \code{"scale"} (only scale CSEM), or \code{"raw"} (only raw CSEM). Default \code{"both"}.
-#'
-#' @return A data frame (sorted by raw score) with the original columns plus:
-#' \item{slope}{The estimated slope (derivative or interval slope) at each raw score.}
-#' \item{scale_csem}{The CSEM in the scale score metric.}
+#' @return A data.frame with columns: raw, scale, csem, slope, scale_csem.
 #'
 #' @references
 #' Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
-#' Measurement From the Raw Score Standard Error. \emph{Applied Measurement in Education},
-#' 11(2), 159-177. \doi{10.1177/0013164499591001}
+#' Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
 #'
 #' @examples
-#' # Example with a complete conversion table (raw scores 0 to 20)
-#' set.seed(123)
-#' raw_all <- 0:20
-#' scale_all <- 50 + 10 * scale(raw_all)  # just an example
-#' csem_all <- 2 + 0.1 * abs(raw_all - 10) # example pattern
-#' df_full <- data.frame(raw = raw_all, scale = scale_all, csem = csem_all)
-#'
-#' # Approximation method
-#' res_approx <- scaleCSEM(data = df_full, raw.col = "raw", scale.col = "scale",
-#'                         rawcsem.col = "csem", method = "approx", C = 3)
-#' head(res_approx)
-#'
-#' # Polynomial method (requires scam package)
-#' if (requireNamespace("scam", quietly = TRUE)) {
-#'   res_polym <- scaleCSEM(data = df_full, raw.col = "raw", scale.col = "scale",
-#'                          rawcsem.col = "csem", method = "polym", plot = TRUE)
-#'   head(res_polym)
-#' }
-#'
-#' # Using direct vectors instead of data frame
-#' res_vec <- scaleCSEM(raw = raw_all, scale = scale_all, csem = csem_all,
-#'                      method = "approx", C = 3)
+#' raw <- 0:10
+#' scale <- seq(20, 70, by = 5)
+#' csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+#' result <- scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+#' head(result)
 #'
 #' @export
-scaleCSEM <- function(data = NULL,
-                      raw.col = NULL, scale.col = NULL, rawcsem.col = NULL,
-                      raw = NULL, scale = NULL, csem = NULL,
+scaleCSEM <- function(raw, scale, csem,
                       method = c("approx", "polym"),
                       C = NULL,
-                      plot = FALSE, plot.what = "both") {
+                      plot = FALSE,
+                      plot.what = "both") {
 
-  # ---- 1. Input validation and data extraction ----
+  # --- 1. Validaciones básicas ---
   method <- match.arg(method)
 
-  # Check for required packages
-  if (method == "polym" && !requireNamespace("scam", quietly = TRUE)) {
-    stop("Method 'polym' requires the 'scam' package. Please install it.")
+  if (length(raw) != length(scale) || length(raw) != length(csem)) {
+    stop("raw, scale, and csem must have the same length.")
   }
-  if (plot && !requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("Plotting requires the 'ggplot2' package. Please install it.")
+  if (!is.numeric(raw) || !is.numeric(scale) || !is.numeric(csem)) {
+    stop("raw, scale, and csem must be numeric vectors.")
   }
-
-  # Extract vectors from either data frame or direct arguments
-  if (!is.null(data)) {
-    # Using data frame interface
-    if (is.null(raw.col) || is.null(scale.col) || is.null(rawcsem.col)) {
-      stop("When 'data' is provided, 'raw.col', 'scale.col', and 'rawcsem.col' must be specified.")
-    }
-    if (!all(c(raw.col, scale.col, rawcsem.col) %in% names(data))) {
-      stop("One or more specified columns not found in 'data'.")
-    }
-    # Order by raw score and extract
-    data <- data[order(data[[raw.col]]), ]
-    raw_vec <- data[[raw.col]]
-    scale_vec <- data[[scale.col]]
-    csem_vec <- data[[rawcsem.col]]
-    # Keep the original data for output
-    original_data <- data
-  } else {
-    # Using direct vectors
-    if (is.null(raw) || is.null(scale) || is.null(csem)) {
-      stop("Either 'data' with column names, or 'raw', 'scale', and 'csem' vectors must be provided.")
-    }
-    if (length(raw) != length(scale) || length(raw) != length(csem)) {
-      stop("'raw', 'scale', and 'csem' must have the same length.")
-    }
-    # Order by raw score
-    ord <- order(raw)
-    raw_vec <- raw[ord]
-    scale_vec <- scale[ord]
-    csem_vec <- csem[ord]
-    # Build a data frame for output (preserve names)
-    original_data <- data.frame(raw = raw_vec, scale = scale_vec, csem = csem_vec,
-                                stringsAsFactors = FALSE)
-    # Set column names for later use
-    raw.col <- "raw"
-    scale.col <- "scale"
-    rawcsem.col <- "csem"
+  if (any(raw != round(raw))) {
+    stop("raw scores must be integers (or whole numbers).")
   }
 
-  # Check for duplicates in raw_vec
-  if (any(duplicated(raw_vec))) {
-    stop("Raw scores must be unique. Please remove duplicates.")
-  }
+  # Ordenar por raw (importante para consistencia)
+  ord <- order(raw)
+  raw <- raw[ord]
+  scale <- scale[ord]
+  csem <- csem[ord]
 
-  k <- max(raw_vec)  # maximum raw score (test length)
-  n <- length(raw_vec)
+  k <- max(raw)   # número máximo de ítems (supuesto)
 
-  # Ensure raw_vec is integer (or at least numeric)
-  if (!is.numeric(raw_vec)) stop("Raw scores must be numeric.")
-
-  # ---- 2. Compute slopes and scale CSEM ----
-
-  if (method == "polym") {
-    # ---- 2a. Polynomial Method (Monotonic Spline) ----
-    # Fit a monotonic increasing P-spline
-    # Use scam with bs = "mpi" (monotonic increasing P-spline)
-    scam_form <- as.formula(paste(scale.col, "~ s(", raw.col, ", bs = 'mpi')"))
-    # We need to build a temporary data frame for scam
-    temp_df <- data.frame(x = raw_vec, y = scale_vec)
-    names(temp_df) <- c(raw.col, scale.col)
-    scam_model <- scam::scam(scam_form, data = temp_df)
-
-    # Numerical derivative via finite differences
-    eps <- 1e-5
-    x_plus <- raw_vec + eps
-    pred_x <- predict(scam_model, newdata = setNames(data.frame(raw_vec), raw.col))
-    pred_x_plus <- predict(scam_model, newdata = setNames(data.frame(x_plus), raw.col))
-    slope <- (pred_x_plus - pred_x) / eps
-
-    # Ensure slope is non-negative (should be, but safeguard)
-    slope <- pmax(slope, 0)
-
-    # Compute scale CSEM
-    scale_csem <- csem_vec * slope
-
-  } else {
-    # ---- 2b. Approximation Method ----
-    # Determine C if not provided
+  # --- 2. Configurar C para método "approx" ---
+  if (method == "approx") {
     if (is.null(C)) {
-      C <- round(1.5 * mean(csem_vec, na.rm = TRUE))
-      C <- max(C, 1)   # at least 1
+      C <- round(1.5 * mean(csem, na.rm = TRUE))
+      C <- max(C, 1)   # mínimo 1
     } else {
+      if (!is.numeric(C) || length(C) != 1 || C < 1 || C != round(C)) {
+        stop("C must be a positive integer (or NULL for automatic calculation).")
+      }
       C <- as.integer(C)
-      if (C < 1) stop("C must be a positive integer.")
     }
 
-    # Pre-allocate vectors
-    slope <- numeric(n)
-    scale_csem <- numeric(n)
-
-    # For each raw score, compute L and U, look up scale values
-    # We'll use a named vector for fast lookup (scale by raw)
-    scale_lookup <- setNames(scale_vec, raw_vec)
-
-    for (i in seq_len(n)) {
-      X0 <- raw_vec[i]
-      L <- max(X0 - C, 0)
-      U <- min(X0 + C, k)
-
-      # Check that L and U exist in raw_vec
-      if (!(L %in% raw_vec)) {
-        stop(sprintf("At raw score = %g, the lower bound L = %g is not present in the raw score table. Please provide a complete table (all raw scores from 0 to %g).", X0, L, k))
-      }
-      if (!(U %in% raw_vec)) {
-        stop(sprintf("At raw score = %g, the upper bound U = %g is not present in the raw score table. Please provide a complete table (all raw scores from 0 to %g).", X0, U, k))
-      }
-
-      scale_L <- scale_lookup[as.character(L)]
-      scale_U <- scale_lookup[as.character(U)]
-
-      # Compute slope according to boundary cases
-      denom <- U - L   # this is 2C for interior, but may differ at boundaries
-      # (Note: if X0-C < 0, denom = X0 + C; if X0+C > k, denom = k - X0 + C)
-      # But U-L already gives the correct denominator by definition.
-      if (denom == 0) {
-        stop("Denominator for slope calculation is zero. Check C and raw score table.")
-      }
-      slope[i] <- (scale_U - scale_L) / denom
-      # Slope should be non-negative (scale is monotonic)
-      if (slope[i] < 0) {
-        warning(sprintf("Negative slope detected at raw score = %g. Setting to zero.", X0))
-        slope[i] <- 0
-      }
-      scale_csem[i] <- csem_vec[i] * slope[i]
+    # Validar que para cada raw, los valores X0±C existan en el vector raw
+    # (esto asegura que la tabla es completa)
+    L_vals <- pmax(raw - C, 0)
+    U_vals <- pmin(raw + C, k)
+    needed <- unique(c(L_vals, U_vals))
+    missing <- setdiff(needed, raw)
+    if (length(missing) > 0) {
+      missing_str <- paste(sort(missing), collapse = ", ")
+      stop(sprintf(
+        "The raw vector is missing the following values required for the intervals: %s.
+        Please provide a complete conversion table (all integer raw scores from 0 to %d).",
+        missing_str, k
+      ))
     }
+
+    # Calcular slopes y scale_csem de forma vectorizada
+    # Usamos match para obtener índices
+    idx_L <- match(L_vals, raw)
+    idx_U <- match(U_vals, raw)
+    scale_L <- scale[idx_L]
+    scale_U <- scale[idx_U]
+    denom <- U_vals - L_vals   # 2*C generalmente, pero ajustado en bordes
+    slope <- (scale_U - scale_L) / denom
+    scale_csem <- csem * slope
+
+    output <- data.frame(raw = raw, scale = scale, csem = csem,
+                         slope = slope, scale_csem = scale_csem)
   }
 
-  # ---- 3. Build output data frame ----
-  # Start with original_data (already sorted by raw)
-  output_df <- original_data
-  output_df$slope <- slope
-  output_df$scale_csem <- scale_csem
+  # --- 3. Método "polym" (monotonic spline) ---
+  if (method == "polym") {
+    # Verificar que scam esté instalado
+    if (!requireNamespace("scam", quietly = TRUE)) {
+      stop("Package 'scam' is required for method 'polym'. Please install it.")
+    }
 
-  # Restore column names if they were not the defaults
-  # We'll rename to match user's original column names if data was provided
-  if (!is.null(data)) {
-    # Keep original column names; output_df already has them
-    # But we added 'slope' and 'scale_csem'
-    # If data was provided, we should preserve its column names.
-    # Actually original_data was data sorted, so column names are as user provided.
-    # So we just add the new columns.
-    # We'll keep as is.
-  } else {
-    # If vectors were provided, we already named columns as raw, scale, csem
-    # So output_df has columns: raw, scale, csem, slope, scale_csem
-    # That's fine.
+    # Preparar datos para scam
+    df <- data.frame(raw = raw, scale = scale)
+
+    # Fórmula con s() sin prefijo (scam importa mgcv)
+    scam_formula <- as.formula("scale ~ s(raw, bs = 'mpi')")
+
+    # Ajustar modelo con manejo de errores
+    scam_model <- tryCatch(
+      scam::scam(scam_formula, data = df),
+      error = function(e) {
+        stop("scam fitting failed. Possibly too few data points or non-monotonic relationship. Try method = 'approx'.\n",
+             "Original error: ", e$message)
+      }
+    )
+
+    # Derivada numérica usando diferencias finitas
+    eps <- 1e-5
+    pred0 <- predict(scam_model, newdata = df)
+    df_eps <- df
+    df_eps$raw <- df_eps$raw + eps
+    pred1 <- predict(scam_model, newdata = df_eps)
+    slope <- (pred1 - pred0) / eps
+
+    # Asegurar que slope no sea negativo (por si acaso)
+    slope <- pmax(slope, 0)
+    scale_csem <- csem * slope
+
+    output <- data.frame(raw = raw, scale = scale, csem = csem,
+                         slope = slope, scale_csem = scale_csem)
   }
 
-  # ---- 4. Visualization ----
+  # --- 4. Visualización (opcional) ---
   if (plot) {
+    # Verificar ggplot2
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
-      warning("ggplot2 not available. Plot skipped.")
+      warning("ggplot2 not installed. Skipping plot.")
     } else {
-      library(ggplot2)  # for aes_string, etc.
+      library(ggplot2)
 
-      # Determine labels based on method
       method_label <- if (method == "polym") {
         "Monotonic Spline Method"
       } else {
         paste0("Approximation Method [C = ", C, "]")
       }
 
-      # Determine which plot type
       if (plot.what == "raw") {
-        p <- ggplot(output_df, aes_string(x = raw.col, y = rawcsem.col)) +
-          geom_line(color = "#2c3e50", size = 1) +
+        p <- ggplot(output, aes(x = raw, y = csem)) +
+          geom_line(color = "#2c3e50", linewidth = 1) +
           geom_point(color = "#2c3e50", size = 2) +
-          labs(title = "Conditional Standard Error: Raw Metric",
+          labs(title = "CSEM: Raw Score Metric",
                x = "Raw Score", y = "Raw CSEM") +
           theme_minimal()
         print(p)
       } else if (plot.what == "scale") {
-        p <- ggplot(output_df, aes_string(x = scale.col, y = "scale_csem")) +
-          geom_line(color = "#e74c3c", size = 1) +
+        p <- ggplot(output, aes(x = scale, y = scale_csem)) +
+          geom_line(color = "#e74c3c", linewidth = 1) +
           geom_point(color = "#e74c3c", size = 2) +
-          labs(title = paste("CSEM (Scale Metric):", method_label),
+          labs(title = paste("CSEM:", method_label),
                x = "Scale Score", y = "Scale CSEM") +
           theme_minimal()
         print(p)
-      } else {  # "both"
-        # Overlay raw and scale CSEMs, both mapped to scale score on x-axis
-        # We'll use the scale score as x, and plot both raw CSEM and scale CSEM vs scale score
-        p <- ggplot(output_df) +
-          geom_line(aes_string(x = scale.col, y = "scale_csem",
-                               color = paste0("Scale CSEM (", method_label, ")"))) +
-          geom_point(aes_string(x = scale.col, y = "scale_csem",
-                                color = paste0("Scale CSEM (", method_label, ")"))) +
-          geom_line(aes_string(x = scale.col, y = rawcsem.col,
-                               color = "Raw CSEM"), linetype = "dashed") +
-          geom_point(aes_string(x = scale.col, y = rawcsem.col,
-                                color = "Raw CSEM")) +
+      } else if (plot.what == "both") {
+        # Superposición simple sin eje secundario (más claro)
+        p <- ggplot(output) +
+          geom_line(aes(x = scale, y = scale_csem, color = "Scale CSEM"),
+                    linewidth = 1) +
+          geom_point(aes(x = scale, y = scale_csem, color = "Scale CSEM"),
+                     size = 2) +
+          geom_line(aes(x = scale, y = csem, color = "Raw CSEM"),
+                    linewidth = 1, linetype = "dashed") +
+          geom_point(aes(x = scale, y = csem, color = "Raw CSEM"),
+                     size = 2) +
           scale_color_manual(values = c("Raw CSEM" = "#2c3e50",
-                                        paste0("Scale CSEM (", method_label, ")") = "#e74c3c")) +
-          labs(title = "Overlay of Raw and Scale CSEMs",
+                                        "Scale CSEM" = "#e74c3c")) +
+          labs(title = paste("CSEM Comparison -", method_label),
                x = "Scale Score", y = "CSEM",
                color = "Metric") +
           theme_minimal() +
@@ -292,6 +186,6 @@ scaleCSEM <- function(data = NULL,
     }
   }
 
-  # ---- 5. Return ----
-  return(output_df)
+  # --- 5. Retornar resultado ---
+  return(output)
 }
