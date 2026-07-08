@@ -26,25 +26,46 @@
 #'         (\code{smooth.spline}) or high-degree polynomials can produce negative slopes
 #'         at the boundaries, leading to invalid negative scale score standard errors.
 #'         The \code{scam} approach avoids arbitrary post-hoc adjustments.
+#'         \emph{Note:} The \code{scam} package requires \code{mgcv}, which will be installed
+#'         automatically when you install \code{scam}.
 #'   \item \strong{Completeness of the conversion table (method "approx"):} This method
 #'         directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
 #'         vectors. Therefore, it is mandatory that the raw vector contains all integer values
-#'         required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
-#'         all integer raw scores from the minimum to the maximum observed in the data.
-#'         If any required raw score is missing, the function stops with an informative error.
+#'         required to cover \eqn{X_0 \pm C} for every row within the observed range of raw scores.
+#'         Ideally, the table should include all integer raw scores from the minimum to the maximum
+#'         observed. If any required raw score is missing, the function stops with an informative error.
 #'         No interpolation is performed.
 #' }
+#'
+#' \strong{Dependencies:}
+#' The \code{"polym"} method requires the \code{scam} package (which in turn depends on \code{mgcv}).
+#' Please ensure both are installed:
+#'   \code{install.packages(c("scam", "mgcv"))}.
+#'   If these packages are not available, use \code{method = "approx"} instead.
+#'
+#' \strong{Range of raw scores:}
+#'   The function does not assume that raw scores start at 0. It uses the minimum and maximum values
+#'   present in the \code{raw} vector as the natural boundaries of the score scale. This makes it
+#'   suitable for Likert-type scales (e.g., summing 5 items each scored 1-5 gives a minimum of 5).
+#'   Internally, the intervals \eqn{X_0 \pm C} are truncated to the observed range \eqn{[min(raw), max(raw)]}.
 #'
 #' @references
 #' Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
 #' Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
 #'
 #' @examples
+#' # Example with linear transformation (slope = 5)
 #' raw <- 0:10
 #' scale <- seq(20, 70, by = 5)
 #' csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
-#' result <- scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
-#' head(result)
+#' scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+#'
+#' # Simular escala no lineal (ejemplo: raíz cuadrada)
+#' raw <- 0:10
+#' scale <- round(20 + 30 * sqrt(raw/10))  # no lineal
+#' csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+#'
+#'scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
 #'
 #' @export
 scaleCSEM <- function(raw, scale, csem,
@@ -72,9 +93,9 @@ scaleCSEM <- function(raw, scale, csem,
   scale <- scale[ord]
   csem <- csem[ord]
 
-  # Determinar rango real de raw (no asumir que empieza en 0)
-  min_raw <- min(raw)
-  max_raw <- max(raw)
+  # Rango observado (no asumimos que comienza en 0)
+  raw_min <- min(raw)
+  raw_max <- max(raw)
 
   # --- 2. Configurar C para método "approx" ---
   if (method == "approx") {
@@ -88,26 +109,28 @@ scaleCSEM <- function(raw, scale, csem,
       C <- as.integer(C)
     }
 
-    # Validar que para cada raw, los valores X0±C existan en el vector raw
-    L_vals <- pmax(raw - C, min_raw)
-    U_vals <- pmin(raw + C, max_raw)
+    # Calcular L y U truncados al rango observado
+    L_vals <- pmax(raw - C, raw_min)
+    U_vals <- pmin(raw + C, raw_max)
+
+    # Verificar que todos los valores necesarios estén presentes en raw
     needed <- unique(c(L_vals, U_vals))
     missing <- setdiff(needed, raw)
     if (length(missing) > 0) {
       missing_str <- paste(sort(missing), collapse = ", ")
       stop(sprintf(
         "The raw vector is missing the following values required for the intervals: %s.
-        Please provide a complete conversion table for all integer raw scores from %d to %d.",
-        missing_str, min_raw, max_raw
+        Please provide a complete conversion table (all integer raw scores from %d to %d).",
+        missing_str, raw_min, raw_max
       ))
     }
 
-    # Calcular slopes y scale_csem de forma vectorizada
+    # Calcular slopes y scale_csem
     idx_L <- match(L_vals, raw)
     idx_U <- match(U_vals, raw)
     scale_L <- scale[idx_L]
     scale_U <- scale[idx_U]
-    denom <- U_vals - L_vals   # 2*C generalmente, pero ajustado en bordes
+    denom <- U_vals - L_vals   # intervalo real (no siempre 2*C en bordes)
     slope <- (scale_U - scale_L) / denom
     scale_csem <- csem * slope
 
@@ -118,7 +141,7 @@ scaleCSEM <- function(raw, scale, csem,
   # --- 3. Método "polym" (monotonic spline) ---
   if (method == "polym") {
     if (!requireNamespace("scam", quietly = TRUE)) {
-      stop("Package 'scam' is required for method 'polym'. Please install it.")
+      stop("Package 'scam' is required for method 'polym'. Please install it (this will also install 'mgcv').")
     }
 
     df <- data.frame(raw = raw, scale = scale)
@@ -132,21 +155,21 @@ scaleCSEM <- function(raw, scale, csem,
       }
     )
 
-    # Derivada numérica usando diferencias finitas
+    # Derivada numérica
     eps <- 1e-5
     pred0 <- predict(scam_model, newdata = df)
     df_eps <- df
     df_eps$raw <- df_eps$raw + eps
     pred1 <- predict(scam_model, newdata = df_eps)
     slope <- (pred1 - pred0) / eps
-    slope <- pmax(slope, 0)   # seguridad
+    slope <- pmax(slope, 0)   # seguridad (no debería ser negativo)
     scale_csem <- csem * slope
 
     output <- data.frame(raw = raw, scale = scale, csem = csem,
                          slope = slope, scale_csem = scale_csem)
   }
 
-  # --- 4. Visualización (opcional) ---
+  # --- 4. Visualización opcional ---
   if (plot) {
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warning("ggplot2 not installed. Skipping plot.")
@@ -197,6 +220,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
   }
 
-  # --- 5. Retornar resultado ---
+  # --- 5. Salida ---
   return(output)
 }
