@@ -10,6 +10,7 @@ csemMF(
   part_items = NULL,
   min.items.per.part = 2,
   degree = 2,
+  bin.score = NULL,
   full.range = FALSE,
   ci = FALSE,
   conf.level = 0.95,
@@ -20,12 +21,11 @@ csemMF(
 }
 \arguments{
 \item{data}{A data frame or matrix with item responses (subjects in rows,
-items in columns). Items can be dichotomous or polytomous.}
+items in columns).}
 
 \item{n.parts}{Integer. Number of parts into which the test will be split
 (by column order, as balanced as possible). Ignored if \code{part_items} is provided.
-Default is \code{NULL}, which with \code{part_items = NULL} sets \code{n.parts = ncol(data)}
-(each item as a part).}
+Default is \code{NULL}, which sets \code{n.parts = ncol(data)} (each item as a part).}
 
 \item{part_items}{Optional list. Each element is a character vector of column names
 or an integer vector of column indices defining the items in that part.
@@ -36,6 +36,10 @@ A warning is issued if any part has fewer items.}
 
 \item{degree}{Integer. Degree of the polynomial (default 2).}
 
+\item{bin.score}{Integer. Number of quantile groups (e.g., 5 for quintiles).
+If \code{NULL} (default), no binning is performed. If provided, the function
+returns a data frame \code{binned.CSEM} with average CSEM per quantile group.}
+
 \item{full.range}{Logical. If \code{TRUE}, evaluates the smoothed CSEM for every
 integer score from \code{score.range[1]} to \code{score.range[2]} (requires \code{score.range}).}
 
@@ -45,7 +49,8 @@ integer score from \code{score.range[1]} to \code{score.range[2]} (requires \cod
 
 \item{digits}{Integer. Rounding for output.}
 
-\item{score.range}{Numeric vector length 2. Required if \code{full.range = TRUE}.}
+\item{score.range}{Numeric vector length 2. Required if \code{full.range = TRUE}.
+Also used to truncate confidence intervals (if \code{ci = TRUE}).}
 
 \item{na.rm}{Logical. Remove rows with missing values.}
 }
@@ -53,12 +58,17 @@ integer score from \code{score.range[1]} to \code{score.range[2]} (requires \cod
 A list with elements:
 \item{CSEM}{data.frame with columns \code{score}, \code{n}, \code{CSEM.smooth}, and
 if \code{ci = TRUE}, \code{lwr.ci} and \code{upr.ci}.}
-\item{...}{No \code{binned.CSEM} (can be added later).}
+\item{binned.CSEM}{(if \code{bin.score} is provided) data.frame with quantile groups:
+\code{group}, \code{range}, \code{n}, \code{mean_score}, \code{CSEM.mean}, and intervals if \code{ci = TRUE}.}
 }
 \description{
 Implements the Mollenkopf-Feldt method, which applies polynomial regression
 to the individual error variance estimates from Feldt & Qualls (1996).
 This provides smoothed CSEM values along the score scale.
+}
+\examples{
+# Examples will be added by the user.
+
 }
 \references{
 Mollenkopf, W. G. (1949). Variation of the standard error of measurement.
