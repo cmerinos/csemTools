@@ -48,21 +48,42 @@ requirement stated by Feldt & Qualls (1998, p. 163). Unconstrained splines
 (\code{smooth.spline}) or high-degree polynomials can produce negative slopes
 at the boundaries, leading to invalid negative scale score standard errors.
 The \code{scam} approach avoids arbitrary post-hoc adjustments.
+\emph{Note:} The \code{scam} package requires \code{mgcv}, which will be installed
+automatically when you install \code{scam}.
 \item \strong{Completeness of the conversion table (method "approx"):} This method
 directly looks up the scale scores associated with \eqn{X_0 \pm C} in the provided
 vectors. Therefore, it is mandatory that the raw vector contains all integer values
-required to cover \eqn{X_0 \pm C} for every row. Ideally, the table should include
-all integer raw scores from the minimum to the maximum observed in the data.
-If any required raw score is missing, the function stops with an informative error.
+required to cover \eqn{X_0 \pm C} for every row within the observed range of raw scores.
+Ideally, the table should include all integer raw scores from the minimum to the maximum
+observed. If any required raw score is missing, the function stops with an informative error.
 No interpolation is performed.
 }
+
+\strong{Dependencies:}
+The \code{"polym"} method requires the \code{scam} package (which in turn depends on \code{mgcv}).
+Please ensure both are installed:
+\code{install.packages(c("scam", "mgcv"))}.
+If these packages are not available, use \code{method = "approx"} instead.
+
+\strong{Range of raw scores:}
+The function does not assume that raw scores start at 0. It uses the minimum and maximum values
+present in the \code{raw} vector as the natural boundaries of the score scale. This makes it
+suitable for Likert-type scales (e.g., summing 5 items each scored 1-5 gives a minimum of 5).
+Internally, the intervals \eqn{X_0 \pm C} are truncated to the observed range \eqn{[min(raw), max(raw)]}.
 }
 \examples{
+# Example with linear transformation (slope = 5)
 raw <- 0:10
 scale <- seq(20, 70, by = 5)
 csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
-result <- scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
-head(result)
+scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+
+# Simular escala no lineal (ejemplo: raíz cuadrada)
+raw <- 0:10
+scale <- round(20 + 30 * sqrt(raw/10))  # no lineal
+csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+
+scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
 
 }
 \references{
