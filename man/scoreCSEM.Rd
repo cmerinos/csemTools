@@ -28,9 +28,16 @@ score is not found in the reference, a warning is issued and NA is returned.
 Optionally, it computes confidence intervals assuming normality.
 }
 \examples{
-\dontest{
-# Example: get CSEM for scores 5, 8, 12 from a strong CSEM table
+\donttest{
+# Use data
+library(psychTools)
+data(ability)
+data.ability <- ability[complete.cases(ability),]
+
+# get CSEM deom Binomial model
 res <- csemStrong(data.ability, score.type = "dich", nitems = 16)
+
+# Get CSEM for scores 5, 8, 12 from a strong CSEM table
 scoreCsem(score.indiv = c(5, 8, 12),
           score.ref = res$CSEM$raw.score,
           csem = res$CSEM$csem.strong,
