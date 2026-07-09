@@ -67,7 +67,44 @@ to the individual error variance estimates from Feldt & Qualls (1996).
 This provides smoothed CSEM values along the score scale.
 }
 \examples{
-# Examples will be added by the user.
+\donttest{
+#Basic use
+## Load data
+library(EFA.dimensions)
+data("data_RSE")
+
+## Recode negative items
+data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+
+## Split in two halves
+RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+
+## Items in the halves?
+RSE.namesHalf$half1
+RSE.namesHalf$half2
+
+## Run Mollenkoptf-Feldt method
+csemMF(data = data_RSE,
+ci = F,
+degree = 3, n.parts = 2)
+
+## 10 parts (1 by item)
+csemMF(data = data_RSE,
+ci = F,
+degree = 3, n.parts = 10)
+
+## CSEM for binned score too
+csemMF(data = data_RSE,
+ci = F,
+degree = 3,
+n.parts = 2, bin.score = 4)
+
+## Full report
+csemMF(data = data_RSE,
+ci = T, conf.level = .90,
+degree = 3,
+n.parts = 2, bin.score = 4)
+}
 
 }
 \references{

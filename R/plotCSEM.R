@@ -29,7 +29,7 @@
 #' @export
 #'
 #' @examples
-#' \dontest{
+#' \donttest{
 #' # Using csemMF output
 #' res <- csemMF(half1, half2, degree = 2, ci = TRUE)
 #' plotCSEM(res$table_score, plot.type = "CI")
