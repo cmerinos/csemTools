@@ -7,7 +7,7 @@
 #' The method can be applied to both dichotomous and polytomous items by
 #' transforming raw scores into binomial-equivalent scores. Optionally, the
 #' function computes confidence intervals for the true number-correct score
-#' using either the classic CSEM‑based method or the Wilson score method.
+#' using either the classic CSEM-based method or the Wilson score method.
 #'
 #' @param score.type Character: \code{"dich"} (default) or \code{"poly"}.
 #' @param nitems Integer. Number of items in the test. If \code{data} is provided
@@ -17,24 +17,24 @@
 #' @param max.resp Numeric. Maximum response value per item.
 #'   **Required when \code{score.type = "poly"}**; ignored for dichotomous.
 #' @param csem.method Character: \code{"Lord"} (default), \code{"binom"} (alias, same as Lord),
-#'   or \code{"LordKeats"} (adjusts Lord's CSEM using KR‑20/KR-21 or empirical factor).
+#'   or \code{"LordKeats"} (adjusts Lord's CSEM using KR-20/KR-21 or empirical factor).
 #' @param data Optional data frame or matrix of dichotomous (0/1) item responses.
 #'   Required for \code{csem.method = "LordKeats"} if \code{rhoxx} is not provided.
 #'   Only used when \code{score.type = "dich"}.
 #' @param rhoxx Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
 #'   (interpreted as KR-20). Used for \code{csem.method = "LordKeats"} when no \code{data}
-#'   is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).
+#'   is supplied. Applies the empirical adjustment KR‑21 ~= 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).
 #' @param ci Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.
 #' @param ci.method Character: \code{"csem"} (classic) or \code{"wilson"}. Default \code{"csem"}.
-#' @param conf.level Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} → 0.95.
+#' @param conf.level Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} == 0.95.
 #' @param digits Integer for rounding CSEM and confidence limits. Default 3.
 #' @param rho.report Logical. If \code{TRUE} and \code{csem.method = "LordKeats"},
 #'   the function returns a list with the CSEM table and the reliability values
-#'   (KR‑20 and KR‑21, either empirical or approximated). Default \code{FALSE}.
+#'   (KR-20 and KR-21, either empirical or approximated). Default \code{FALSE}.
 #'
 #' @details
 #' \strong{Binomial error model (Lord, 1955, 1957)}:
-#' Each examinee has true proportion‑correct \eqn{\phi}; observed number‑correct \eqn{X}
+#' Each examinee has true proportion-correct \eqn{\phi}; observed number‑correct \eqn{X}
 #' is Binomial(\eqn{n},\eqn{\phi}) with \eqn{n = \code{nitems}}. Lord's estimator of the
 #' conditional error variance is
 #' \deqn{\widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},}
@@ -43,19 +43,19 @@
 #'
 #' \strong{Polytomous items}:
 #' Raw scores are linearly transformed to a proportion and then multiplied by \eqn{n}
-#' to obtain a binomial‑equivalent score:
+#' to obtain a binomial-equivalent score:
 #' \deqn{\text{equiv} = n \times \frac{\text{raw} - n\cdot\text{min.resp}}{n\cdot(\text{max.resp} - \text{min.resp})}.}
 #'
-#' \strong{Lord‑Keats method} (\code{csem.method = "LordKeats"}):
+#' \strong{Lord-Keats method} (\code{csem.method = "LordKeats"}):
 #' Adjusts Lord's CSEM using the ratio \eqn{\sqrt{(1-\text{KR20})/(1-\text{KR21})}}.
-#' If a data matrix is provided, KR‑20 and KR‑21 are computed directly.
-#' If only \code{rhoxx} (interpreted as KR‑20) is given, KR‑21 is approximated as
+#' If a data matrix is provided, KR-20 and KR-21 are computed directly.
+#' If only \code{rhoxx} (interpreted as KR-20) is given, KR-21 is approximated as
 #' \code{0.8 * rhoxx} following Wilson, Downing & Ebel (1979). This approximation works
 #' for both dichotomous and polytomous (after transformation) cases.
 #'
 #' \strong{Confidence intervals}:
 #' \itemize{
-#'   \item \code{ci.method = "csem"}: \code{equiv.score ± z * CSEM}.
+#'   \item \code{ci.method = "csem"}: \code{equiv.score +/- z * CSEM}.
 #'   \item \code{ci.method = "wilson"}: Wilson interval for proportion \eqn{p = equiv.score/n}.
 #' }
 #'
@@ -69,13 +69,13 @@
 #'
 #' @references
 #' Lord, F. M. (1955). Estimating test reliability.
-#'   \emph{Educational and Psychological Measurement}, 15, 325–336.
+#'   \emph{Educational and Psychological Measurement}, 15, 325-336.
 #' Lord, F. M. (1957). Do tests of the same length have the same standard
-#'   error of measurement? \emph{Educational and Psychological Measurement}, 17, 510–521.
+#'   error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-521.
 #' Keats, J. A. (1957). Estimation of error variances of test scores.
-#'   \emph{Psychometrika}, 22(1), 29–41.
-#' Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). *An empirical adjustment of the
-#'   Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient*
+#'   \emph{Psychometrika}, 22(1), 29-41.
+#' Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). An empirical adjustment of the
+#'   Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
 #'   (ED173387). ERIC.
 #'
 #' @examples
@@ -147,7 +147,7 @@ csemBinom <- function(score.type = c("dich", "poly"),
       warning("Number of items in 'data' (", ncol(data), ") differs from 'nitems' (", nitems, "). Using ncol(data).")
       nitems <- ncol(data)
     }
-    # Ensure data is binary (0/1) – will be checked in kr20/kr21 later
+    # Ensure data is binary (0/1) - will be checked in kr20/kr21 later
   }
 
   # --- Validations ---
@@ -170,10 +170,10 @@ csemBinom <- function(score.type = c("dich", "poly"),
     maxscore <- nitems
   }
 
-  # --- Lord‑Keats specific validation for rhoxx ---
+  # --- Lord-Keats specific validation for rhoxx ---
   if (csem.method == "LordKeats") {
     if (!is.null(data) && !is.null(rhoxx)) {
-      message("Both 'data' and 'rhoxx' provided. Using 'data' to compute KR‑20/KR‑21; 'rhoxx' ignored.")
+      message("Both 'data' and 'rhoxx' provided. Using 'data' to compute KR‑20/KR-21; 'rhoxx' ignored.")
     }
     if (is.null(data)) {
       if (is.null(rhoxx)) {
@@ -204,13 +204,13 @@ csemBinom <- function(score.type = c("dich", "poly"),
   var_lord[var_lord < 0] <- NA_real_
   csem_lord <- sqrt(var_lord)
 
-  # --- Lord‑Keats adjustment ---
+  # --- Lord-Keats adjustment ---
   rho_out <- NULL
   csem_final <- csem_lord
 
   if (csem.method == "LordKeats") {
     if (!is.null(data)) {
-      # Compute KR‑20 and KR‑21 from data (using exported functions)
+      # Compute KR-20 and KR-21 from data (using exported functions)
       kr20_val <- kr20(data)
       kr21_val <- kr21(data)
       if (kr20_val <= 0 || kr20_val >= 1 || kr21_val <= 0 || kr21_val >= 1)
@@ -222,7 +222,7 @@ csemBinom <- function(score.type = c("dich", "poly"),
       kr20_est <- rhoxx
       kr21_est <- rhoxx * 0.8
       scale_factor <- sqrt((1 - kr20_est) / (1 - kr21_est))
-      message("LordKeats: Using empirical adjustment KR21 ≈ 0.8 * KR20 (Wilson, Downing & Ebel, 1979).")
+      message("LordKeats: Using empirical adjustment KR21 ~= 0.8 * KR20 (Wilson, Downing & Ebel, 1979).")
       if (rho.report) {
         rho_out <- data.frame(KR20_est = kr20_est, KR21_est = kr21_est)
         warning("Reliability values are approximations (not computed from data).")
