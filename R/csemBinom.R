@@ -5,8 +5,8 @@
 #' Lord's (1955, 1957) binomial error model. This formulation treats the test
 #' as a random sample of dichotomously scored items measuring a single ability.
 #' The method can be applied to both dichotomous and polytomous items by
-#' transforming raw scores into binomial‑equivalent scores. Optionally, the
-#' function computes confidence intervals for the true number‑correct score
+#' transforming raw scores into binomial-equivalent scores. Optionally, the
+#' function computes confidence intervals for the true number-correct score
 #' using either the classic CSEM‑based method or the Wilson score method.
 #'
 #' @param score.type Character: \code{"dich"} (default) or \code{"poly"}.
@@ -17,12 +17,12 @@
 #' @param max.resp Numeric. Maximum response value per item.
 #'   **Required when \code{score.type = "poly"}**; ignored for dichotomous.
 #' @param csem.method Character: \code{"Lord"} (default), \code{"binom"} (alias, same as Lord),
-#'   or \code{"LordKeats"} (adjusts Lord's CSEM using KR‑20/KR‑21 or empirical factor).
+#'   or \code{"LordKeats"} (adjusts Lord's CSEM using KR‑20/KR-21 or empirical factor).
 #' @param data Optional data frame or matrix of dichotomous (0/1) item responses.
 #'   Required for \code{csem.method = "LordKeats"} if \code{rhoxx} is not provided.
 #'   Only used when \code{score.type = "dich"}.
 #' @param rhoxx Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
-#'   (interpreted as KR‑20). Used for \code{csem.method = "LordKeats"} when no \code{data}
+#'   (interpreted as KR-20). Used for \code{csem.method = "LordKeats"} when no \code{data}
 #'   is supplied. Applies the empirical adjustment KR‑21 ≈ 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).
 #' @param ci Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.
 #' @param ci.method Character: \code{"csem"} (classic) or \code{"wilson"}. Default \code{"csem"}.
