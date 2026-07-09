@@ -72,7 +72,7 @@ This provides smoothed CSEM values along the score scale.
 }
 \references{
 Mollenkopf, W. G. (1949). Variation of the standard error of measurement.
-\emph{Psychometrika}, 14(3), 189–229.
+\emph{Psychometrika}, 14(3), 189-229.
 Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
-at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141–156.
+at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141-156.
 }

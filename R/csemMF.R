@@ -36,9 +36,9 @@
 #'
 #' @references
 #' Mollenkopf, W. G. (1949). Variation of the standard error of measurement.
-#'   *Psychometrika*, 14(3), 189–229.
+#'   *Psychometrika*, 14(3), 189-229.
 #' Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
-#'   at specific score levels. *Journal of Educational Measurement*, 33(2), 141–156.
+#'   at specific score levels. *Journal of Educational Measurement*, 33(2), 141-156.
 #'
 #' @examples
 #' # Examples will be added by the user.
@@ -57,7 +57,7 @@ csemMF <- function(data,
                    score.range = NULL,
                    na.rm = TRUE) {
 
-  # --- Validaciones iniciales ---
+  # --- Initial Validations ---
   if (!is.data.frame(data) && !is.matrix(data))
     stop("`data` must be a data frame or matrix.")
   data <- as.data.frame(data)
@@ -69,7 +69,7 @@ csemMF <- function(data,
   if (n_persons < 2) stop("At least 2 persons required.")
   if (J < 2) stop("At least 2 items required.")
 
-  # --- Construcción de partes (cálculo de Y_i) ---
+  # --- Construction of Parts (Calculation of Y_i) ---
   if (!is.null(part_items)) {
     if (!is.list(part_items)) stop("`part_items` must be a list.")
     n.parts <- length(part_items)
@@ -114,7 +114,7 @@ csemMF <- function(data,
     d <- n.parts
   }
 
-  # --- Calcular Y_i (estimación individual de varianza de error) ---
+  # --- Calculate Y_i (individual estimate of the error variance) ---
   Xij <- part_scores
   barX_i <- rowMeans(Xij, na.rm = TRUE)
   barX_j <- colMeans(Xij, na.rm = TRUE)
@@ -125,9 +125,9 @@ csemMF <- function(data,
   var_adj_i <- SS_i / (n.parts - 1)
   Y_i <- d * var_adj_i
 
-  total <- rowSums(data)   # puntaje total original
+  total <- rowSums(data)   # original total score
 
-  # --- Rango para truncar CI (si no se da score.range, usar rango observado) ---
+  # --- Range for truncating the CI (if `score.range` is not provided, use the observed range) ---
   if (!is.null(score.range)) {
     if (!is.numeric(score.range) || length(score.range) != 2)
       stop("score.range must be a numeric vector of length 2.")
@@ -138,7 +138,7 @@ csemMF <- function(data,
     score_max_teo <- max(total, na.rm = TRUE)
   }
 
-  # --- Regresión polinómica de Y_i sobre total ---
+  # --- Polynomial regression of Y_i on the total ---
   df_persons <- data.frame(total = total, Y = Y_i)
   df_persons <- df_persons[complete.cases(df_persons), ]
   if (nrow(df_persons) < degree + 1)
@@ -146,7 +146,7 @@ csemMF <- function(data,
 
   fit <- lm(Y ~ poly(total, degree, raw = TRUE), data = df_persons)
 
-  # --- Puntajes para predicción ---
+  # --- Prediction Scores ---
   if (full.range) {
     if (is.null(score.range))
       stop("full.range = TRUE requires 'score.range'.")
@@ -155,19 +155,19 @@ csemMF <- function(data,
     pred_scores <- sort(unique(total))
   }
 
-  # Predicción de varianza y CSEM
+  # Variance Prediction and CSEM
   pred_var <- predict(fit, newdata = data.frame(total = pred_scores))
   pred_var <- pmax(pred_var, 0)
   csem_smooth <- sqrt(pred_var)
 
-  # Frecuencias reales (número de personas con cada puntaje)
+  # Actual frequencies (number of people with each score)
   n_vals <- sapply(pred_scores, function(s) sum(total == s))
 
   result_df <- data.frame(score = pred_scores, n = n_vals,
                           CSEM.smooth = round(csem_smooth, digits),
                           stringsAsFactors = FALSE)
 
-  # --- Intervalos de confianza ---
+  # --- Confidence Intervals ---
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     lwr <- result_df$score - z * result_df$CSEM.smooth
@@ -178,7 +178,7 @@ csemMF <- function(data,
     result_df$upr.ci <- round(upr, digits)
   }
 
-  # --- Binning (si bin.score es un entero) ---
+  # --- Binning (if bin.score is an integer) ---
   binned_df <- NULL
   if (!is.null(bin.score)) {
     if (!is.numeric(bin.score) || length(bin.score) != 1 || bin.score < 2)
