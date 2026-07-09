@@ -108,38 +108,30 @@ data.ability <- ability[complete.cases(ability),]
 
 csemBinom(score.type = "dich",
 nitems = 16,
-ci = T,
+ci = TRUE,
 csem.method = "Lord")
 
 # Lord-Keats method, no data
  csemBinom(score.type = "dich", nitems = 16,
- ci = F,
+ ci = FALSE,
  csem.method = "LordKeats", rhoxx = .86)
 
  # Lord-Keats method, more data
  csemBinom(score.type = "dich",
  nitems = 16,
- ci = T,
+ ci = TRUE,
  csem.method = "LordKeats",
  data = data.ability,
- rho.report = T)
+ rho.report = TRUE)
 
  # "LordKeats", polytomous items
  csemBinom(score.type = "poly",
  nitems = 10,
  min.resp = 0,
  max.resp = 4,
- ci = F,
+ ci = FALSE,
  csem.method = "LordKeats",
  rhoxx = .89)
-}
-
-# With data and reporting reliability
-\donttest{
-\dontrun{
-csemBinom(score.type = "dich", nitems = 40, csem.method = "LordKeats",
-          data = data.u, ci = TRUE, rho.report = TRUE)
-}
 }
 
 }
