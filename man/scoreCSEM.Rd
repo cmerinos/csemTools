@@ -38,7 +38,7 @@ data.ability <- ability[complete.cases(ability),]
 res <- csemStrong(data.ability, score.type = "dich", nitems = 16)
 
 # Get CSEM for scores 5, 8, 12 from a strong CSEM table
-scoreCsem(score.indiv = c(5, 8, 12),
+scoreCSEM(score.indiv = c(5, 8, 12),
           score.ref = res$CSEM$raw.score,
           csem = res$CSEM$csem.strong,
           ci = TRUE)
