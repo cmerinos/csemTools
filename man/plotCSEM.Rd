@@ -83,7 +83,7 @@ RSE.namesHalf$half2
 # Mollenkopst-Feldt method
 mfres <- csemMF(data_RSE[, RSE.namesHalf$half1,],
 data_RSE[RSE.namesHalf$half1],
-degree = 2, ci = TRUE)
+degree = 2, ci = TRUE, n.parts = 2)
 
 plotCSEM(data = mfres$CSEM,
 x = "score",
