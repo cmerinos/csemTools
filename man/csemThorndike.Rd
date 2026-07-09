@@ -59,7 +59,7 @@ filled with the last valid observation (carried forward) for better readability.
 }
 \examples{
 
-#' \donttest{
+\donttest{
 ## Load data
 library(EFA.dimensions)
 data("data_RSE")
@@ -73,7 +73,7 @@ RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
 RSE.namesHalf$half1
 RSE.namesHalf$half2
 
-#' # Thorndike csem, basic ouput
+# Thorndike csem, basic ouput
 csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
 half2 = data_RSE[, RSE.namesHalf$half2],
 smooth = F,

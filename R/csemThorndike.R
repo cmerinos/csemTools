@@ -28,15 +28,15 @@
 #'   \item{binned.CSEM}{(if bin.score is integer) data.frame with quantile groups.}
 #'
 #' @references
-#'Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
-#'(pp. 560-620). American Council on Education.
+#' Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
+#' (pp. 560-620). American Council on Education.
 #'
-#'Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
-#'Educational measurement (5th ed., pp. 277-381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
+#' Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
+#' Educational measurement (5th ed., pp. 277-381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
 #'
 #' @examples
 #'
-#' #' \donttest{
+#' \donttest{
 #' ## Load data
 #' library(EFA.dimensions)
 #' data("data_RSE")
@@ -50,7 +50,7 @@
 #' RSE.namesHalf$half1
 #' RSE.namesHalf$half2
 #'
-#' #' # Thorndike csem, basic ouput
+#' # Thorndike csem, basic ouput
 #' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
 #' half2 = data_RSE[, RSE.namesHalf$half2],
 #' smooth = F,

@@ -20,7 +20,7 @@
 #' \item{models}{A list of `lm` models for each degrees of freedom.}
 #'
 #' @examples
-#' \dontest{
+#' \donttest{
 #' set.seed(123)
 #' x <- 0:20
 #' y <- 2 + 0.5*x - 0.02*x^2 + rnorm(21, sd=0.2)

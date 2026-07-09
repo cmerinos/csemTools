@@ -58,7 +58,7 @@ checkLocation(half1 = data_RSE[,RSE.namesHalf$half1],
 Yuen, K. K. (1974). The two-sample trimmed t for unequal population variances. Biometrika, 61(1), 165-170.
 
 Algina, J., Keselman, H. J., & Penfield, R. D. (2005). An alternative to Cohen's standardized mean difference effect size: a robust parameter and confidence interval in the two independent groups case.
-Psychological methods, 10(3), 317–328. \doi{10.1037/1082-989X.10.3.317}
+Psychological methods, 10(3), 317-328. \doi{10.1037/1082-989X.10.3.317}
 
 Algina, J., Keselman, H. J., & Penfield, R. D. (2005). Effect Sizes and their Intervals: The Two-Level Repeated Measures Case.
 Educational and Psychological Measurement, 65(2), 241-258. \doi{10.1177/0013164404268675}
