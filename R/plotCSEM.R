@@ -26,8 +26,6 @@
 #'
 #' @return A ggplot2 object (invisibly). The plot is also printed.
 #'
-#' @import ggplot2
-#'
 #' @export
 #'
 #' @examples

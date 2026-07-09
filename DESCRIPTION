@@ -27,5 +27,4 @@ Suggests:
     MBESS,
     kSamples,
     scam,
-    zoo,
-    ggplot2
+    zoo

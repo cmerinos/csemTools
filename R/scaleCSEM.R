@@ -217,7 +217,6 @@ scaleCSEM <- function(raw, scale, csem,
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warning("ggplot2 not installed. Skipping plot.")
     } else {
-      library(ggplot2)
 
       method_label <- if (method == "polym") {
         "Monotonic Spline Method"
@@ -226,38 +225,40 @@ scaleCSEM <- function(raw, scale, csem,
       }
 
       if (plot.what == "raw") {
-        p <- ggplot(output, aes(x = raw, y = csem)) +
-          geom_line(color = "#2c3e50", linewidth = 1) +
-          geom_point(color = "#2c3e50", size = 2) +
-          labs(title = "CSEM: Raw Score Metric",
-               x = "Raw Score", y = "Raw CSEM") +
-          theme_minimal()
+        p <- ggplot2::ggplot(output, ggplot2::aes(x = raw, y = csem)) +
+          ggplot2::geom_line(color = "#2c3e50", linewidth = 1) +
+          ggplot2::geom_point(color = "#2c3e50", size = 2) +
+          ggplot2::labs(title = "CSEM: Raw Score Metric",
+                        x = "Raw Score", y = "Raw CSEM") +
+          ggplot2::theme_minimal()
         print(p)
+
       } else if (plot.what == "scale") {
-        p <- ggplot(output, aes(x = scale, y = scale_csem)) +
-          geom_line(color = "#e74c3c", linewidth = 1) +
-          geom_point(color = "#e74c3c", size = 2) +
-          labs(title = paste("CSEM:", method_label),
-               x = "Scale Score", y = "Scale CSEM") +
-          theme_minimal()
+        p <- ggplot2::ggplot(output, ggplot2::aes(x = scale, y = scale_csem)) +
+          ggplot2::geom_line(color = "#e74c3c", linewidth = 1) +
+          ggplot2::geom_point(color = "#e74c3c", size = 2) +
+          ggplot2::labs(title = paste("CSEM:", method_label),
+                        x = "Scale Score", y = "Scale CSEM") +
+          ggplot2::theme_minimal()
         print(p)
-      } else {  # "both" por defecto
-        p <- ggplot(output) +
-          geom_line(aes(x = scale, y = scale_csem, color = "Scale CSEM"),
-                    linewidth = 1) +
-          geom_point(aes(x = scale, y = scale_csem, color = "Scale CSEM"),
-                     size = 2) +
-          geom_line(aes(x = scale, y = csem, color = "Raw CSEM"),
-                    linewidth = 1, linetype = "dashed") +
-          geom_point(aes(x = scale, y = csem, color = "Raw CSEM"),
-                     size = 2) +
-          scale_color_manual(values = c("Raw CSEM" = "#2c3e50",
-                                        "Scale CSEM" = "#e74c3c")) +
-          labs(title = paste("CSEM Comparison -", method_label),
-               x = "Scale Score", y = "CSEM",
-               color = "Metric") +
-          theme_minimal() +
-          theme(legend.position = "bottom")
+
+      } else {
+        p <- ggplot2::ggplot(output) +
+          ggplot2::geom_line(ggplot2::aes(x = scale, y = scale_csem, color = "Scale CSEM"),
+                             linewidth = 1) +
+          ggplot2::geom_point(ggplot2::aes(x = scale, y = scale_csem, color = "Scale CSEM"),
+                              size = 2) +
+          ggplot2::geom_line(ggplot2::aes(x = scale, y = csem, color = "Raw CSEM"),
+                             linewidth = 1, linetype = "dashed") +
+          ggplot2::geom_point(ggplot2::aes(x = scale, y = csem, color = "Raw CSEM"),
+                              size = 2) +
+          ggplot2::scale_color_manual(values = c("Raw CSEM" = "#2c3e50",
+                                                 "Scale CSEM" = "#e74c3c")) +
+          ggplot2::labs(title = paste("CSEM Comparison -", method_label),
+                        x = "Scale Score", y = "CSEM",
+                        color = "Metric") +
+          ggplot2::theme_minimal() +
+          ggplot2::theme(legend.position = "bottom")
         print(p)
       }
     }
