@@ -144,7 +144,7 @@ scaleCSEM <- function(raw, scale, csem,
   if (method == "approx") {
     if (is.null(C)) {
       C <- round(1.5 * mean(csem, na.rm = TRUE))
-      C <- max(C, 1)   # mínimo 1
+      C <- max(C, 1)   # minimum 1
     } else {
       if (!is.numeric(C) || length(C) != 1 || C < 1 || C != round(C)) {
         stop("C must be a positive integer (or NULL for automatic calculation).")
@@ -173,7 +173,7 @@ scaleCSEM <- function(raw, scale, csem,
     idx_U <- match(U_vals, raw)
     scale_L <- scale[idx_L]
     scale_U <- scale[idx_U]
-    denom <- U_vals - L_vals   # intervalo real (no siempre 2*C en bordes)
+    denom <- U_vals - L_vals   # actual interval (not always 2*C at the ends)
     slope <- (scale_U - scale_L) / denom
     scale_csem <- csem * slope
 
@@ -205,7 +205,7 @@ scaleCSEM <- function(raw, scale, csem,
     df_eps$raw <- df_eps$raw + eps
     pred1 <- predict(scam_model, newdata = df_eps)
     slope <- (pred1 - pred0) / eps
-    slope <- pmax(slope, 0)   # seguridad (no debería ser negativo)
+    slope <- pmax(slope, 0)   # security (should not be negative)
     scale_csem <- csem * slope
 
     output <- data.frame(raw = raw, scale = scale, csem = csem,
