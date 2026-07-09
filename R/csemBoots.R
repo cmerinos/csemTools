@@ -135,14 +135,14 @@
 #' data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
 #'
 #' # CSEM with bootstrapping
-#' csemBoots(data.bfi.nmiss[, 1:5], B = 2000, cores = 1)
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 100, cores = 1)
 #'
 #' # CSEM with bootstrapping, smoothing, full range, CI
-#' csemBoots(data.bfi.nmiss[, 1:5], B = 20000, smooth = TRUE, full.range = TRUE,
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 100, smooth = TRUE, full.range = TRUE,
 #'                      score.range = c(10, 50), ci = TRUE, cores = 2)
 #'
 #' # Quantile groups (quintiles)
-#' csemBoots(data.bfi.nmiss[, 1:5], B = 20000, smooth = TRUE, full.range = TRUE,
+#' csemBoots(data.bfi.nmiss[, 1:5], B = 100, smooth = TRUE, full.range = TRUE,
 #'                      score.range = c(10, 50), ci = TRUE, cores = 2, bin.score = 5)
 #' }
 #'

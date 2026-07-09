@@ -66,15 +66,15 @@
 #' csemStrong(score.type = "dich",
 #' data = data.ability,
 #' nitems = 16,
-#' ci = T,
-#' summary = F)
+#' ci = TRUE,
+#' summary = FALSE)
 #'
 #' # Dichotomous,  Compound Binomial Model (strong true score), more summary and binned score
 #' csemStrong(score.type = "dich",
 #' data = data.ability,
 #' nitems = 16,
-#' ci = F,
-#' summary = T,
+#' ci = FALSE,
+#' summary = TRUE,
 #' bin.score = 5)
 #'
 #' # Polytomous items,
@@ -89,9 +89,9 @@
 #' data = data_RSE,
 #' min.resp = 1,
 #' max.resp = 4,
-#' ci = F,
-#' summary = T,
-#' full.range = T,
+#' ci = FALSE,
+#' summary = TRUE,
+#' full.range = TRUE,
 #' bin.score = 4)
 #' }
 #'

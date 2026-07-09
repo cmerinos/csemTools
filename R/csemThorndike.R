@@ -53,23 +53,23 @@
 #' # Thorndike csem, basic ouput
 #' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
 #' half2 = data_RSE[, RSE.namesHalf$half2],
-#' smooth = F,
-#' ci = F)
+#' smooth = FALSE,
+#' ci = FALSE)
 #'
 #' # Thorndike csem, smoothing and binned score
 #' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
 #' half2 = data_RSE[, RSE.namesHalf$half2],
-#' smooth = T,
+#' smooth = TRUE,
 #' degree = 2,
-#' ci = F,
+#' ci = FALSE,
 #' bin.score = 5)
 #'
 #' # Thorndike csem, smoothing, binned score, and confidence interval
 #' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
 #' half2 = data_RSE[, RSE.namesHalf$half2],
-#' smooth = T,
+#' smooth = TRUE,
 #' degree = 2,
-#' ci = T,
+#' ci = TRUE,
 #' conf.level = .90,
 #' bin.score = 5)
 #' }

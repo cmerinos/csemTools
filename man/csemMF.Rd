@@ -85,23 +85,23 @@ RSE.namesHalf$half2
 
 ## Run Mollenkoptf-Feldt method
 csemMF(data = data_RSE,
-ci = F,
+ci = FALSE,
 degree = 3, n.parts = 2)
 
 ## 10 parts (1 by item)
 csemMF(data = data_RSE,
-ci = F,
+ci = FALSE,
 degree = 3, n.parts = 10)
 
 ## CSEM for binned score too
 csemMF(data = data_RSE,
-ci = F,
+ci = FALSE,
 degree = 3,
 n.parts = 2, bin.score = 4)
 
 ## Full report
 csemMF(data = data_RSE,
-ci = T, conf.level = .90,
+ci = FALSE, conf.level = .90,
 degree = 3,
 n.parts = 2, bin.score = 4)
 }

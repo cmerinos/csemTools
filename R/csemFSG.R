@@ -63,13 +63,13 @@
 #' csemFSG(bfi[, 1:5])
 #'
 #' # with smooting
-#' csemFSG(bfi[, 1:5], smooth = T, degree = 2)
+#' csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2)
 #'
 #' # with binned score (quntiles)
-#' csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5)
+#' csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2, bin.score = 5)
 #'
 #' # add confidence intervals
-#' csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5, ci = T, conf.level = .68)
+#' csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2, bin.score = 5, ci = T, conf.level = .68)
 #' }
 #'
 #' @export

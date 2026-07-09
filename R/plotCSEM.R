@@ -32,9 +32,28 @@
 #'
 #' @examples
 #' \donttest{
-#' # Using csemMF output
-#' res <- csemMF(half1, half2, degree = 2, ci = TRUE)
-#' plotCSEM(res$table_score, plot.type = "CI")
+#' ## Load data
+#' library(EFA.dimensions)
+#' data("data_RSE")
+#'
+#' ## Recode negative items
+#' data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
+#'
+#' ## Split in two halves
+#' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+#'
+#' ## Items in the halves?
+#' RSE.namesHalf$half1
+#' RSE.namesHalf$half2
+#'
+#' # Mollenkopst-Feldt method
+#' mfres <- csemMF(RSE.namesHalf$half1,
+#' RSE.namesHalf$half1,
+#' degree = 2, ci = TRUE)
+#'
+#' plotCSEM(data = mfres$CSEM,
+#' x = "score",
+#' y = "CSEM.smooth", plot.type = "CSEM")
 #' }
 plotCSEM <- function(data,
                      x = "Score",
