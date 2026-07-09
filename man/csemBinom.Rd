@@ -151,6 +151,6 @@ error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-
 Keats, J. A. (1957). Estimation of error variances of test scores.
 \emph{Psychometrika}, 22(1), 29-41.
 Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). An empirical adjustment of the
-Kuder-Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
+Kuder-Richardson 21 reliability coefficient to better estimate the Kuder-Richardson 20 coefficient
 (ED173387). ERIC.
 }
