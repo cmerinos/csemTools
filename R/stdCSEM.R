@@ -30,7 +30,7 @@
 #' stdCSEM(csem_vals, var_obs)
 #'
 #' #From Strong true score model
-#' #' library(psychTools)
+#' library(psychTools)
 #' data(ability)
 #' data.ability <- ability[complete.cases(ability),]
 #'
