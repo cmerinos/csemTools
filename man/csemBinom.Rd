@@ -40,7 +40,7 @@ Only used when \code{score.type = "dich"}.}
 
 \item{rhoxx}{Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
 (interpreted as KR-20). Used for \code{csem.method = "LordKeats"} when no \code{data}
-is supplied. Applies the empirical adjustment KR‑21 ~= 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).}
+is supplied. Applies the empirical adjustment KR-21 ~= 0.8 x KR-20 (Wilson, Downing & Ebel, 1979).}
 
 \item{ci}{Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.}
 
@@ -74,7 +74,7 @@ using either the classic CSEM-based method or the Wilson score method.
 }
 \details{
 \strong{Binomial error model (Lord, 1955, 1957)}:
-Each examinee has true proportion-correct \eqn{\phi}; observed number‑correct \eqn{X}
+Each examinee has true proportion-correct \eqn{\phi}; observed number-correct \eqn{X}
 is Binomial(\eqn{n},\eqn{\phi}) with \eqn{n = \code{nitems}}. Lord's estimator of the
 conditional error variance is
 \deqn{\widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},}
@@ -151,6 +151,6 @@ error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-
 Keats, J. A. (1957). Estimation of error variances of test scores.
 \emph{Psychometrika}, 22(1), 29-41.
 Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). An empirical adjustment of the
-Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
+Kuder-Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
 (ED173387). ERIC.
 }

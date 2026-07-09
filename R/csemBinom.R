@@ -23,7 +23,7 @@
 #'   Only used when \code{score.type = "dich"}.
 #' @param rhoxx Optional numeric value (0 < rhoxx < 1). An estimate of test reliability
 #'   (interpreted as KR-20). Used for \code{csem.method = "LordKeats"} when no \code{data}
-#'   is supplied. Applies the empirical adjustment KR‑21 ~= 0.8 × KR‑20 (Wilson, Downing & Ebel, 1979).
+#'   is supplied. Applies the empirical adjustment KR-21 ~= 0.8 x KR-20 (Wilson, Downing & Ebel, 1979).
 #' @param ci Logical. If \code{TRUE}, compute confidence intervals. Default \code{FALSE}.
 #' @param ci.method Character: \code{"csem"} (classic) or \code{"wilson"}. Default \code{"csem"}.
 #' @param conf.level Numeric vector of confidence levels (e.g., 0.95). Default \code{NULL} == 0.95.
@@ -34,7 +34,7 @@
 #'
 #' @details
 #' \strong{Binomial error model (Lord, 1955, 1957)}:
-#' Each examinee has true proportion-correct \eqn{\phi}; observed number‑correct \eqn{X}
+#' Each examinee has true proportion-correct \eqn{\phi}; observed number-correct \eqn{X}
 #' is Binomial(\eqn{n},\eqn{\phi}) with \eqn{n = \code{nitems}}. Lord's estimator of the
 #' conditional error variance is
 #' \deqn{\widehat{\sigma}^2_{E|X} = \frac{X (n - X)}{n - 1},}
@@ -75,7 +75,7 @@
 #' Keats, J. A. (1957). Estimation of error variances of test scores.
 #'   \emph{Psychometrika}, 22(1), 29-41.
 #' Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). An empirical adjustment of the
-#'   Kuder‑Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
+#'   Kuder-Richardson 21 reliability coefficient to better estimate the Kuder‑Richardson 20 coefficient
 #'   (ED173387). ERIC.
 #'
 #' @examples
@@ -173,7 +173,7 @@ csemBinom <- function(score.type = c("dich", "poly"),
   # --- Lord-Keats specific validation for rhoxx ---
   if (csem.method == "LordKeats") {
     if (!is.null(data) && !is.null(rhoxx)) {
-      message("Both 'data' and 'rhoxx' provided. Using 'data' to compute KR‑20/KR-21; 'rhoxx' ignored.")
+      message("Both 'data' and 'rhoxx' provided. Using 'data' to compute KR-20/KR-21; 'rhoxx' ignored.")
     }
     if (is.null(data)) {
       if (is.null(rhoxx)) {
@@ -214,7 +214,7 @@ csemBinom <- function(score.type = c("dich", "poly"),
       kr20_val <- kr20(data)
       kr21_val <- kr21(data)
       if (kr20_val <= 0 || kr20_val >= 1 || kr21_val <= 0 || kr21_val >= 1)
-        stop("KR‑20 and KR‑21 must be strictly between 0 and 1.")
+        stop("KR-20 and KR-21 must be strictly between 0 and 1.")
       scale_factor <- sqrt((1 - kr20_val) / (1 - kr21_val))
       if (rho.report) rho_out <- data.frame(KR20 = kr20_val, KR21 = kr21_val)
     } else {
