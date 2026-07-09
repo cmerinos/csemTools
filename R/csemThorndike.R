@@ -29,10 +29,10 @@
 #'
 #' @references
 #'Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
-#'(pp. 560–620). American Council on Education.
+#'(pp. 560-620). American Council on Education.
 #'
 #'Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
-#'Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
+#'Educational measurement (5th ed., pp. 277-381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
 #'
 #' @examples
 #'
@@ -110,7 +110,7 @@ csemThorndike <- function(half1, half2,
     score_max_teo <- max(total, na.rm = TRUE)
   }
 
-  # --- Función auxiliar: last observation carried forward (locf) ---
+  # --- Auxiliary function: last observation carried forward (locf) ---
   na_locf <- function(x) {
     idx <- !is.na(x)
     if (sum(idx) == 0) return(x)
@@ -122,9 +122,9 @@ csemThorndike <- function(half1, half2,
     return(x)
   }
 
-  # --- Modo sin suavizamiento (smooth = FALSE) ---
+  # --- No Smoothing Mode (smooth = FALSE) ---
   if (!smooth) {
-    # Obtener CSEM crudo para cada puntaje único con n>=2
+    # Get the raw CSEM for each unique score where n >= 2
     unique_scores <- sort(unique(total))
     raw_list <- list()
     for (s in unique_scores) {
@@ -152,16 +152,18 @@ csemThorndike <- function(half1, half2,
       csem_full[is.na(csem_full)] <- NA_real_
       raw_df <- data.frame(score = all_scores, n = full_n, CSEM = csem_full,
                            stringsAsFactors = FALSE)
-      # Rellenar NA hacia abajo para mejorar presentación
+
+      # Fill NA downward to improve the layout
       raw_df$CSEM <- na_locf(raw_df$CSEM)
     }
 
-    # Intervalos de confianza (si se solicitan)
+    # Confidence Intervals (if requested)
     if (ci) {
       z <- stats::qnorm(1 - (1 - conf.level) / 2)
       lwr <- raw_df$score - z * raw_df$CSEM
       upr <- raw_df$score + z * raw_df$CSEM
-      # Truncar al rango de puntajes (teórico u observado)
+
+      # Trim to the score range (theoretical or observed)
       lwr <- pmax(lwr, score_min_teo)
       upr <- pmin(upr, score_max_teo)
       raw_df$lwr.ci <- round(lwr, digits)
@@ -170,7 +172,8 @@ csemThorndike <- function(half1, half2,
 
     result_df <- raw_df
   } else {
-    # --- Modo con suavizamiento (smooth = TRUE) ---
+
+    # --- Smoothing Mode (smooth = TRUE) ---
     unique_scores <- sort(unique(total))
     raw_list <- list()
     for (s in unique_scores) {
@@ -223,27 +226,27 @@ csemThorndike <- function(half1, half2,
     }
   }
 
-  # --- Agrupación por cuantiles (bin.score) ---
+  # --- Grouping by Quantiles (bin.score) ---
   binned_df <- NULL
   if (!is.null(bin.score)) {
-    # Necesitamos los valores de CSEM (raw o smooth) para cada score único observado
+    # We need the CSEM values (raw or smooth) for each unique score observed
     if (smooth) {
-      # Para suavizado, usamos predicciones del modelo para los scores observados
+      # For smoothing, we use the model's predictions for the observed scores
       scores_obs <- sort(unique(total))
       pred_obs <- predict(fit, newdata = data.frame(score = scores_obs))
       pred_obs <- pmax(pred_obs, 0)
       csem_obs <- sqrt(pred_obs)
       temp_df <- data.frame(score = scores_obs, CSEM = csem_obs)
     } else {
-      # Usamos los datos crudos (raw_df) que ya tienen CSEM
+      # We use the raw data (raw_df) that already has CSEM
       if (full.range) {
-        # Tomamos solo los scores observados (con n>0) de la tabla expandida
+        # We took only the observed scores (with n > 0) from the expanded table
         temp_df <- result_df[result_df$n > 0 & !is.na(result_df$CSEM), c("score", "CSEM")]
       } else {
         temp_df <- result_df[, c("score", "CSEM")]
       }
     }
-    # Cuantiles sobre las personas
+    # Quantiles for Individuals
     q <- stats::quantile(total, probs = seq(0, 1, length.out = bin.score + 1), type = 7)
     q <- unique(q)
     groups <- cut(total, breaks = q, include.lowest = TRUE, right = TRUE)

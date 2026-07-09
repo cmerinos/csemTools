@@ -5,7 +5,7 @@
 #' strong true score theory (compound binomial model) for dichotomously
 #' scored items. The estimator follows Lord (1965) as summarized by
 #' Tong and Kolen (2018). Optionally, the function computes confidence
-#' intervals for the true number‑correct score.
+#' intervals for the true number-correct score.
 #'
 #' @param data A numeric matrix or data frame with examinees in rows and
 #'   items in columns. For \code{score.type = "dich"} entries must be 0/1;
@@ -24,7 +24,7 @@
 #' @param ci.method Character: \code{"csem"} (classic) or \code{"wilson"}.
 #'   Default \code{"csem"}.
 #' @param conf.level Numeric vector of confidence levels (e.g., 0.95).
-#'   Default \code{NULL} → 0.95.
+#'   Default \code{NULL} == 0.95.
 #' @param digits Integer for rounding CSEM and confidence limits. Default 3.
 #' @param full.range Logical. If \code{TRUE} (default), CSEM values are
 #'   reported for the full score range (all possible scores). For dichotomous,
@@ -51,7 +51,7 @@
 #'
 #' @references
 #' Lord, F. M. (1965). A strong true score theory, with applications.
-#'   \emph{Psychometrika}, 30, 239–270.
+#'   \emph{Psychometrika}, 30, 239-270.
 #'
 #' Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
 #'   In \emph{Wiley StatsRef: Statistics Reference Online}.

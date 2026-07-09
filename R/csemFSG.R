@@ -44,7 +44,7 @@
 #' @references
 #' Feldt, L. S., Steffen, M., & Gupta, N. C. (1985).
 #' A comparison of five methods for estimating the standard error of measurement
-#' at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351–361.
+#' at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351-361.
 #'
 #' @examples
 #' \donttest{
@@ -84,7 +84,7 @@ csemFSG <- function(data,
                     score.range = NULL,
                     na.rm = TRUE) {
 
-  # --- Validaciones ---
+  # --- Checks ---
   if (!is.data.frame(data) && !is.matrix(data))
     stop("`data` must be a data frame or matrix.")
   data <- as.data.frame(data)
@@ -99,7 +99,7 @@ csemFSG <- function(data,
 
   total <- rowSums(data)
 
-  # --- Rango para truncar CI ---
+  # --- Range for CI Truncation ---
   if (!is.null(score.range)) {
     if (!is.numeric(score.range) || length(score.range) != 2)
       stop("score.range must be a numeric vector of length 2.")
@@ -146,7 +146,7 @@ csemFSG <- function(data,
   raw_df <- raw_df[!is.na(raw_df$CSEM), , drop = FALSE]
   raw_df$CSEM <- round(raw_df$CSEM, digits)
 
-  # --- Modo sin suavizamiento ---
+  # --- No Smoothing Mode ---
   if (!smooth) {
     if (full.range) {
       if (is.null(score.range))
@@ -158,7 +158,7 @@ csemFSG <- function(data,
       csem_full[is.na(csem_full)] <- NA_real_
       result_df <- data.frame(score = all_scores, n = full_n, CSEM = csem_full,
                               stringsAsFactors = FALSE)
-      # Rellenar NA hacia abajo (mejora de presentación)
+      # Move "NA" down (for better layout)
       result_df$CSEM <- na_locf(result_df$CSEM)
     } else {
       result_df <- raw_df
@@ -180,14 +180,14 @@ csemFSG <- function(data,
       result_df <- data.frame(score = all_scores, n = full_n,
                               CSEM.smooth = csem_smooth,
                               stringsAsFactors = FALSE)
-      # ----- INICIO CORRECCIÓN -----
-      # Convertir a NA aquellos valores predichos que son exactamente cero
-      # y además corresponden a puntajes sin datos observados (n == 0)
+      # ----- START CORRECTION -----
+      # Convert those predicted values that are exactly zero to NA
+      # and they also correspond to scores with no observed data (n == 0)
       idx_na <- which(result_df$CSEM.smooth == 0 & result_df$n == 0)
       result_df$CSEM.smooth[idx_na] <- NA_real_
-      # Aplicar backward fill (propagar el primer valor no-NA hacia la izquierda)
+      # Apply backward fill (propagate the first non-NA value to the left)
       result_df$CSEM.smooth <- na_locb(result_df$CSEM.smooth)
-      # Finalmente redondear
+      # Round off at the end
       result_df$CSEM.smooth <- round(result_df$CSEM.smooth, digits)
       # ----- FIN CORRECCIÓN -----
     } else {
@@ -200,7 +200,7 @@ csemFSG <- function(data,
     }
   }
 
-  # --- Intervalos de confianza ---
+  # --- Confidence Intervals ---
   if (ci) {
     z <- stats::qnorm(1 - (1 - conf.level) / 2)
     if (smooth) {
@@ -216,10 +216,10 @@ csemFSG <- function(data,
     result_df$upr.ci <- round(upr, digits)
   }
 
-  # --- Agrupación por cuantiles (bin.score) ---
+  # --- Grouping by Quantiles (bin.score) ---
   binned_df <- NULL
   if (!is.null(bin.score)) {
-    # Obtener CSEM para cada score único observado (raw o smooth)
+    # Obtain the CSEM for each unique observed score (raw o smooth)
     if (smooth) {
       scores_obs <- sort(unique(total))
       pred_obs <- predict(fit, newdata = data.frame(score = scores_obs))
