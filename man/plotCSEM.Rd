@@ -81,7 +81,7 @@ RSE.namesHalf$half1
 RSE.namesHalf$half2
 
 # Mollenkopst-Feldt method
-mfres <- csemMF(data_RSE[, RSE.namesHalf$half1,]
+mfres <- csemMF(data_RSE[, RSE.namesHalf$half1,],
 data_RSE[RSE.namesHalf$half1],
 degree = 2, ci = TRUE)
 
