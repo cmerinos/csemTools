@@ -88,10 +88,10 @@ csemMF(data = data_RSE,
 ci = FALSE,
 degree = 3, n.parts = 2)
 
-## 10 parts (1 by item)
+## 3 parts
 csemMF(data = data_RSE,
 ci = FALSE,
-degree = 3, n.parts = 10)
+degree = 3, n.parts = 3)
 
 ## CSEM for binned score too
 csemMF(data = data_RSE,
