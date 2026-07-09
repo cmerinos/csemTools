@@ -87,11 +87,11 @@
 #' data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
 #'
 #' # CSEM with bootstrapping
-#' output.boots1 <- csemBoots(data = data.bfi.nmiss[,1:5], ci = F,
+#' output.boots1 <- csemBoots(data = data.bfi.nmiss[,1:5], ci = FALSE,
 #' conf.level = .90,
-#' full.range = T,
+#' full.range = TRUE,
 #' score.range = c(5, 30),
-#' smooth = T, B = 2000)
+#' smooth = TRUE, B = 2000)
 #'
 #' # Score sum
 #' uno <- table(rowSums(data.bfi.nmiss[,1:5]))
@@ -108,7 +108,7 @@
 #' scaleCSEM(raw = output.boots1$CSEM$score,
 #' scale = as.numeric(dframe$tscore),
 #' csem = output.boots1$CSEM$CSEM.smooth,
-#' method = "polym", C = 5,plot = T, plot.what = "both")
+#' method = "polym", C = 5,plot = TRUE, plot.what = "both")
 #' }
 #'
 #' @export
