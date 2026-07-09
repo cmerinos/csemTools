@@ -47,7 +47,7 @@ returns a data frame \code{binned.CSEM} with average CSEM per quantile group.}
 Default \code{"csem"}.}
 
 \item{conf.level}{Numeric vector of confidence levels (e.g., 0.95).
-Default \code{NULL} → 0.95.}
+Default \code{NULL} == 0.95.}
 
 \item{digits}{Integer for rounding CSEM and confidence limits. Default 3.}
 
@@ -83,7 +83,7 @@ Computes conditional standard errors of measurement (CSEM) under Lord's
 strong true score theory (compound binomial model) for dichotomously
 scored items. The estimator follows Lord (1965) as summarized by
 Tong and Kolen (2018). Optionally, the function computes confidence
-intervals for the true number‑correct score.
+intervals for the true number-correct score.
 }
 \examples{
 # Dichotomous,  strong true score
@@ -127,7 +127,7 @@ bin.score = 4)
 }
 \references{
 Lord, F. M. (1965). A strong true score theory, with applications.
-\emph{Psychometrika}, 30, 239–270.
+\emph{Psychometrika}, 30, 239-270.
 
 Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
 In \emph{Wiley StatsRef: Statistics Reference Online}.

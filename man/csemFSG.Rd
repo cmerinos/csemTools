@@ -99,5 +99,5 @@ csemFSG(bfi[, 1:5], smooth = T, degree = 2, bin.score = 5, ci = T, conf.level = 
 \references{
 Feldt, L. S., Steffen, M., & Gupta, N. C. (1985).
 A comparison of five methods for estimating the standard error of measurement
-at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351–361.
+at specific score levels. \emph{Applied Psychological Measurement}, 9(4), 351-361.
 }

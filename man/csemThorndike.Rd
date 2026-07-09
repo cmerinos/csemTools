@@ -100,8 +100,8 @@ bin.score = 5)
 }
 \references{
 Thorndike, R. L. (1951). Reliability. In E. F. Lindquist (Ed.), Educational measurement
-(pp. 560–620). American Council on Education.
+(pp. 560-620). American Council on Education.
 
 Lee, W., & Harris, D. J. (2025). Reliability in educational measurement. In L. L. Cook & M. J. Pitoniak (Eds.),
-Educational measurement (5th ed., pp. 277–381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
+Educational measurement (5th ed., pp. 277-381). Oxford University Press. \doi{10.1093/oso/9780197654965.003.0005}
 }
