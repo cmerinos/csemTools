@@ -189,7 +189,7 @@ csemFSG <- function(data,
       result_df$CSEM.smooth <- na_locb(result_df$CSEM.smooth)
       # Round off at the end
       result_df$CSEM.smooth <- round(result_df$CSEM.smooth, digits)
-      # ----- FIN CORRECCIÓN -----
+      # ----- END OF CORRECTION -----
     } else {
       pred_var <- predict(fit, newdata = data.frame(score = raw_df$score))
       pred_var <- pmax(pred_var, 0)

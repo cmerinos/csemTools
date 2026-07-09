@@ -71,6 +71,64 @@ present in the \code{raw} vector as the natural boundaries of the score scale. T
 suitable for Likert-type scales (e.g., summing 5 items each scored 1-5 gives a minimum of 5).
 Internally, the intervals \eqn{X_0 \pm C} are truncated to the observed range \eqn{[min(raw), max(raw)]}.
 }
+\examples{
+
+\donttest{
+# Example with linear transformation (slope = 5)
+raw <- 0:10
+scale <- seq(20, 70, by = 5)
+csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+
+scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+}
+
+\donttest{
+ # Simulate a nonlinear scale (example: square root)
+raw <- 0:10
+scale <- round(20 + 30 * sqrt(raw/10))  # no lineal
+csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
+
+scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
+}
+
+\donttest{
+# Full workflow
+
+# Loading data
+data("bfi")
+
+# Choosing variables
+data.bfi <- bfi[, c("N1", "N2", "N3", "N4", "N5", "gender", "age")]
+
+# Clean for missing values
+data.bfi.nmiss <- data.bfi[complete.cases(data.bfi), ]
+
+# CSEM with bootstrapping
+output.boots1 <- csemBoots(data = data.bfi.nmiss[,1:5], ci = F,
+conf.level = .90,
+full.range = T,
+score.range = c(5, 30),
+smooth = T, B = 2000)
+
+# Score sum
+uno <- table(rowSums(data.bfi.nmiss[,1:5]))
+
+# t Scores, linear transformation
+dos <- table(round(psych::rescale(x = rowSums(data.bfi.nmiss[,1:5]), mean = 50, sd = 10)))
+
+# merge ot dataframe
+dframe <- cbind.data.frame(score = as.data.frame(uno)$Var1,
+tScore = as.data.frame(dos)[1])
+
+colnames(dframe)[2] <- "tscore"
+
+scaleCSEM(raw = output.boots1$CSEM$score,
+scale = as.numeric(dframe$tscore),
+csem = output.boots1$CSEM$CSEM.smooth,
+method = "polym", C = 5,plot = T, plot.what = "both")
+}
+
+}
 \references{
 Feldt, L. S., & Qualls, A. L. (1998). Approximating Scale Score Standard Error of
 Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.

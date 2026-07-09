@@ -54,6 +54,7 @@
 #' Measurement From the Raw Score Standard Error. Applied Measurement in Education, 11(2), 159-177.
 #'
 #' @examples
+#'
 #' \donttest{
 #' # Example with linear transformation (slope = 5)
 #' raw <- 0:10
@@ -64,7 +65,7 @@
 #' }
 #'
 #' \donttest{
-#'  # Simular escala no lineal (ejemplo: raíz cuadrada)
+#'  # Simulate a nonlinear scale (example: square root)
 #' raw <- 0:10
 #' scale <- round(20 + 30 * sqrt(raw/10))  # no lineal
 #' csem <- c(2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.3, 1.4, 1.6, 1.8, 2.0)
@@ -74,6 +75,7 @@
 #'
 #' \donttest{
 #' # Full workflow
+#'
 #' # Loading data
 #' data("bfi")
 #'
@@ -106,6 +108,7 @@
 #' scale = as.numeric(dframe$tscore),
 #' csem = output.boots1$CSEM$CSEM.smooth,
 #' method = "polym", C = 5,plot = T, plot.what = "both")
+#' }
 #'
 #' @export
 scaleCSEM <- function(raw, scale, csem,
@@ -114,7 +117,7 @@ scaleCSEM <- function(raw, scale, csem,
                       plot = FALSE,
                       plot.what = "both") {
 
-  # --- 1. Validaciones básicas ---
+  # --- 1. Basic Validations ---
   method <- match.arg(method)
 
   if (length(raw) != length(scale) || length(raw) != length(csem)) {
@@ -127,17 +130,17 @@ scaleCSEM <- function(raw, scale, csem,
     stop("raw scores must be integers (or whole numbers).")
   }
 
-  # Ordenar por raw (importante para consistencia)
+  # Sort by raw (important for consistency)
   ord <- order(raw)
   raw <- raw[ord]
   scale <- scale[ord]
   csem <- csem[ord]
 
-  # Rango observado (no asumimos que comienza en 0)
+  # Observed range (we do not assume it starts at 0)
   raw_min <- min(raw)
   raw_max <- max(raw)
 
-  # --- 2. Configurar C para método "approx" ---
+  # --- 2. Set C to the "approx" method ---
   if (method == "approx") {
     if (is.null(C)) {
       C <- round(1.5 * mean(csem, na.rm = TRUE))
@@ -149,11 +152,11 @@ scaleCSEM <- function(raw, scale, csem,
       C <- as.integer(C)
     }
 
-    # Calcular L y U truncados al rango observado
+    # Calculate the truncated L and U statistics based on the observed range
     L_vals <- pmax(raw - C, raw_min)
     U_vals <- pmin(raw + C, raw_max)
 
-    # Verificar que todos los valores necesarios estén presentes en raw
+    # Verify that all required values are present in raw
     needed <- unique(c(L_vals, U_vals))
     missing <- setdiff(needed, raw)
     if (length(missing) > 0) {
@@ -165,7 +168,7 @@ scaleCSEM <- function(raw, scale, csem,
       ))
     }
 
-    # Calcular slopes y scale_csem
+    # Calculate slopes and scale_csem
     idx_L <- match(L_vals, raw)
     idx_U <- match(U_vals, raw)
     scale_L <- scale[idx_L]
@@ -178,7 +181,7 @@ scaleCSEM <- function(raw, scale, csem,
                          slope = slope, scale_csem = scale_csem)
   }
 
-  # --- 3. Método "polym" (monotonic spline) ---
+  # --- 3. "polym" method (monotonic spline) ---
   if (method == "polym") {
     if (!requireNamespace("scam", quietly = TRUE)) {
       stop("Package 'scam' is required for method 'polym'. Please install it (this will also install 'mgcv').")
@@ -195,7 +198,7 @@ scaleCSEM <- function(raw, scale, csem,
       }
     )
 
-    # Derivada numérica
+    # Numerical derivative
     eps <- 1e-5
     pred0 <- predict(scam_model, newdata = df)
     df_eps <- df
@@ -209,7 +212,7 @@ scaleCSEM <- function(raw, scale, csem,
                          slope = slope, scale_csem = scale_csem)
   }
 
-  # --- 4. Visualización opcional ---
+  # --- 4. Optional display ---
   if (plot) {
     if (!requireNamespace("ggplot2", quietly = TRUE)) {
       warning("ggplot2 not installed. Skipping plot.")
@@ -260,6 +263,6 @@ scaleCSEM <- function(raw, scale, csem,
     }
   }
 
-  # --- 5. Salida ---
+  # --- 5. Output ---
   return(output)
 }
