@@ -20,3 +20,7 @@ Imports:
     boot,
     ggplot2,
     pbapply
+Suggests:
+    EFA.dimensions,
+    psych,
+    psychTools
