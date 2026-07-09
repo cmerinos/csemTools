@@ -92,7 +92,7 @@ csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2)
 csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2, bin.score = 5)
 
 # add confidence intervals
-csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2, bin.score = 5, ci = T, conf.level = .68)
+csemFSG(bfi[, 1:5], smooth = TRUE, degree = 2, bin.score = 5, ci = TRUE, conf.level = .68)
 }
 
 }

@@ -188,7 +188,7 @@ scaleCSEM <- function(raw, scale, csem,
     }
 
     df <- data.frame(raw = raw, scale = scale)
-    scam_formula <- as.formula("scale ~ s(raw, bs = 'mpi')")
+    scam_formula <- stats::as.formula("scale ~ s(raw, bs = 'mpi')")
 
     scam_model <- tryCatch(
       scam::scam(scam_formula, data = df),

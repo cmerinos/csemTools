@@ -42,8 +42,8 @@ data.ability <- ability[complete.cases(ability),]
 strongCSEM.out <- csemStrong(score.type = "dich",
 data = data.ability,
 nitems = 16,
-ci = T,
-summary = T)
+ci = TRUE,
+summary = TRUE)
 
 # Looking ouput
 strongCSEM.out

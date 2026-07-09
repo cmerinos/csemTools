@@ -66,7 +66,7 @@ polynomialDegree <- function(x, y,
   for (d in degrees) {
     # Uncentered polynomial (raw = TRUE) to facilitate interpretation
 
-    form <- as.formula(paste("y ~ poly(x,", d, ", raw = TRUE)"))
+    form <- stats::as.formula(paste("y ~ poly(x,", d, ", raw = TRUE)"))
     mod <- lm(form, data = data.frame(x = x, y = y))
     models_list[[as.character(d)]] <- mod
     s <- summary(mod)
