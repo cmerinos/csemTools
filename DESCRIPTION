@@ -23,4 +23,8 @@ Imports:
 Suggests:
     EFA.dimensions,
     psych,
-    psychTools
+    psychTools,
+    MBESS,
+    kSamples,
+    scam,
+    zoo

@@ -30,6 +30,10 @@
 #' print(res$summary)
 #' }
 #'
+#' @importFrom stats lm cor sd predict AIC BIC aggregate anova approx density pchisq complete.cases weighted.mean setNames
+#' @importFrom graphics lines legend
+#' @importFrom utils head
+#'
 #' @export
 polynomialDegree <- function(x, y,
                              min_degree = 1,

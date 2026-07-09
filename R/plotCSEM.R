@@ -25,7 +25,9 @@
 #' @param height Numeric. Height of saved plot in inches (default = 6).
 #'
 #' @return A ggplot2 object (invisibly). The plot is also printed.
+#'
 #' @import ggplot2
+#'
 #' @export
 #'
 #' @examples

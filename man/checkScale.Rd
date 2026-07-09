@@ -45,7 +45,7 @@ RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
 ## check Distribution
 checkScale(half1 = data_RSE[,RSE.namesHalf$half1],
                  half2 = data_RSE[,RSE.namesHalf$half2],
-                 B = 1000, conf = .95)
+                 conf = .95)
 }
 
 }
