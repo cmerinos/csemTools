@@ -81,7 +81,7 @@ checkAngoff <- function(half1, half2, B = 500, conf = 0.95, na.rm = TRUE) {
   angoff_fun <- function(data, i) {
     t1 <- data[i, 1]
     t2 <- data[i, 2]
-    cov_val <- cov(t1, t2, use = "complete.obs")
+    cov_val <- stats::cov(t1, t2, use = "complete.obs")
     var1 <- var(t1, na.rm = TRUE)
     var2 <- var(t2, na.rm = TRUE)
     4 * cov_val / (var1 + var2 + 2 * cov_val)

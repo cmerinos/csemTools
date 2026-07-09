@@ -71,7 +71,7 @@ checkAlpha <- function(half1, half2, B = 500, conf = 0.95, na.rm = TRUE) {
     k <- ncol(x)
     if (k < 2) return(NA)
     # Use covariance matrix to compute average inter-item correlation
-    covmat <- cov(x, use = "pairwise.complete.obs")
+    covmat <- stats::cov(x, use = "pairwise.complete.obs")
     if (anyNA(covmat)) return(NA)
     r_avg <- mean(covmat[lower.tri(covmat)] / sqrt(diag(covmat) %*% t(diag(covmat)))[lower.tri(covmat)])
     # r_avg <- mean(cor(x, use = "pairwise.complete.obs")[lower.tri(...)])  # simpler
