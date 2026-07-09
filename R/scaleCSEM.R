@@ -77,6 +77,7 @@
 #' # Full workflow
 #'
 #' # Loading data
+#' library(psych)
 #' data("bfi")
 #'
 #' # Choosing variables

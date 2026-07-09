@@ -95,6 +95,7 @@ scaleCSEM(raw, scale, csem, method = "approx", plot = TRUE)
 # Full workflow
 
 # Loading data
+library(psych)
 data("bfi")
 
 # Choosing variables
