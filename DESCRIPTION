@@ -1,6 +1,6 @@
-Package: CSEM
+Package: csemTools
 Type: Estimation and utilities for conditional standard error of measurement for scores
-Title: Conditional Standard Error of Measurement Methods for Test Scores
+Title: Conditional Standard Error of Measurement Tools for Test Scores
 Version: 0.1.3
 Authors@R: c(
     person(
