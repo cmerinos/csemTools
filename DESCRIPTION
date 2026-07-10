@@ -36,4 +36,6 @@ Suggests:
     MBESS,
     kSamples,
     scam,
-    zoo
+    zoo,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
