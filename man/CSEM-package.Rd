@@ -4,9 +4,17 @@
 \name{CSEM-package}
 \alias{CSEM}
 \alias{CSEM-package}
-\title{CSEM: What the Package Does (Title Case)}
+\title{CSEM: Conditional Standard Error of Measurement Methods for Test Scores}
 \description{
-More about what it does (maybe more than one line). Continuation lines should be indented.
+Provides functions to compute and compare conditional standard errors of measurement (CSEM) across score distributions using multiple statistical approaches from test classical theory. Includes methods for smoothing, CSEM using bootstrapping, standardized CSEM, CSEM for scale score, check propierties of two-halves scores, and comparison with global standard errors of measurement derived from reliability coefficients. The package supports graphical visualization of CSEM curves and relative precision across observed score ranges.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/cmerinos/CSEM}
+  \item Report bugs at \url{https://github.com/cmerino/CSEM/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Cesar Merino-Soto \email{sikayax@yahoo.com.ar}
