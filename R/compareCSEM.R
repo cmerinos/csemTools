@@ -59,6 +59,8 @@
 #' \doi{10.3758/s13428-025-02611-8}
 #'
 #' @importFrom stats qt
+#' @importFrom rlang .data
+#'
 #' @examples
 #' \dontrun{
 #' # Example data (simulated)
@@ -227,7 +229,7 @@ compareCSEM <- function(data,
 
     # --- Plot 2: Ratio CSEM / Global SEM ---
     if (plot %in% c("ratio", "all")) {
-      p2 <- ggplot2::ggplot(plot_df, ggplot2::aes(x = raw.score, y = ratio)) +
+      p2 <- ggplot2::ggplot(plot_df, ggplot2::aes(x = raw.score, y = .data$ratio)) +
         ggplot2::geom_line(size = 1.2, colour = "steelblue") +
         ggplot2::geom_hline(yintercept = 1, linetype = "dashed", colour = "darkred", size = 0.8) +
         ggplot2::labs(x = "Observed Score", y = "Ratio (CSEM / Global SEM)",

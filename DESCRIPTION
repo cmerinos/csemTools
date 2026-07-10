@@ -19,7 +19,8 @@ Config/roxygen2/version: 8.0.0
 Imports: 
     boot,
     ggplot2,
-    pbapply
+    pbapply.
+    rlang
 Suggests:
     EFA.dimensions,
     psych,
