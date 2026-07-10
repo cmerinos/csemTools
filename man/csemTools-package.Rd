@@ -6,13 +6,13 @@
 \alias{csemTools-package}
 \title{csemTools: Conditional Standard Error of Measurement Tools for Test Scores}
 \description{
-Provides functions to compute and compare conditional standard errors of measurement (CSEM) across score distributions using multiple statistical approaches from test classical theory. Includes methods for smoothing, CSEM using bootstrapping, standardized CSEM, CSEM for scale score, check propierties of two-halves scores, and comparison with global standard errors of measurement derived from reliability coefficients. The package supports graphical visualization of CSEM curves and relative precision across observed score ranges.
+Provides functions to compute and compare conditional standard errors of measurement (CSEM) across score distributions using methods from classical test theory. Includes approaches for smoothing, bootstrapped CSEM, standardized CSEM, CSEM for scale scores, and assessment of properties of split-half scores. Also supports comparison with global standard errors derived from reliability coefficients and graphical visualization of CSEM curves and relative precision across observed score ranges.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/cmerinos/CSEM}
-  \item Report bugs at \url{https://github.com/cmerino/CSEM/issues}
+  \item \url{https://github.com/cmerinos/csemTools}
+  \item Report bugs at \url{https://github.com/cmerinos/csemTools/issues}
 }
 
 }
