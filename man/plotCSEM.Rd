@@ -17,75 +17,87 @@ plotCSEM(
   color.band = "lightblue",
   line.type = "solid",
   point.size = 2,
+  csem.scale = 1,
   save.path = NULL,
   width = 8,
   height = 6
 )
 }
 \arguments{
-\item{data}{A data frame containing at least columns \code{Score} and \code{CSEM}.
-Optionally \code{lwr.ci} and \code{upr.ci} for confidence intervals.}
+\item{data}{A data frame containing at least the columns specified by \code{x} and \code{y}.
+For \code{plot.type = "CI"}, the data must also contain columns \code{lwr.ci} and \code{upr.ci}.}
 
-\item{x}{Character. Name of the column to use on x-axis (default = "Score").}
+\item{x}{Character. Name of the column to use on the x-axis (default = \code{"Score"}).}
 
-\item{y}{Character. Name of the column to use on y-axis for CSEM (default = "CSEM").}
+\item{y}{Character. Name of the column to use on the y-axis for the CSEM values
+(default = \code{"CSEM"}).}
 
-\item{plot.type}{Character: \code{"CSEM"} (only the CSEM line/points),
-\code{"CI"} (CSEM with error bars/ribbon), or \code{"band"} (width of confidence band).}
+\item{plot.type}{Character. One of \code{"CSEM"}, \code{"CI"}, or \code{"band"}. Determines the
+type of plot to generate. Default = \code{"CSEM"}.}
 
-\item{title}{Character. Plot title. If NULL, a default title is generated.}
+\item{title}{Character. Plot title. If \code{NULL}, a default title is generated
+based on \code{plot.type}.}
 
-\item{xlab}{Character. X-axis label. If NULL, uses \code{x}.}
+\item{xlab}{Character. Label for the x-axis. If \code{NULL}, the value of \code{x} is used.}
 
-\item{ylab}{Character. Y-axis label. If NULL, auto-generated.}
+\item{ylab}{Character. Label for the y-axis. If \code{NULL}, a default label is
+generated based on \code{plot.type}.}
 
-\item{color.line}{Color for the line (default = "black").}
+\item{color.line}{Color for the main line (default = \code{"black"}).}
 
-\item{color.points}{Color for points (default = "darkred").}
+\item{color.points}{Color for the points (default = \code{"darkred"}).}
 
-\item{color.band}{Color for confidence band/ribbon (default = "lightblue").}
+\item{color.band}{Color for the confidence band/ribbon (default = \code{"lightblue"}).}
 
-\item{line.type}{Line type (default = "solid").}
+\item{line.type}{Line type for the main line (default = \code{"solid"}).}
 
-\item{point.size}{Size of points (default = 2).}
+\item{point.size}{Size of points (default = \code{2}).}
 
-\item{save.path}{Optional file path to save plot as PNG. If NULL, plot is not saved.}
+\item{csem.scale}{Numeric scaling factor for the CSEM curve when \code{plot.type = "CI"}.
+The CSEM values are multiplied by this factor to make them visible on the
+secondary axis. Set to \code{0} to suppress the CSEM curve entirely. Default = \code{1}.}
 
-\item{width}{Numeric. Width of saved plot in inches (default = 8).}
+\item{save.path}{Optional file path (e.g., \code{"plot.png"}) to save the plot as a
+PNG image. If \code{NULL}, the plot is not saved. Default = \code{NULL}.}
 
-\item{height}{Numeric. Height of saved plot in inches (default = 6).}
+\item{width}{Numeric. Width of the saved plot in inches (default = \code{8}).}
+
+\item{height}{Numeric. Height of the saved plot in inches (default = \code{6}).}
 }
 \value{
-A ggplot2 object (invisibly). The plot is also printed.
+A \code{ggplot} object (invisibly). The plot is also printed.
 }
 \description{
 Creates a ggplot2 plot of the CSEM as a function of test scores, optionally
-including confidence intervals or confidence band widths. Can be used with
-any CSEM function that returns a data frame with columns \code{Score}, \code{CSEM}, and
-optionally \code{lwr.ci}, \code{upr.ci}.
+including confidence intervals (bands) for the true score or the width of the
+confidence band. The function is designed to work with any CSEM function that
+returns a data frame containing at least columns for score and CSEM, and
+optionally \code{lwr.ci} and \code{upr.ci}.
+
+Three plot types are available:
+\itemize{
+\item \code{"CSEM"}: plots the CSEM curve (line + points).
+\item \code{"CI"}: plots the observed score with a confidence band around it
+(based on \code{lwr.ci} and \code{upr.ci}) and optionally overlays the CSEM curve
+on a secondary axis (scaled by \code{csem.scale}).
+\item \code{"band"}: plots the width of the confidence band (i.e., \code{upr.ci - lwr.ci}).
+}
+}
+\details{
+The function uses \code{ggplot2} and returns a ggplot object invisibly. The plot
+is also printed automatically.
+
+When \code{plot.type = "CI"}, the confidence band is drawn around the observed score
+(identity line) using \code{lwr.ci} and \code{upr.ci}. The CSEM curve is optionally
+overlaid on a secondary y‑axis, scaled by \code{csem.scale}. This allows the user to
+visualize both the precision of the observed score and the conditional error
+in a single plot.
 }
 \examples{
 \donttest{
-## Load data
-library(EFA.dimensions)
-data("data_RSE")
-
-## Recode negative items
-data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
-
-## Split in two halves
-RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
-
-## Items in the halves?
-RSE.namesHalf$half1
-RSE.namesHalf$half2
-
-# Mollenkopst-Feldt method
-mfres <- csemMF(data_RSE,
-degree = 2, ci = TRUE, n.parts = 2)
-
-plotCSEM(data = mfres$CSEM,
-x = "score",
-y = "CSEM.smooth", plot.type = "CSEM")
+# Example using csemThorndike output
+# (Assuming half1, half2 and csemThorndike output exist)
+# plotCSEM(data = res$CSEM, x = "score", y = "CSEM.smooth")
 }
+
 }
