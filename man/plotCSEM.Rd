@@ -9,7 +9,6 @@ plotCSEM(
   csem,
   lwr.ci = NULL,
   upr.ci = NULL,
-  data = NULL,
   plot.type = c("CSEM", "CI", "band"),
   title = NULL,
   xlab = NULL,
@@ -19,54 +18,42 @@ plotCSEM(
   color.band = "lightblue",
   line.type = "solid",
   point.size = 2,
-  csem.scale = 1,
   save.path = NULL,
   width = 8,
   height = 6
 )
 }
 \arguments{
-\item{score}{Numeric vector or column name. The observed scores (x-axis).}
+\item{score}{Numeric vector of scores (x-axis).}
 
-\item{csem}{Numeric vector or column name. The CSEM values (y-axis).}
+\item{csem}{Numeric vector of CSEM values (y-axis). Must be same length as \code{score}.}
 
-\item{lwr.ci}{Numeric vector or column name. Lower confidence limits for the
-true score (required if \code{plot.type = "CI"} or \code{"band"}).}
+\item{lwr.ci}{Numeric vector of lower confidence limits for CSEM. Required if
+\code{plot.type = "CI"} or \code{"band"}. Must be same length as \code{score}.}
 
-\item{upr.ci}{Numeric vector or column name. Upper confidence limits for the
-true score (required if \code{plot.type = "CI"} or \code{"band"}).}
-
-\item{data}{Optional data frame. If provided, \code{score}, \code{csem},
-\code{lwr.ci}, and \code{upr.ci} are interpreted as column names.
-If \code{NULL} (default), the vectors are used directly.}
+\item{upr.ci}{Numeric vector of upper confidence limits for CSEM. Required if
+\code{plot.type = "CI"} or \code{"band"}. Must be same length as \code{score}.}
 
 \item{plot.type}{Character: \code{"CSEM"} (only the CSEM line/points),
-\code{"CI"} (CSEM with confidence band for true score), or
-\code{"band"} (width of confidence band). Default is \code{"CSEM"}.}
+\code{"CI"} (CSEM with confidence ribbon), or \code{"band"} (width of confidence band).}
 
-\item{title}{Character. Plot title. If \code{NULL}, a default title is generated.}
+\item{title}{Character. Plot title. If NULL, a default title is generated.}
 
-\item{xlab}{Character. X-axis label. If \code{NULL}, defaults to \code{"Score"}.}
+\item{xlab}{Character. X-axis label. If NULL, defaults to "Score".}
 
-\item{ylab}{Character. Y-axis label. If \code{NULL}, auto-generated based on
-\code{plot.type}.}
+\item{ylab}{Character. Y-axis label. If NULL, auto-generated based on \code{plot.type}.}
 
-\item{color.line}{Color for the CSEM line (default = "black").}
+\item{color.line}{Color for the line (default = "black").}
 
 \item{color.points}{Color for points (default = "darkred").}
 
-\item{color.band}{Color for the confidence band/ribbon (default = "lightblue").}
+\item{color.band}{Color for confidence band/ribbon (default = "lightblue").}
 
-\item{line.type}{Line type for the CSEM curve (default = "solid").}
+\item{line.type}{Line type (default = "solid").}
 
 \item{point.size}{Size of points (default = 2).}
 
-\item{csem.scale}{Numeric. Scaling factor for the CSEM curve when
-\code{plot.type = "CI"}. The CSEM curve is multiplied by this factor to
-make it visible on the secondary y-axis. Default is 1 (no scaling).}
-
-\item{save.path}{Optional file path to save the plot as PNG. If \code{NULL},
-the plot is not saved.}
+\item{save.path}{Optional file path to save plot as PNG. If NULL, plot is not saved.}
 
 \item{width}{Numeric. Width of saved plot in inches (default = 8).}
 
@@ -76,43 +63,28 @@ the plot is not saved.}
 A ggplot2 object (invisibly). The plot is also printed.
 }
 \description{
-Creates a ggplot2 plot of the CSEM as a function of test scores.
-The function is flexible: it can accept vectors directly or column names
-from a data frame. It supports three plot types:
-\itemize{
-\item \code{"CSEM"}: plots the CSEM curve (line + points).
-\item \code{"CI"}: plots the CSEM curve with a confidence band for the
-true score (using \code{lwr.ci} and \code{upr.ci}).
-\item \code{"band"}: plots the width of the confidence band
-(\code{upr.ci - lwr.ci}).
-}
-}
-\details{
-When \code{plot.type = "CI"}, the confidence band is drawn using
-\code{lwr.ci} and \code{upr.ci} on the score scale (y-axis). The CSEM curve
-is drawn on a secondary y-axis (right side), scaled by \code{csem.scale}.
-A dashed identity line (\code{score = score}) is added for reference.
-
-When \code{plot.type = "band"}, the y-axis represents the width of the
-confidence interval (\code{upr.ci - lwr.ci}).
+Creates a ggplot2 plot of the CSEM as a function of test scores. Optionally,
+includes confidence intervals (ribbon around the CSEM curve) or the width
+of the confidence band.
 }
 \examples{
 \donttest{
-# Example with vectors directly
-score <- 0:36
-csem <- 2 * sqrt(score * (36 - score) / 35)
-lwr <- score - 1.96 * csem
-upr <- score + 1.96 * csem
+# Simulated data
+scores <- 0:20
+csem_vals <- 1 + 0.5 * abs(scores - 10) / 10
+lwr <- csem_vals - 0.2
+upr <- csem_vals + 0.2
 
-# CSEM curve only
-plotCSEM(score, csem, plot.type = "CSEM")
+# Only CSEM curve
+plotCSEM(score = scores, csem = csem_vals, plot.type = "CSEM")
 
-# With confidence band
-plotCSEM(score, csem, lwr, upr, plot.type = "CI", csem.scale = 5)
+# With confidence interval ribbon
+plotCSEM(score = scores, csem = csem_vals,
+         lwr.ci = lwr, upr.ci = upr, plot.type = "CI")
 
-# With data frame
-df <- data.frame(score = score, csem = csem, lwr = lwr, upr = upr)
-plotCSEM("score", "csem", data = df, plot.type = "CI")
+# Width of confidence band
+plotCSEM(score = scores, csem = csem_vals,
+         lwr.ci = lwr, upr.ci = upr, plot.type = "band")
 }
 
 }
