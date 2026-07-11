@@ -215,7 +215,7 @@ compareCSEM <- function(data,
         ggplot2::labs(x = "Observed Score", y = "Standard Error of Measurement",
                       title = "Conditional vs. Global SEM",
                       colour = "Line") +
-        ggplot2::theme_minimal()
+        ggplot2::theme_classic()
 
       # Add global SEM confidence band (rectangular band)
       if (has_ci_global) {
