@@ -1,74 +1,50 @@
 #' Plot Conditional Standard Error of Measurement (CSEM) Curve
 #'
 #' @description
-#' Creates a ggplot2 plot of the CSEM as a function of test scores.
-#' The function is flexible: it can accept vectors directly or column names
-#' from a data frame. It supports three plot types:
-#' \itemize{
-#'   \item \code{"CSEM"}: plots the CSEM curve (line + points).
-#'   \item \code{"CI"}: plots the CSEM curve with a confidence band for the
-#'         true score (using \code{lwr.ci} and \code{upr.ci}).
-#'   \item \code{"band"}: plots the width of the confidence band
-#'         (\code{upr.ci - lwr.ci}).
-#' }
+#' Creates a ggplot2 plot of the CSEM as a function of test scores. Optionally,
+#' includes confidence intervals (ribbon around the CSEM curve) or the width
+#' of the confidence band.
 #'
-#' @param score Numeric vector or column name. The observed scores (x-axis).
-#' @param csem Numeric vector or column name. The CSEM values (y-axis).
-#' @param lwr.ci Numeric vector or column name. Lower confidence limits for the
-#'   true score (required if \code{plot.type = "CI"} or \code{"band"}).
-#' @param upr.ci Numeric vector or column name. Upper confidence limits for the
-#'   true score (required if \code{plot.type = "CI"} or \code{"band"}).
-#' @param data Optional data frame. If provided, \code{score}, \code{csem},
-#'   \code{lwr.ci}, and \code{upr.ci} are interpreted as column names.
-#'   If \code{NULL} (default), the vectors are used directly.
-#' @param plot.type Character: \code{"CSEM"} (only the CSEM line/points),
-#'   \code{"CI"} (CSEM with confidence band for true score), or
-#'   \code{"band"} (width of confidence band). Default is \code{"CSEM"}.
-#' @param title Character. Plot title. If \code{NULL}, a default title is generated.
-#' @param xlab Character. X-axis label. If \code{NULL}, defaults to \code{"Score"}.
-#' @param ylab Character. Y-axis label. If \code{NULL}, auto-generated based on
-#'   \code{plot.type}.
-#' @param color.line Color for the CSEM line (default = "black").
+#' @param score Numeric vector of scores (x-axis).
+#' @param csem Numeric vector of CSEM values (y-axis). Must be same length as `score`.
+#' @param lwr.ci Numeric vector of lower confidence limits for CSEM. Required if
+#'   `plot.type = "CI"` or `"band"`. Must be same length as `score`.
+#' @param upr.ci Numeric vector of upper confidence limits for CSEM. Required if
+#'   `plot.type = "CI"` or `"band"`. Must be same length as `score`.
+#' @param plot.type Character: `"CSEM"` (only the CSEM line/points),
+#'   `"CI"` (CSEM with confidence ribbon), or `"band"` (width of confidence band).
+#' @param title Character. Plot title. If NULL, a default title is generated.
+#' @param xlab Character. X-axis label. If NULL, defaults to "Score".
+#' @param ylab Character. Y-axis label. If NULL, auto-generated based on `plot.type`.
+#' @param color.line Color for the line (default = "black").
 #' @param color.points Color for points (default = "darkred").
-#' @param color.band Color for the confidence band/ribbon (default = "lightblue").
-#' @param line.type Line type for the CSEM curve (default = "solid").
+#' @param color.band Color for confidence band/ribbon (default = "lightblue").
+#' @param line.type Line type (default = "solid").
 #' @param point.size Size of points (default = 2).
-#' @param csem.scale Numeric. Scaling factor for the CSEM curve when
-#'   \code{plot.type = "CI"}. The CSEM curve is multiplied by this factor to
-#'   make it visible on the secondary y-axis. Default is 1 (no scaling).
-#' @param save.path Optional file path to save the plot as PNG. If \code{NULL},
-#'   the plot is not saved.
+#' @param save.path Optional file path to save plot as PNG. If NULL, plot is not saved.
 #' @param width Numeric. Width of saved plot in inches (default = 8).
 #' @param height Numeric. Height of saved plot in inches (default = 6).
 #'
 #' @return A ggplot2 object (invisibly). The plot is also printed.
 #'
-#' @details
-#' When \code{plot.type = "CI"}, the confidence band is drawn using
-#' \code{lwr.ci} and \code{upr.ci} on the score scale (y-axis). The CSEM curve
-#' is drawn on a secondary y-axis (right side), scaled by \code{csem.scale}.
-#' A dashed identity line (\code{score = score}) is added for reference.
-#'
-#' When \code{plot.type = "band"}, the y-axis represents the width of the
-#' confidence interval (\code{upr.ci - lwr.ci}).
-#'
 #' @examples
 #' \donttest{
-#' # Example with vectors directly
-#' score <- 0:36
-#' csem <- 2 * sqrt(score * (36 - score) / 35)
-#' lwr <- score - 1.96 * csem
-#' upr <- score + 1.96 * csem
+#' # Simulated data
+#' scores <- 0:20
+#' csem_vals <- 1 + 0.5 * abs(scores - 10) / 10
+#' lwr <- csem_vals - 0.2
+#' upr <- csem_vals + 0.2
 #'
-#' # CSEM curve only
-#' plotCSEM(score, csem, plot.type = "CSEM")
+#' # Only CSEM curve
+#' plotCSEM(score = scores, csem = csem_vals, plot.type = "CSEM")
 #'
-#' # With confidence band
-#' plotCSEM(score, csem, lwr, upr, plot.type = "CI", csem.scale = 5)
+#' # With confidence interval ribbon
+#' plotCSEM(score = scores, csem = csem_vals,
+#'          lwr.ci = lwr, upr.ci = upr, plot.type = "CI")
 #'
-#' # With data frame
-#' df <- data.frame(score = score, csem = csem, lwr = lwr, upr = upr)
-#' plotCSEM("score", "csem", data = df, plot.type = "CI")
+#' # Width of confidence band
+#' plotCSEM(score = scores, csem = csem_vals,
+#'          lwr.ci = lwr, upr.ci = upr, plot.type = "band")
 #' }
 #'
 #' @export
@@ -76,7 +52,6 @@ plotCSEM <- function(score,
                      csem,
                      lwr.ci = NULL,
                      upr.ci = NULL,
-                     data = NULL,
                      plot.type = c("CSEM", "CI", "band"),
                      title = NULL,
                      xlab = NULL,
@@ -86,111 +61,74 @@ plotCSEM <- function(score,
                      color.band = "lightblue",
                      line.type = "solid",
                      point.size = 2,
-                     csem.scale = 1,
                      save.path = NULL,
                      width = 8,
                      height = 6) {
 
   plot.type <- match.arg(plot.type)
 
-  # --- Helper to extract vector from data or direct input ---
-  get_vector <- function(arg, name) {
-    if (is.null(data)) {
-      if (is.null(arg)) return(NULL)
-      if (!is.numeric(arg)) stop(paste(name, "must be numeric when data = NULL."))
-      return(arg)
-    } else {
-      if (!is.character(arg)) stop(paste(name, "must be a column name when data is provided."))
-      if (!arg %in% names(data)) stop(paste("Column", arg, "not found in data."))
-      return(data[[arg]])
-    }
-  }
+  # --- Validate inputs ---
+  if (!is.numeric(score) || !is.numeric(csem))
+    stop("'score' and 'csem' must be numeric vectors.")
+  if (length(score) != length(csem))
+    stop("'score' and 'csem' must have the same length.")
 
-  # --- Extract vectors ---
-  score_vec <- get_vector(score, "score")
-  csem_vec <- get_vector(csem, "csem")
-  lwr_vec <- get_vector(lwr.ci, "lwr.ci")
-  upr_vec <- get_vector(upr.ci, "upr.ci")
-
-  # --- Validate lengths ---
-  if (length(score_vec) != length(csem_vec))
-    stop("score and csem must have the same length.")
-
-  # --- Check required vectors for CI and band ---
   if (plot.type %in% c("CI", "band")) {
-    if (is.null(lwr_vec) || is.null(upr_vec))
-      stop("For plot.type = 'CI' or 'band', lwr.ci and upr.ci must be provided.")
-    if (length(lwr_vec) != length(score_vec) || length(upr_vec) != length(score_vec))
-      stop("lwr.ci and upr.ci must have the same length as score.")
+    if (is.null(lwr.ci) || is.null(upr.ci))
+      stop("For plot.type = 'CI' or 'band', 'lwr.ci' and 'upr.ci' must be provided.")
+    if (!is.numeric(lwr.ci) || !is.numeric(upr.ci))
+      stop("'lwr.ci' and 'upr.ci' must be numeric vectors.")
+    if (length(lwr.ci) != length(score) || length(upr.ci) != length(score))
+      stop("'lwr.ci' and 'upr.ci' must have the same length as 'score'.")
   }
 
-  # --- If band, compute CI_band ---
+  # --- Prepare data frame for ggplot ---
+  df <- data.frame(score = score, csem = csem)
+  if (!is.null(lwr.ci)) df$lwr.ci <- lwr.ci
+  if (!is.null(upr.ci)) df$upr.ci <- upr.ci
+
   if (plot.type == "band") {
-    CI_band <- upr_vec - lwr_vec
-    # Use csem_vec as placeholder for y in the plot; we'll override later
+    df$CI_band <- df$upr.ci - df$lwr.ci
   }
 
   # --- Default labels ---
   if (is.null(title)) {
     title <- switch(plot.type,
                     CSEM = "Conditional Standard Error of Measurement",
-                    CI   = "Observed Score with Confidence Interval",
+                    CI   = "CSEM with Confidence Intervals",
                     band = "Width of Confidence Bands")
   }
   if (is.null(xlab)) xlab <- "Score"
   if (is.null(ylab)) {
     ylab <- switch(plot.type,
                    CSEM = "CSEM",
-                   CI   = "Score",
+                   CI   = "CSEM",
                    band = "CI Band Width")
   }
 
-  # --- Build data frame for plotting ---
-  plot_df <- data.frame(score = score_vec, csem = csem_vec)
-  if (!is.null(lwr_vec)) plot_df$lwr <- lwr_vec
-  if (!is.null(upr_vec)) plot_df$upr <- upr_vec
-  if (plot.type == "band") plot_df$CI_band <- CI_band
-
-  # --- Create plot ---
-  p <- ggplot2::ggplot(plot_df, ggplot2::aes(x = score)) +
+  # --- Build plot ---
+  p <- ggplot2::ggplot(df, ggplot2::aes(x = score, y = csem)) +
     ggplot2::theme_minimal()
 
   if (plot.type == "CSEM") {
-    p <- p +
-      ggplot2::geom_line(ggplot2::aes(y = csem), color = color.line, linetype = line.type, size = 1) +
-      ggplot2::geom_point(ggplot2::aes(y = csem), color = color.points, size = point.size) +
-      ggplot2::labs(title = title, x = xlab, y = ylab)
+    p <- p + ggplot2::geom_line(color = color.line, linetype = line.type, size = 1) +
+      ggplot2::geom_point(color = color.points, size = point.size)
 
   } else if (plot.type == "CI") {
-    # Confidence band for true score (on score scale)
-    p <- p +
-      ggplot2::geom_ribbon(ggplot2::aes(ymin = lwr, ymax = upr),
-                           fill = color.band, alpha = 0.4) +
-      # Identity line
-      ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray50", size = 0.5)
+    p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lwr.ci, ymax = upr.ci),
+                                  fill = color.band, alpha = 0.4) +
+      ggplot2::geom_line(color = color.line, linetype = line.type, size = 1) +
+      ggplot2::geom_point(color = color.points, size = point.size)
 
-    # Add CSEM curve on secondary axis if csem.scale > 0
-    if (csem.scale > 0) {
-      plot_df$csem_scaled <- plot_df$csem * csem.scale
-      p <- p +
-        ggplot2::geom_line(ggplot2::aes(y = csem_scaled), color = color.line, linetype = line.type, size = 1) +
-        ggplot2::geom_point(ggplot2::aes(y = csem_scaled), color = color.points, size = point.size) +
-        ggplot2::scale_y_continuous(
-          name = ylab,
-          sec.axis = ggplot2::sec_axis(~ . / csem.scale, name = "CSEM")
-        )
-    } else {
-      # If csem.scale = 0, do not add CSEM curve
-      p <- p + ggplot2::scale_y_continuous(name = ylab)
-    }
-    p <- p + ggplot2::labs(title = title, x = xlab)
-
-  } else { # band
-    p <- p +
-      ggplot2::geom_line(ggplot2::aes(y = CI_band), color = color.line, linetype = line.type, size = 1) +
-      ggplot2::geom_point(ggplot2::aes(y = CI_band), color = color.points, size = point.size) +
-      ggplot2::labs(title = title, x = xlab, y = ylab)
+  } else if (plot.type == "band") {
+    p <- p + ggplot2::geom_line(ggplot2::aes(y = CI_band),
+                                color = color.line, linetype = line.type, size = 1) +
+      ggplot2::geom_point(ggplot2::aes(y = CI_band),
+                          color = color.points, size = point.size) +
+      ggplot2::ylab(ylab)
   }
+
+  p <- p + ggplot2::labs(title = title, x = xlab, y = ylab)
 
   # --- Save if requested ---
   if (!is.null(save.path)) {
