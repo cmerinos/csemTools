@@ -9,13 +9,15 @@ plotCSEM(
   csem,
   lwr.ci = NULL,
   upr.ci = NULL,
-  plot.type = c("CSEM", "CI", "band"),
+  plot.type = c("csem", "csemscore"),
+  cutoff = NULL,
   title = NULL,
   xlab = NULL,
   ylab = NULL,
   color.line = "black",
   color.points = "darkred",
   color.band = "lightblue",
+  color.cutoff = "gray50",
   line.type = "solid",
   point.size = 2,
   save.path = NULL,
@@ -26,28 +28,31 @@ plotCSEM(
 \arguments{
 \item{score}{Numeric vector of scores (x-axis).}
 
-\item{csem}{Numeric vector of CSEM values (y-axis). Must be same length as \code{score}.}
+\item{csem}{Numeric vector of CSEM values (y-axis for \code{"csem"} plot).
+For \code{"csemscore"}, this vector is used as the observed score (line diagonal).}
 
-\item{lwr.ci}{Numeric vector of lower confidence limits for CSEM. Required if
-\code{plot.type = "CI"} or \code{"band"}. Must be same length as \code{score}.}
+\item{lwr.ci}{Numeric vector of lower confidence limits (required for \code{"csemscore"}).}
 
-\item{upr.ci}{Numeric vector of upper confidence limits for CSEM. Required if
-\code{plot.type = "CI"} or \code{"band"}. Must be same length as \code{score}.}
+\item{upr.ci}{Numeric vector of upper confidence limits (required for \code{"csemscore"}).}
 
-\item{plot.type}{Character: \code{"CSEM"} (only the CSEM line/points),
-\code{"CI"} (CSEM with confidence ribbon), or \code{"band"} (width of confidence band).}
+\item{plot.type}{Character: \code{"csem"} (CSEM curve) or \code{"csemscore"} (confidence band).}
+
+\item{cutoff}{Numeric vector of score values where vertical lines are added.
+Useful for highlighting cut scores or quantiles. Default = NULL.}
 
 \item{title}{Character. Plot title. If NULL, a default title is generated.}
 
 \item{xlab}{Character. X-axis label. If NULL, defaults to "Score".}
 
-\item{ylab}{Character. Y-axis label. If NULL, auto-generated based on \code{plot.type}.}
+\item{ylab}{Character. Y-axis label. If NULL, auto-generated.}
 
 \item{color.line}{Color for the line (default = "black").}
 
 \item{color.points}{Color for points (default = "darkred").}
 
 \item{color.band}{Color for confidence band/ribbon (default = "lightblue").}
+
+\item{color.cutoff}{Color for cutoff lines (default = "gray50").}
 
 \item{line.type}{Line type (default = "solid").}
 
@@ -63,28 +68,23 @@ plotCSEM(
 A ggplot2 object (invisibly). The plot is also printed.
 }
 \description{
-Creates a ggplot2 plot of the CSEM as a function of test scores. Optionally,
-includes confidence intervals (ribbon around the CSEM curve) or the width
-of the confidence band.
+Creates a ggplot2 plot of the CSEM as a function of test scores, or a plot
+of the observed score with confidence interval band for the true score.
 }
 \examples{
 \donttest{
-# Simulated data
+# Example with simulated data
 scores <- 0:20
 csem_vals <- 1 + 0.5 * abs(scores - 10) / 10
-lwr <- csem_vals - 0.2
-upr <- csem_vals + 0.2
 
-# Only CSEM curve
-plotCSEM(score = scores, csem = csem_vals, plot.type = "CSEM")
+# CSEM curve
+plotCSEM(score = scores, csem = csem_vals, plot.type = "csem")
 
-# With confidence interval ribbon
-plotCSEM(score = scores, csem = csem_vals,
-         lwr.ci = lwr, upr.ci = upr, plot.type = "CI")
-
-# Width of confidence band
-plotCSEM(score = scores, csem = csem_vals,
-         lwr.ci = lwr, upr.ci = upr, plot.type = "band")
+# Confidence band for true score (needs lwr.ci and upr.ci)
+lwr <- scores - 1.96 * csem_vals
+upr <- scores + 1.96 * csem_vals
+plotCSEM(score = scores, csem = scores, lwr.ci = lwr, upr.ci = upr,
+         plot.type = "csemscore", cutoff = c(5, 10, 15))
 }
 
 }
