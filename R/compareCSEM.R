@@ -234,7 +234,7 @@ compareCSEM <- function(data,
         ggplot2::geom_hline(yintercept = 1, linetype = "dashed", colour = "darkred", size = 0.8) +
         ggplot2::labs(x = "Observed Score", y = "Ratio (CSEM / Global SEM)",
                       title = "Relative Precision: CSEM vs. Global SEM") +
-        ggplot2::theme_minimal()
+        ggplot2::theme_classic()
 
       # Add ratio confidence band if global SEM CI exists
       if (has_ci_global) {
