@@ -10,6 +10,11 @@ compareCSEM(
   CSEM = "CSEM",
   lwr.ci.CSEM = NULL,
   upr.ci.CSEM = NULL,
+  score = NULL,
+  csem = NULL,
+  lwr.ci = NULL,
+  upr.ci = NULL,
+  cutoff = NULL,
   sd.score,
   reliability,
   reliab.lwrci = NULL,
@@ -23,7 +28,7 @@ compareCSEM(
 \arguments{
 \item{data}{A data frame containing at least the columns specified in
 \code{raw.score} and \code{CSEM}. Optionally, \code{lwr.ci.CSEM} and \code{upr.ci.CSEM}
-can be provided for confidence bands.}
+can be provided for confidence bands. Ignored if \code{score} and \code{csem} are provided.}
 
 \item{raw.score}{Character. Name of the column with observed scores (default = "raw.score").}
 
@@ -32,6 +37,17 @@ can be provided for confidence bands.}
 \item{lwr.ci.CSEM}{Character. Optional name of the column with lower confidence limits for CSEM.}
 
 \item{upr.ci.CSEM}{Character. Optional name of the column with upper confidence limits for CSEM.}
+
+\item{score}{Numeric vector of observed scores. If provided, overrides \code{data}.}
+
+\item{csem}{Numeric vector of conditional SEM values. If provided, overrides \code{data}.}
+
+\item{lwr.ci}{Numeric vector of lower confidence limits for CSEM (optional).}
+
+\item{upr.ci}{Numeric vector of upper confidence limits for CSEM (optional).}
+
+\item{cutoff}{Numeric vector of score values where vertical lines are added to the plots.
+Useful for highlighting cut scores or quantiles. Default = NULL.}
 
 \item{sd.score}{Numeric. Standard deviation of the observed scores (calculated externally from \code{raw.score}).}
 
@@ -88,7 +104,7 @@ The function returns a list containing:
 }
 \examples{
 \dontrun{
-# Example data (simulated)
+# Example using data frame
 df <- data.frame(
   raw.score = 10:40,
   CSEM = 2.3 + 0.005 * (10:40 - 25)^2,
@@ -100,10 +116,15 @@ result <- compareCSEM(data = df,
                       reliability = 0.85,
                       reliab.lwrci = 0.82,
                       reliab.uprci = 0.88,
-                      plot = "all")
-print(result$plot[[1]])  # CSEM vs global SEM plot
-head(result$data)
-result$global_sem
+                      plot = "all",
+                      cutoff = c(15, 30))
+
+# Example using vectors directly
+scores <- 10:40
+csem_vals <- 2.3 + 0.005 * (scores - 25)^2
+compareCSEM(score = scores, csem = csem_vals,
+            sd.score = 6.0, reliability = 0.85,
+            plot = "csem")
 }
 
 }

@@ -10,11 +10,17 @@
 #'
 #' @param data A data frame containing at least the columns specified in
 #'   \code{raw.score} and \code{CSEM}. Optionally, \code{lwr.ci.CSEM} and \code{upr.ci.CSEM}
-#'   can be provided for confidence bands.
+#'   can be provided for confidence bands. Ignored if \code{score} and \code{csem} are provided.
 #' @param raw.score Character. Name of the column with observed scores (default = "raw.score").
 #' @param CSEM Character. Name of the column with conditional SEM values (default = "CSEM").
 #' @param lwr.ci.CSEM Character. Optional name of the column with lower confidence limits for CSEM.
 #' @param upr.ci.CSEM Character. Optional name of the column with upper confidence limits for CSEM.
+#' @param score Numeric vector of observed scores. If provided, overrides \code{data}.
+#' @param csem Numeric vector of conditional SEM values. If provided, overrides \code{data}.
+#' @param lwr.ci Numeric vector of lower confidence limits for CSEM (optional).
+#' @param upr.ci Numeric vector of upper confidence limits for CSEM (optional).
+#' @param cutoff Numeric vector of score values where vertical lines are added to the plots.
+#'   Useful for highlighting cut scores or quantiles. Default = NULL.
 #' @param sd.score Numeric. Standard deviation of the observed scores (calculated externally from \code{raw.score}).
 #' @param reliability Numeric. Reliability coefficient (e.g., alpha, omega, Gilmer-Feldt) used to compute global SEM.
 #' @param reliab.lwrci Numeric. Optional lower confidence bound for \code{reliability}. If provided, must be used with \code{reliab.uprci}.
@@ -63,7 +69,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Example data (simulated)
+#' # Example using data frame
 #' df <- data.frame(
 #'   raw.score = 10:40,
 #'   CSEM = 2.3 + 0.005 * (10:40 - 25)^2,
@@ -75,10 +81,15 @@
 #'                       reliability = 0.85,
 #'                       reliab.lwrci = 0.82,
 #'                       reliab.uprci = 0.88,
-#'                       plot = "all")
-#' print(result$plot[[1]])  # CSEM vs global SEM plot
-#' head(result$data)
-#' result$global_sem
+#'                       plot = "all",
+#'                       cutoff = c(15, 30))
+#'
+#' # Example using vectors directly
+#' scores <- 10:40
+#' csem_vals <- 2.3 + 0.005 * (scores - 25)^2
+#' compareCSEM(score = scores, csem = csem_vals,
+#'             sd.score = 6.0, reliability = 0.85,
+#'             plot = "csem")
 #' }
 #'
 #' @export
@@ -87,6 +98,11 @@ compareCSEM <- function(data,
                         CSEM = "CSEM",
                         lwr.ci.CSEM = NULL,
                         upr.ci.CSEM = NULL,
+                        score = NULL,
+                        csem = NULL,
+                        lwr.ci = NULL,
+                        upr.ci = NULL,
+                        cutoff = NULL,
                         sd.score,
                         reliability,
                         reliab.lwrci = NULL,
@@ -96,51 +112,85 @@ compareCSEM <- function(data,
                         conf.level = 0.95,
                         ...) {
 
-  # --- Argument validation -------------------------------------------------
+  # --- Match plot argument ---
   plot <- match.arg(plot)
 
-  if (!is.data.frame(data)) {
-    stop("'data' must be a data frame.")
-  }
-  required_cols <- c(raw.score, CSEM)
-  missing_cols <- required_cols[!required_cols %in% names(data)]
-  if (length(missing_cols) > 0) {
-    stop("Missing required columns: ", paste(missing_cols, collapse = ", "))
-  }
+  # --- Determine input source: vectors or data frame --------------------
+  # If both score and csem are provided, they take precedence over data.
+  if (!is.null(score) && !is.null(csem)) {
+    if (!is.data.frame(data) && !missing(data)) {
+      message("Both 'score'/'csem' and 'data' provided. Using vectors 'score' and 'csem'; 'data' ignored.")
+    }
+    # Validate vectors
+    if (!is.numeric(score) || !is.numeric(csem))
+      stop("'score' and 'csem' must be numeric vectors.")
+    if (length(score) != length(csem))
+      stop("'score' and 'csem' must have the same length.")
+    if (!is.null(lwr.ci) && length(lwr.ci) != length(score))
+      stop("'lwr.ci' (if provided) must have the same length as 'score'.")
+    if (!is.null(upr.ci) && length(upr.ci) != length(score))
+      stop("'upr.ci' (if provided) must have the same length as 'score'.")
 
-  has_cisem <- !is.null(lwr.ci.CSEM) && !is.null(upr.ci.CSEM)
-  if (has_cisem) {
-    if (!lwr.ci.CSEM %in% names(data) || !upr.ci.CSEM %in% names(data)) {
-      stop("Columns specified in 'lwr.ci.CSEM' and/or 'upr.ci.CSEM' not found in data.")
+    scores <- score
+    csem_vals <- csem
+    csem_lwr <- lwr.ci
+    csem_upr <- upr.ci
+    has_cisem <- !is.null(csem_lwr) && !is.null(csem_upr)
+
+  } else {
+    # Use data frame
+    if (missing(data) || !is.data.frame(data))
+      stop("If 'score' and 'csem' are not provided, 'data' must be a data frame.")
+    required_cols <- c(raw.score, CSEM)
+    missing_cols <- required_cols[!required_cols %in% names(data)]
+    if (length(missing_cols) > 0) {
+      stop("Missing required columns in 'data': ", paste(missing_cols, collapse = ", "))
+    }
+    scores <- data[[raw.score]]
+    csem_vals <- data[[CSEM]]
+
+    # Optional confidence interval columns from data
+    has_cisem <- !is.null(lwr.ci.CSEM) && !is.null(upr.ci.CSEM)
+    if (has_cisem) {
+      if (!lwr.ci.CSEM %in% names(data) || !upr.ci.CSEM %in% names(data)) {
+        stop("Columns specified in 'lwr.ci.CSEM' and/or 'upr.ci.CSEM' not found in data.")
+      }
+      csem_lwr <- data[[lwr.ci.CSEM]]
+      csem_upr <- data[[upr.ci.CSEM]]
+    } else {
+      csem_lwr <- NULL
+      csem_upr <- NULL
     }
   }
 
-  if (!is.numeric(sd.score) || length(sd.score) != 1 || sd.score <= 0) {
+  # --- Validate numeric inputs -----------------------------------------
+  if (!is.numeric(scores) || !is.numeric(csem_vals))
+    stop("'score' and 'csem' (or columns from 'data') must be numeric vectors.")
+
+  if (!is.numeric(sd.score) || length(sd.score) != 1 || sd.score <= 0)
     stop("'sd.score' must be a single positive number.")
-  }
-  if (!is.numeric(reliability) || length(reliability) != 1 || reliability <= 0 || reliability >= 1) {
+
+  if (!is.numeric(reliability) || length(reliability) != 1 || reliability <= 0 || reliability >= 1)
     stop("'reliability' must be a single number between 0 and 1 (exclusive).")
-  }
+
   if (!is.null(reliab.lwrci) && !is.null(reliab.uprci)) {
     if (!is.numeric(reliab.lwrci) || !is.numeric(reliab.uprci) ||
-        reliab.lwrci >= reliab.uprci || reliab.lwrci <= 0 || reliab.uprci >= 1) {
+        reliab.lwrci >= reliab.uprci || reliab.lwrci <= 0 || reliab.uprci >= 1)
       stop("'reliab.lwrci' and 'reliab.uprci' must be numbers with 0 < lwr < upr < 1.")
-    }
   } else if (xor(is.null(reliab.lwrci), is.null(reliab.uprci))) {
     stop("Both 'reliab.lwrci' and 'reliab.uprci' must be provided together, or both NULL.")
   }
 
-  if (!is.numeric(digits) || length(digits) != 1 || digits < 0) {
+  if (has_cisem && (is.null(csem_lwr) || is.null(csem_upr)))
+    stop("If confidence intervals for CSEM are requested, both lower and upper bounds must be provided.")
+
+  if (!is.null(cutoff) && !is.numeric(cutoff))
+    stop("'cutoff' must be a numeric vector.")
+
+  if (!is.numeric(digits) || length(digits) != 1 || digits < 0)
     stop("'digits' must be a non-negative integer.")
-  }
 
-  # --- Extract columns ----------------------------------------------------
-  scores <- data[[raw.score]]
-  csem_vals <- data[[CSEM]]
-  csem_lwr <- if (has_cisem) data[[lwr.ci.CSEM]] else NULL
-  csem_upr <- if (has_cisem) data[[upr.ci.CSEM]] else NULL
-
-  # --- Compute global SEM and confidence interval ------------------------
+  # --- Compute global SEM and confidence interval ----------------------
   sem_global <- sd.score * sqrt(1 - reliability)
 
   if (!is.null(reliab.lwrci)) {
@@ -152,7 +202,7 @@ compareCSEM <- function(data,
     has_ci_global <- FALSE
   }
 
-  # --- Output data frame (raw.score, CSEM, optional CISEM, ratio) -------
+  # --- Build output data frame -----------------------------------------
   out_df <- data.frame(
     raw.score = scores,
     CSEM = csem_vals
@@ -163,10 +213,11 @@ compareCSEM <- function(data,
   }
   out_df$ratio <- csem_vals / sem_global
 
+  # Round numeric columns
   numeric_cols <- sapply(out_df, is.numeric)
   out_df[numeric_cols] <- lapply(out_df[numeric_cols], round, digits = digits)
 
-  # --- Global SEM info as data frame (two columns: value, estimate) ----
+  # --- Global SEM info as data frame -----------------------------------
   global_sem_df <- data.frame(
     value = "sem.global",
     estimate = round(sem_global, digits)
@@ -179,12 +230,12 @@ compareCSEM <- function(data,
     )
   }
 
-  # --- Prepare plots ------------------------------------------------------
+  # --- Prepare plots --------------------------------------------------
   plot_list <- list()
   has_ggplot2 <- requireNamespace("ggplot2", quietly = TRUE)
 
   if (plot != "none" && !has_ggplot2) {
-    warning("Package 'ggplot2' not installed. Plots will be omitted.")
+    warning("Package 'ggplot2' is not installed. Plots will be omitted.")
     plot <- "none"
   }
 
@@ -200,10 +251,9 @@ compareCSEM <- function(data,
       plot_df$upr.ci.CSEM <- csem_upr
     }
 
-    # --- Plot 1: CSEM vs Global SEM ---
+    # ---- Plot 1: CSEM vs Global SEM ----
     if (plot %in% c("csem", "all")) {
       p1 <- ggplot2::ggplot(plot_df, ggplot2::aes(x = raw.score))
-
       if (has_cisem) {
         p1 <- p1 + ggplot2::geom_ribbon(ggplot2::aes(ymin = lwr.ci.CSEM,
                                                      ymax = upr.ci.CSEM),
@@ -224,10 +274,17 @@ compareCSEM <- function(data,
                                      ymin = sem_global_lwr, ymax = sem_global_upr,
                                      fill = "red", alpha = 0.2)
       }
+
+      # Add cutoff vertical lines if provided
+      if (!is.null(cutoff)) {
+        p1 <- p1 + ggplot2::geom_vline(xintercept = cutoff,
+                                       linetype = "dashed", color = "gray50", size = 0.5)
+      }
+
       plot_list$csem_plot <- p1
     }
 
-    # --- Plot 2: Ratio CSEM / Global SEM ---
+    # ---- Plot 2: Ratio CSEM / Global SEM ----
     if (plot %in% c("ratio", "all")) {
       p2 <- ggplot2::ggplot(plot_df, ggplot2::aes(x = raw.score, y = .data$ratio)) +
         ggplot2::geom_line(size = 1.2, colour = "steelblue") +
@@ -240,15 +297,21 @@ compareCSEM <- function(data,
       if (has_ci_global) {
         ratio_lwr <- csem_vals / sem_global_upr
         ratio_upr <- csem_vals / sem_global_lwr
-        # Use geom_ribbon with explicit x and ymin/ymax
         p2 <- p2 + ggplot2::geom_ribbon(ggplot2::aes(ymin = ratio_lwr, ymax = ratio_upr),
                                         fill = "steelblue", alpha = 0.2)
       }
+
+      # Add cutoff vertical lines if provided
+      if (!is.null(cutoff)) {
+        p2 <- p2 + ggplot2::geom_vline(xintercept = cutoff,
+                                       linetype = "dashed", color = "gray50", size = 0.5)
+      }
+
       plot_list$ratio_plot <- p2
     }
   }
 
-  # --- Output ------------------------------------------------------------
+  # --- Output ---------------------------------------------------------
   result <- list(data = out_df,
                  global_sem = global_sem_df,
                  plot = NULL)
