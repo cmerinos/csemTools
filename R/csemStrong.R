@@ -52,9 +52,12 @@
 #' @references
 #' Lord, F. M. (1965). A strong true score theory, with applications.
 #'   \emph{Psychometrika}, 30, 239-270.
+#'   \doi{10.1007/BF02289490}
 #'
-#' Tong, Y., & Kolen, M. J. (2018). Conditional standard errors of measurement.
-#'   In \emph{Wiley StatsRef: Statistics Reference Online}.
+#' Tong, Y. and Kolen, M.J. (2018). Conditional Standard Errors of Measurement.
+#' In Wiley StatsRef: Statistics Reference Online (eds N. Balakrishnan, T. Colton,
+#' B. Everitt, W. Piegorsch, F. Ruggeri and J.L. Teugels; pp. 1-8).
+#' \doi{10.1002/9781118445112.stat06376.pub2}
 #'
 #' @examples
 #' # Dichotomous,  strong true score

@@ -28,6 +28,11 @@
 #' @return A ggplot2 object (invisibly). The plot is also printed.
 #'
 #' @examples
+#' basicData <- csemBinom(score.type = "dich",
+#' nitems = 10)
+#'
+#' plotCSEM(basicData)
+#'
 #' \donttest{
 #' # Example with simulated data
 #' scores <- 0:20
@@ -107,7 +112,7 @@ plotCSEM <- function(score,
 
   if (plot.type == "csem") {
     p <- p + ggplot2::geom_line(ggplot2::aes(y = csem),
-                                color = color.line, linetype = line.type, size = 1) +
+                                color = color.line, linetype = line.type, linewidth = 1) +
       ggplot2::geom_point(ggplot2::aes(y = csem),
                           color = color.points, size = point.size)
 
@@ -117,10 +122,10 @@ plotCSEM <- function(score,
                                   fill = color.band, alpha = 0.4) +
       # Diagonal line (observed score = true score)
       ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed",
-                           color = "gray50", size = 0.5) +
+                           color = "gray50", linewidth = 0.5) +
       # Optionally, add observed score points (if desired)
       ggplot2::geom_point(ggplot2::aes(y = score),
-                          color = color.points, size = point.size, alpha = 0.5)
+                          color = color.points, linewidth = point.size, alpha = 0.5)
   }
 
   # --- Add cutoff lines if provided ---
@@ -128,7 +133,7 @@ plotCSEM <- function(score,
     p <- p + ggplot2::geom_vline(xintercept = cutoff,
                                  color = color.cutoff,
                                  linetype = "dashed",
-                                 size = 0.5)
+                                 linewidth = 0.5)
   }
 
   p <- p + ggplot2::labs(title = title, x = xlab, y = ylab)

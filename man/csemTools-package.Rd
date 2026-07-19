@@ -6,7 +6,7 @@
 \alias{csemTools-package}
 \title{csemTools: Conditional Standard Error of Measurement Tools for Test Scores}
 \description{
-Provides functions to compute and compare conditional standard errors of measurement (CSEM) across score distributions using methods from classical test theory. Includes approaches for smoothing, bootstrapped CSEM, standardized CSEM, CSEM for scale scores, and assessment of properties of split-half scores. Also supports comparison with global standard errors derived from reliability coefficients and graphical visualization of CSEM curves and relative precision across observed score ranges.
+Compute and compare conditional standard errors of measurement (CSEM) across score distributions using methods from classical test theory. Includes approaches for smoothing, bootstrapped CSEM, standardized CSEM, CSEM for scale scores, and assessment of properties of split-half scores. Also supports comparison with global standard errors derived from reliability coefficients and graphical visualization of CSEM curves and relative precision across observed score ranges. Lord (1955) \doi{10.1002/j.2333-8504.1955.tb00054.x} Feldt and Qualls (1996) \doi{10.1111/j.1745-3984.1996.tb00486.x} McNeish and Dumas (2025) \doi{10.3758/s13428-025-02611-8}
 }
 \seealso{
 Useful links:

@@ -45,6 +45,7 @@
 #' @references
 #' Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
 #' at specific score levels. *Journal of Educational Measurement*, 33(2), 141-156.
+#' \doi{10.1111/j.1745-3984.1996.tb00486.x}
 #'
 #' @examples
 #' \donttest{

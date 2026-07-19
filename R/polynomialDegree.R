@@ -39,22 +39,34 @@ polynomialDegree <- function(x, y,
                              min_degree = 1,
                              max_degree = 6,
                              show.coefs = FALSE,
-                             plot = TRUE) {
-  if (length(x) != length(y)) stop("x and y must have the same length.")
-  if (min_degree < 1) stop("min_degree must be at least 1.")
+                             plot = FALSE) {
+
+  if (length(x) != length(y))
+    stop("x and y must have the same length.")
+
+  if (min_degree < 1)
+    stop("min_degree must be at least 1.")
+
   if (max_degree > length(unique(x)) - 1) {
-    warning("max_degree reduced to ", length(unique(x))-1, " due to insufficient unique x values.")
+    warning(
+      "max_degree reduced to ",
+      length(unique(x)) - 1,
+      " due to insufficient unique x values."
+    )
     max_degree <- length(unique(x)) - 1
   }
-  if (min_degree > max_degree) stop("min_degree > max_degree.")
+
+  if (min_degree > max_degree)
+    stop("min_degree > max_degree.")
 
   degrees <- seq(min_degree, max_degree, by = 1)
+
   results <- data.frame(
     degree = degrees,
     AIC = NA_real_,
     BIC = NA_real_,
     adjR2 = NA_real_,
-    p_improve = NA_real_,  # p-value of F-test comparing to previous degree (NA for min_degree)
+    p_improve = NA_real_,
     best_AIC = FALSE,
     best_BIC = FALSE,
     stringsAsFactors = FALSE
@@ -64,59 +76,96 @@ polynomialDegree <- function(x, y,
   prev_model <- NULL
 
   for (d in degrees) {
-    # Uncentered polynomial (raw = TRUE) to facilitate interpretation
 
-    form <- stats::as.formula(paste("y ~ poly(x,", d, ", raw = TRUE)"))
-    mod <- lm(form, data = data.frame(x = x, y = y))
+    form <- stats::as.formula(
+      paste("y ~ poly(x,", d, ", raw = TRUE)")
+    )
+
+    mod <- stats::lm(
+      form,
+      data = data.frame(x = x, y = y)
+    )
+
     models_list[[as.character(d)]] <- mod
-    s <- summary(mod)
-    adjR2 <- s$adj.r.squared
-    aic <- AIC(mod)
-    bic <- BIC(mod)
 
-    # F-test for improvement over the previous model (if applicable)
-    p_improve <- NA
+    s <- summary(mod)
+
+    adjR2 <- s$adj.r.squared
+    aic <- stats::AIC(mod)
+    bic <- stats::BIC(mod)
+
+    p_improve <- NA_real_
+
     if (d > min_degree && !is.null(prev_model)) {
-      ftest <- anova(prev_model, mod)
+      ftest <- stats::anova(prev_model, mod)
       p_improve <- ftest$`Pr(>F)`[2]
     }
 
-    results[results$degree == d, c("AIC", "BIC", "adjR2", "p_improve")] <-
-      c(aic, bic, adjR2, p_improve)
+    results[
+      results$degree == d,
+      c("AIC", "BIC", "adjR2", "p_improve")
+    ] <- c(aic, bic, adjR2, p_improve)
 
     prev_model <- mod
   }
 
-  # Identify the best models based on AIC and BIC (the lowest value)
-  results$best_AIC <- results$AIC == min(results$AIC, na.rm = TRUE)
-  results$best_BIC <- results$BIC == min(results$BIC, na.rm = TRUE)
+  results$best_AIC <-
+    results$AIC == min(results$AIC, na.rm = TRUE)
+
+  results$best_BIC <-
+    results$BIC == min(results$BIC, na.rm = TRUE)
 
   if (plot) {
+
+    oldpar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(oldpar), add = TRUE)
+
     graphics::par(mar = c(5, 4, 4, 4))
-    plot(results$degree, results$AIC, type = "b", col = "red", pch = 19,
-         xlab = "Degree of the polynomial", ylab = "AIC / BIC",
-         main = "Information Criteria for Grade Selection")
-    lines(results$degree, results$BIC, type = "b", col = "blue", pch = 17)
-    legend("topright", legend = c("AIC", "BIC"), col = c("red", "blue"),
-           lty = 1, pch = c(19, 17), bty = "n")
+
+    plot(
+      results$degree,
+      results$AIC,
+      type = "b",
+      col = "red",
+      pch = 19,
+      xlab = "Degree of the polynomial",
+      ylab = "AIC / BIC",
+      main = "Information Criteria for Grade Selection"
+    )
+
+    graphics::lines(
+      results$degree,
+      results$BIC,
+      type = "b",
+      col = "blue",
+      pch = 17
+    )
+
+    graphics::legend(
+      "topright",
+      legend = c("AIC", "BIC"),
+      col = c("red", "blue"),
+      lty = 1,
+      pch = c(19, 17),
+      bty = "n"
+    )
+
     graphics::grid()
   }
 
   if (show.coefs) {
+
     for (d in degrees) {
-      cat("\n=== Grado", d, "===\n")
-      print(summary(models_list[[as.character(d)]])$coefficients)
+
+      message(paste0("\n=== Degree ", d, " ==="))
+
+      print(
+        summary(
+          models_list[[as.character(d)]]
+        )$coefficients
+      )
     }
   }
 
-  # Summary Message
-  best_aic_deg <- results$degree[results$best_AIC][1]
-  best_bic_deg <- results$degree[results$best_BIC][1]
-  cat("\n=== Summary of Polynomial Models ===\n")
-  print(results[, c("degree", "AIC", "BIC", "adjR2", "p_improve")])
-  cat("\nBest degree according to AIC:", best_aic_deg, "(AIC =", round(min(results$AIC), 2), ")")
-  cat("\nBest degree according to BIC:", best_bic_deg, "(BIC =", round(min(results$BIC), 2), ")")
-  cat("\n")
-
-  invisible(list(summary = results, models = models_list))
+  return(results)
 }

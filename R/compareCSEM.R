@@ -50,7 +50,7 @@
 #' conditional SEM is larger (worse precision) than the global average; values below 1
 #' indicate better precision.
 #'
-#' The function returns a list containing:
+#' @return
 #' \itemize{
 #'   \item \code{data}: A data frame with columns \code{raw.score}, \code{CSEM}, optionally
 #'     \code{lwr.ci.CSEM}/\code{upr.ci.CSEM}, and \code{ratio} (rounded to \code{digits}).
@@ -68,7 +68,7 @@
 #' @importFrom rlang .data
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Example using data frame
 #' df <- data.frame(
 #'   raw.score = 10:40,

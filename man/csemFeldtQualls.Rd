@@ -99,4 +99,5 @@ csemFeldtQualls(bfi[, 1:5], n.parts = 2, bin.score = 5, ci = TRUE, conf.level = 
 \references{
 Feldt, L. S., & Qualls, A. L. (1996). Estimation of measurement error variance
 at specific score levels. \emph{Journal of Educational Measurement}, 33(2), 141-156.
+\doi{10.1111/j.1745-3984.1996.tb00486.x}
 }

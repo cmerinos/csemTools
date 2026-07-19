@@ -70,30 +70,30 @@
 #' @references
 #' Lord, F. M. (1955). Estimating test reliability.
 #'   \emph{Educational and Psychological Measurement}, 15, 325-336.
+#'   \doi{10.1002/j.2333-8504.1955.tb00054.x}
+#'
 #' Lord, F. M. (1957). Do tests of the same length have the same standard
 #'   error of measurement? \emph{Educational and Psychological Measurement}, 17, 510-521.
+#'   \doi{10.1177/001316445701700407}
+#'
 #' Keats, J. A. (1957). Estimation of error variances of test scores.
-#'   \emph{Psychometrika}, 22(1), 29-41.
+#' \emph{Psychometrika}, 22(1), 29-41.
+#' \doi{10.1177/001316445701700407}
+#'
 #' Wilson, R. A., Downing, S. M., & Ebel, R. L. (1979). An empirical adjustment of the
 #'   Kuder-Richardson 21 reliability coefficient to better estimate the Kuder-Richardson 20 coefficient
-#'   (ED173387). ERIC.
+#'   (ED173387). https://eric.ed.gov/?id=ED173387
 #'
 #' @examples
 #' # Dichotomous, Lord method
+#' csemBinom(score.type = "dich",
+#' nitems = 16,
+#' csem.method = "Lord")
+#'
 #' \donttest{
 #' library(psychTools)
 #' data(ability)
 #' data.ability <- ability[complete.cases(ability),]
-#'
-#' csemBinom(score.type = "dich",
-#' nitems = 16,
-#' ci = TRUE,
-#' csem.method = "Lord")
-#'
-#' # Lord-Keats method, no data
-#'  csemBinom(score.type = "dich", nitems = 16,
-#'  ci = FALSE,
-#'  csem.method = "LordKeats", rhoxx = .86)
 #'
 #'  # Lord-Keats method, more data
 #'  csemBinom(score.type = "dich",
@@ -102,6 +102,11 @@
 #'  csem.method = "LordKeats",
 #'  data = data.ability,
 #'  rho.report = TRUE)
+#'
+#' # Lord-Keats method, no data
+#'  csemBinom(score.type = "dich", nitems = 16,
+#'  ci = FALSE,
+#'  csem.method = "LordKeats", rhoxx = .86)
 #'
 #'  # "LordKeats", polytomous items
 #'  csemBinom(score.type = "poly",

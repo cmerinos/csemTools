@@ -66,6 +66,15 @@ Useful for highlighting cut scores or quantiles. Default = NULL.}
 
 \item{...}{Additional arguments passed to \code{ggplot2::geom_line()} and \code{ggplot2::geom_ribbon()}.}
 }
+\value{
+\itemize{
+\item \code{data}: A data frame with columns \code{raw.score}, \code{CSEM}, optionally
+\code{lwr.ci.CSEM}/\code{upr.ci.CSEM}, and \code{ratio} (rounded to \code{digits}).
+\item \code{global_sem}: A data frame with two columns: \code{value} (label) and \code{estimate}
+(numeric). Contains \code{sem.global} and, if provided, \code{lwr.ci} and \code{upr.ci}.
+\item \code{plot}: A ggplot2 object (or list of two objects if \code{plot = "all"}); \code{NULL} if \code{plot = "none"}.
+}
+}
 \description{
 Compares a conditional standard error of measurement (CSEM) function against the
 global (constant) SEM. The global SEM is computed from the observed score standard
@@ -92,18 +101,9 @@ draw a confidence band around the global SEM line.
 The ratio is computed as \code{CSEM / SEM_global}. Values above 1 indicate that the
 conditional SEM is larger (worse precision) than the global average; values below 1
 indicate better precision.
-
-The function returns a list containing:
-\itemize{
-\item \code{data}: A data frame with columns \code{raw.score}, \code{CSEM}, optionally
-\code{lwr.ci.CSEM}/\code{upr.ci.CSEM}, and \code{ratio} (rounded to \code{digits}).
-\item \code{global_sem}: A data frame with two columns: \code{value} (label) and \code{estimate}
-(numeric). Contains \code{sem.global} and, if provided, \code{lwr.ci} and \code{upr.ci}.
-\item \code{plot}: A ggplot2 object (or list of two objects if \code{plot = "all"}); \code{NULL} if \code{plot = "none"}.
-}
 }
 \examples{
-\dontrun{
+\donttest{
 # Example using data frame
 df <- data.frame(
   raw.score = 10:40,

@@ -10,7 +10,7 @@ polynomialDegree(
   min_degree = 1,
   max_degree = 6,
   show.coefs = FALSE,
-  plot = TRUE
+  plot = FALSE
 )
 }
 \arguments{

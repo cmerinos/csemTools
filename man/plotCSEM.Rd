@@ -72,6 +72,11 @@ Creates a ggplot2 plot of the CSEM as a function of test scores, or a plot
 of the observed score with confidence interval band for the true score.
 }
 \examples{
+basicData <- csemBinom(score.type = "dich",
+nitems = 10)
+
+plotCSEM(basicData)
+
 \donttest{
 # Example with simulated data
 scores <- 0:20
