@@ -31,7 +31,7 @@
 #' basicData <- csemBinom(score.type = "dich",
 #' nitems = 10)
 #'
-#' plotCSEM(basicData)
+#' plotCSEM(score = basicData$raw.score, csem = basicData$binom.CSEM)
 #'
 #' \donttest{
 #' # Example with simulated data
