@@ -122,7 +122,7 @@ result <- compareCSEM(data = df,
 # Example using vectors directly
 scores <- 10:40
 csem_vals <- 2.3 + 0.005 * (scores - 25)^2
-compareCSEM(score = scores, csem = csem_vals,
+compareCSEM(data = NULL, score = scores, csem = csem_vals,
             sd.score = 6.0, reliability = 0.85,
             plot = "csem")
 }
