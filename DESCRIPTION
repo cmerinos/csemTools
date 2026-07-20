@@ -1,7 +1,7 @@
 Package: csemTools
 Type: Package
 Title: Conditional Standard Error of Measurement Tools for Test Scores
-Version: 0.1.3.9000
+Version: 0.1.4
 Authors@R: c(
     person(
       "Cesar", "Merino-Soto",
