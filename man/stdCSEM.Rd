@@ -26,6 +26,10 @@ The standardized conditional reliability for each score level (or examinee) is:
 \deqn{\rho = 1 - \frac{CSEM^2}{\sigma_X^2}}
 where \eqn{\sigma_X^2} is the variance of observed scores in the sample.
 Values are truncated to the 0 to 1 interval.
+
+"A related precedent appears in Lawrence (1995, Equation 1). The adaptation by Raju et al. (2007) lies
+in substituting the global SEM with the CSEM vector, while keeping the total observed variance
+constant in the denominator to preserve the classical reliability metric."
 }
 \examples{
 \donttest{
@@ -57,5 +61,8 @@ var_obs = strongCSEM.out$summary$value[3])
 \references{
 Raju, N. S., Price, L. R., Oshima, T. C., & Nering, M. L. (2007).
 Standardized conditional SEM: A comparison of methods.
-\emph{Educational and Psychological Measurement}, 67(6), 903-916.
+\emph{Educational and Psychological Measurement}, 67(6), 903-916. \doi{10.1177/0146621606291569}
+
+Lawrence, I. M. (1995). ESTIMATING RELIABILITY FOR TESTS COMPOSED OF ITEM SETS. \emph{ETS Research Report
+Series}, 1995(1). \doi{10.1002/j.2333-8504.1995.tb01653.x}
 }

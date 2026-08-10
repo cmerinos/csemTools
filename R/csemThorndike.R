@@ -41,9 +41,6 @@
 #' library(EFA.dimensions)
 #' data("data_RSE")
 #'
-#' ## Recode negative items
-#' data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
-#'
 #' ## Choosing split by difficulty criteria
 #' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
 #'
