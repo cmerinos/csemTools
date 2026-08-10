@@ -79,6 +79,7 @@
 #' ci = FALSE,
 #' summary = TRUE,
 #' bin.score = 5)
+#' }
 #'
 #' @export
 csemStrong <- function(data,
