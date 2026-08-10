@@ -62,7 +62,7 @@
 #' res2$var.compare
 #' }
 #'
-#' @importFrom stats lm anova p.adjust pnorm quantile poly confint as.formula
+#' @importFrom stats lm anova p.adjust pnorm quantile poly confint as.formula p.adjust.methods
 #' @importFrom ggplot2 ggplot aes geom_line geom_ribbon geom_hline labs theme_classic
 #' @importFrom patchwork wrap_plots
 #' @export

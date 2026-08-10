@@ -80,24 +80,6 @@
 #' summary = TRUE,
 #' bin.score = 5)
 #'
-#' # Polytomous items,
-#' ## Load data
-#' library(EFA.dimensions)
-#' data("data_RSE")
-#'
-#' ## Recode negative items
-#' data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")] <- 5 - data_RSE[c("Q3", "Q5", "Q8", "Q9", "Q10")]
-#'
-#' csemStrong(score.type = "poly",
-#' data = data_RSE,
-#' min.resp = 1,
-#' max.resp = 4,
-#' ci = FALSE,
-#' summary = TRUE,
-#' full.range = TRUE,
-#' bin.score = 4)
-#' }
-#'
 #' @export
 csemStrong <- function(data,
                        score.type = c("dich", "poly"),
