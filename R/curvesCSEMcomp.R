@@ -2,8 +2,8 @@
 #'
 #' This function compares two CSEM curves (or two methods) using:
 #' - Polynomial regression with interaction to assess global differences.
-#' - Point‑wise effect sizes (CSEM ratio) with confidence intervals.
-#' - Point‑wise hypothesis tests with multiple comparison correction (if sample sizes are provided).
+#' - Point-wise effect sizes (CSEM ratio) with confidence intervals.
+#' - Point-wise hypothesis tests with multiple comparison correction (if sample sizes are provided).
 #'
 #' @param score Numeric vector of scores (common axis). Must be increasing.
 #' @param csem.m1 Vector of CSEM for method/group 1.
@@ -25,22 +25,22 @@
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{csem.compare}}{Data frame with score, CSEM values, difference, ratio, and confidence limits (CSEM scale).}
-#'   \item{\code{var.compare}}{Data frame with variance components, difference, ratio, standard errors, z‑statistics, p‑values (raw and adjusted), significance flag, and confidence limits (variance scale).}
+#'   \item{\code{var.compare}}{Data frame with variance components, difference, ratio, standard errors, z-statistics, p-values (raw and adjusted), significance flag, and confidence limits (variance scale).}
 #'   \item{\code{global.effect}}{Data frame with global summaries: geometric mean ratios and mean differences for both CSEM and variance, with bootstrap CIs.}
-#'   \item{\code{regression}}{List with ANOVA table, fit statistics (R², adjusted R²), and coefficient table (estimates, SE, t, p, CI).}
-#'   \item{\code{significant.regions}}{Data frame with intervals where adjusted p‑value < \code{alpha} (if \code{n} provided).}
+#'   \item{\code{regression}}{List with ANOVA table, fit statistics (R^2, adjusted ^2), and coefficient table (estimates, SE, t, p, CI).}
+#'   \item{\code{significant.regions}}{Data frame with intervals where adjusted p-value < \code{alpha} (if \code{n} provided).}
 #'   \item{\code{alpha}}{The significance level used.}
 #'   \item{\code{conf.level}}{The confidence level used.}
 #' }
 #'
 #' @details
-#' The statistical tests are based on the error variances (CSEM²) because they are additive
+#' The statistical tests are based on the error variances (CSEM^2) because they are additive
 #' and their sampling variance has a closed form:
 #' \deqn{\mathrm{Var}(\hat{\sigma}^2) \approx \frac{2(\hat{\sigma}^2)^2}{n-1}}{Var(s²) ≈ 2*(s²)²/(n-1)}
 #' The standard error of the difference between two independent variances is:
 #' \deqn{\mathrm{SE}(\hat{\sigma}_1^2 - \hat{\sigma}_2^2) = \sqrt{ \frac{2\hat{\sigma}_1^4}{n_1-1} + \frac{2\hat{\sigma}_2^4}{n_2-1} }}
 #' Confidence intervals for the ratio of CSEM are obtained by taking the square root of the
-#' variance‑ratio confidence limits (after applying the log transformation).
+#' variance-ratio confidence limits (after applying the log transformation).
 #'
 #' @examples
 #' \donttest{
@@ -62,7 +62,7 @@
 #' res2$var.compare
 #' }
 #'
-#' @importFrom stats lm anova p.adjust pnorm quantile poly confint
+#' @importFrom stats lm anova p.adjust pnorm quantile poly confint as.formula
 #' @importFrom ggplot2 ggplot aes geom_line geom_ribbon geom_hline labs theme_classic
 #' @importFrom patchwork wrap_plots
 #' @export
@@ -104,7 +104,7 @@ curvesCSEMcomp <- function(score,
   if (any(!is.finite(score)) || any(!is.finite(csem.m1)) || any(!is.finite(csem.m2)))
     stop("Infinite values are not allowed.")
   if (any(csem.m1 < 0) || any(csem.m2 < 0))
-    stop("CSEM values must be non‑negative.")
+    stop("CSEM values must be non-negative.")
   if (is.unsorted(score)) {
     warning("'score' is not sorted. Data will be reordered.")
     ord <- order(score)
@@ -184,7 +184,7 @@ curvesCSEMcomp <- function(score,
   )
 
   # --------------------------------------------------------------------------
-  # 4. Point‑wise effect sizes (CSEM and variance)
+  # 4. Point-wise effect sizes (CSEM and variance)
   # --------------------------------------------------------------------------
   diff_csem <- csem.m1 - csem.m2
   ratio_csem <- csem.m1 / (csem.m2 + eps)
@@ -459,11 +459,11 @@ print.csem_compare <- function(x, details = FALSE, ...) {
   cat("\n--- Polynomial regression ---\n")
   cat("Polynomial degree:", x$poly.degree, "\n")
   cat("R²:", round(x$regression$fit$r.squared, 4), "\n")
-  cat("p‑value for method effect:",
+  cat("p-value for method effect:",
       round(x$regression$anova["method", "Pr(>F)"], 4), "\n")
   inter_row <- grep("poly.*:method", rownames(x$regression$anova))
   if (length(inter_row) > 0) {
-    cat("p‑value for interaction (different shape):",
+    cat("p-value for interaction (different shape):",
         round(x$regression$anova[inter_row, "Pr(>F)"], 4), "\n")
   }
 
@@ -481,6 +481,6 @@ print.csem_compare <- function(x, details = FALSE, ...) {
     cat("\nTo see regression coefficients, use: print(x, details = TRUE)\n")
   }
 
-  cat("\nFor full point‑wise tables, use: x$csem.compare  or  x$var.compare\n")
+  cat("\nFor full point-wise tables, use: x$csem.compare  or  x$var.compare\n")
   invisible(x)
 }

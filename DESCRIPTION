@@ -32,7 +32,8 @@ Imports:
     boot,
     ggplot2,
     pbapply,
-    rlang
+    rlang,
+    patchwork
 Suggests:
     EFA.dimensions,
     psych,
@@ -42,5 +43,4 @@ Suggests:
     scam,
     zoo,
     testthat (>= 3.0.0),
-    patchwork
 Config/testthat/edition: 3
