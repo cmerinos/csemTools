@@ -1,5 +1,5 @@
 ## Resubmission
-This is a new major release (0.2.0) with a new function `curvesCSEMcomp()` for comparing CSEM curves.
+This is a new major release (0.3.0) with a new function `curvesCSEMcomp()` for comparing CSEM curves.
 
 ## Test environments
 * local Windows 11, R 4.5.0
