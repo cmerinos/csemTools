@@ -1,8 +1,12 @@
 # csemTools 0.2.0
-- More stable and secure versions
+## New features
+* Added curvesCSEMcomp() for statistical comparison of CSEM curves.
+* Added effect size estimates, confidence intervals, and significance regions.
+* Added unit tests for curvesCSEMcomp().
 
-## Maintenance
-* Updated documentation.
+## Improvements
+* Updated plotCSEM() for compatibility with recent ggplot2 versions.
+* Improved package documentation.
 
 # csemTools 0.1.4
 - New function `curvesCSEMcomp()` to compare two CSEM curves using polynomial regression, point-wise effect sizes, and significance regions with FDR correction.
