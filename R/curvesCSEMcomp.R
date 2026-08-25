@@ -367,8 +367,8 @@ curvesCSEMcomp <- function(score,
       y_upr <- df[[upr_col]]
 
       p <- ggplot2::ggplot(df, ggplot2::aes(x = score)) +
-        ggplot2::geom_line(ggplot2::aes(y = y_ratio), color = "purple", size = 1.2) +
-        ggplot2::geom_hline(yintercept = 1, linetype = "dashed", color = "red", size = 0.8) +
+        ggplot2::geom_line(ggplot2::aes(y = y_ratio), color = "purple", linewidth = 1.2) +
+        ggplot2::geom_hline(yintercept = 1, linetype = "dashed", color = "red", linewidth = 0.8) +
         ggplot2::geom_hline(yintercept = c(0.8, 1.2), linetype = "dotted", color = "gray50", alpha = 0.6) +
         ggplot2::labs(
           title = title,
