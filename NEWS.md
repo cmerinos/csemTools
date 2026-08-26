@@ -1,5 +1,10 @@
 # csemTools 0.2.1
 
+## Maintenance
+* Removed dependency on archived package EFA.dimensions.
+* Added internal dataset `rse_data` (Rosenberg Self-Esteem Scale) for package examples.
+* Updated examples to use the internal dataset.
+
 # csemTools 0.2.0
 ## New features
 * Added curvesCSEMcomp() for statistical comparison of CSEM curves.
