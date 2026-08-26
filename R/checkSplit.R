@@ -20,13 +20,13 @@
 #' data("rse_data")
 #'
 #' ## Check split
-#' checkSplit(data = data_RSE, method = "ritc")
-#' checkSplit(data = data_RSE, method = "random")
-#' checkSplit(data = data_RSE, method = "optimized")
-#' checkSplit(data = data_RSE, method = "difficulty")
+#' checkSplit(data = rse_data, method = "ritc")
+#' checkSplit(data = rse_data, method = "random")
+#' checkSplit(data = rse_data, method = "optimized")
+#' checkSplit(data = rse_data, method = "difficulty")
 #'
 #' ## Choosing split by difficulty criteria
-#' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+#' RSE.namesHalf <- checkSplit(data = rse_data, method = "difficulty")
 #'
 #' RSE.namesHalf$half1
 #' RSE.namesHalf$half2

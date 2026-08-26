@@ -29,11 +29,11 @@
 #' data("rse_data")
 #'
 #' ## Check split: difficulty criteria
-#' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+#' RSE.namesHalf <- checkSplit(data = rse_data, method = "difficulty")
 #'
 #'## check Distribution
-#' checkScale(half1 = data_RSE[,RSE.namesHalf$half1],
-#'                  half2 = data_RSE[,RSE.namesHalf$half2],
+#' checkScale(half1 = rse_data[,RSE.namesHalf$half1],
+#'                  half2 = rse_data[,RSE.namesHalf$half2],
 #'                  conf = .95)
 #' }
 #'

@@ -73,30 +73,30 @@ This provides smoothed CSEM values along the score scale.
 data("rse_data")
 
 ## Split in two halves
-RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+RSE.namesHalf <- checkSplit(data = rse_data, method = "difficulty")
 
 ## Items in the halves?
 RSE.namesHalf$half1
 RSE.namesHalf$half2
 
 ## Run Mollenkoptf-Feldt method
-csemMF(data = data_RSE,
+csemMF(data = rse_data,
 ci = FALSE,
 degree = 3, n.parts = 2)
 
 ## 3 parts
-csemMF(data = data_RSE,
+csemMF(data = rse_data,
 ci = FALSE,
 degree = 3, n.parts = 3)
 
 ## CSEM for binned score too
-csemMF(data = data_RSE,
+csemMF(data = rse_data,
 ci = FALSE,
 degree = 3,
 n.parts = 2, bin.score = 4)
 
 ## Full report
-csemMF(data = data_RSE,
+csemMF(data = rse_data,
 ci = FALSE, conf.level = .90,
 degree = 3,
 n.parts = 2, bin.score = 4)
