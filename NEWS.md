@@ -1,3 +1,5 @@
+# csemTools 0.2.1
+
 # csemTools 0.2.0
 ## New features
 * Added curvesCSEMcomp() for statistical comparison of CSEM curves.
