@@ -1,14 +1,13 @@
-# csemTools 0.3.0
+# csemTools 0.2.1
 
-## Improvements
-* Internal code now uses `patchwork` (suggested) for combined plots.
-* Improved documentation and examples in several functions.
-* Minor bug fixes in `checkAlpha`.
-* Fix documentation.
+## Maintenance
+* Removed dependency on archived package EFA.dimensions.
+* Added internal dataset `rse_data` (Rosenberg Self-Esteem Scale) for package examples.
+* Updated examples to use the internal dataset.
 
 # csemTools 0.2.0
 ## New features
-* Fix curvesCSEMcomp() for statistical comparison of CSEM curves.
+* Added curvesCSEMcomp() for statistical comparison of CSEM curves.
 * Added effect size estimates, confidence intervals, and significance regions.
 * Added unit tests for curvesCSEMcomp().
 

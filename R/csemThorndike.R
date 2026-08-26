@@ -38,32 +38,31 @@
 #'
 #' \donttest{
 #' ## Load data
-#' library(EFA.dimensions)
-#' data("data_RSE")
+#' data("rse_data")
 #'
 #' ## Choosing split by difficulty criteria
-#' RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
+#' RSE.namesHalf <- checkSplit(data = rse_data, method = "difficulty")
 #'
 #' RSE.namesHalf$half1
 #' RSE.namesHalf$half2
 #'
 #' # Thorndike csem, basic ouput
-#' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
-#' half2 = data_RSE[, RSE.namesHalf$half2],
+#' csemThorndike(half1 = rse_data[, RSE.namesHalf$half1],
+#' half2 = rse_data[, RSE.namesHalf$half2],
 #' smooth = FALSE,
 #' ci = FALSE)
 #'
 #' # Thorndike csem, smoothing and binned score
-#' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
-#' half2 = data_RSE[, RSE.namesHalf$half2],
+#' csemThorndike(half1 = rse_data[, RSE.namesHalf$half1],
+#' half2 = rse_data[, RSE.namesHalf$half2],
 #' smooth = TRUE,
 #' degree = 2,
 #' ci = FALSE,
 #' bin.score = 5)
 #'
 #' # Thorndike csem, smoothing, binned score, and confidence interval
-#' csemThorndike(half1 = data_RSE[, RSE.namesHalf$half1],
-#' half2 = data_RSE[, RSE.namesHalf$half2],
+#' csemThorndike(half1 = rse_data[, RSE.namesHalf$half1],
+#' half2 = rse_data[, RSE.namesHalf$half2],
 #' smooth = TRUE,
 #' degree = 2,
 #' ci = TRUE,

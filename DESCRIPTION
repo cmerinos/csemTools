@@ -1,7 +1,7 @@
 Package: csemTools
 Type: Package
 Title: Conditional Standard Error of Measurement Tools for Test Scores
-Version: 0.3.0
+Version: 0.2.1
 Authors@R: c(
     person(
       "Cesar", "Merino-Soto",
@@ -35,7 +35,6 @@ Imports:
     rlang,
     patchwork
 Suggests:
-    EFA.dimensions,
     psych,
     psychTools,
     MBESS,
@@ -44,3 +43,5 @@ Suggests:
     zoo,
     testthat (>= 3.0.0),
 Config/testthat/edition: 3
+Depends: 
+    R (>= 3.5)
