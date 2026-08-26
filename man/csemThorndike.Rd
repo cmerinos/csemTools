@@ -61,8 +61,7 @@ filled with the last valid observation (carried forward) for better readability.
 
 \donttest{
 ## Load data
-library(EFA.dimensions)
-data("data_RSE")
+data("rse_data")
 
 ## Choosing split by difficulty criteria
 RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")

@@ -70,8 +70,7 @@ This provides smoothed CSEM values along the score scale.
 \donttest{
 #Basic use
 ## Load data
-library(EFA.dimensions)
-data("data_RSE")
+data("rse_data")
 
 ## Split in two halves
 RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")

@@ -17,8 +17,7 @@
 #' @examples
 #' \donttest{
 #' ## Load data
-#' library(EFA.dimensions)
-#' data("data_RSE")
+#' data("rse_data")
 #'
 #' ## Check split
 #' checkSplit(data = data_RSE, method = "ritc")

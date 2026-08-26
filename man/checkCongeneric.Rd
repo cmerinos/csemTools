@@ -41,8 +41,7 @@ Bootstrap confidence intervals are obtained via the percentile method.
 set.seed(123)
 \donttest{
 ## Load data
-library(EFA.dimensions)
-data("data_RSE")
+data("rse_data")
 
 ## Check split: difficulty criteria
 RSE.namesHalf <- checkSplit(data = data_RSE, method = "difficulty")
