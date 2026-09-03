@@ -1,3 +1,8 @@
+# csemTools 0.2.2
+
+## New features
+* Added scaleCSEMWood(): CSEM for scale scores using delta method, from Woodruff, Traynor, Cui, & Fang (2013) method
+
 # csemTools 0.2.1
 
 ## Maintenance

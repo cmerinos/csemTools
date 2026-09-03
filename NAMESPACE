@@ -23,6 +23,7 @@ export(kr21)
 export(plotCSEM)
 export(polynomialDegree)
 export(scaleCSEM)
+export(scaleCSEMWood)
 export(scoreCSEM)
 export(stdCSEM)
 importFrom(boot,
