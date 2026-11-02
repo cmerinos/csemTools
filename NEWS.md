@@ -2,6 +2,8 @@
 
 ## New features
 * Added scaleCSEMWood(): CSEM for scale scores using delta method, from Woodruff, Traynor, Cui, & Fang (2013) method
+* Added infoCSEM(): Computes an approximate conditional information function from standardized conditional SEM values as defined by Raju et al. (2007). It use Nicewander (2018a, 2018b)'s approach. 
+
 
 # csemTools 0.2.1
 
